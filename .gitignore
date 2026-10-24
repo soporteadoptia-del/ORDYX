@@ -28,3 +28,6 @@ apps/mobile/android/
 !.env.example
 supabase/.temp/
 supabase/.branches/
+
+# Copias de seguridad con datos (no versionar)
+backups/
