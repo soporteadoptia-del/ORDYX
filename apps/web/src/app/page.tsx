@@ -1,69 +1,112 @@
-import Image from "next/image";
+import { BRAND } from '@ordyx/shared';
+import Image from 'next/image';
+import { Suspense } from 'react';
+import { DownloadSection } from '@/components/DownloadSection';
+import { Faq } from '@/components/Faq';
+
+const FEATURES = [
+  { title: 'Reproductor de verdad', text: 'Segundo plano, controles en la pantalla de bloqueo, cola, aleatorio y repetición. Retoma donde lo dejaste.' },
+  { title: 'Playlists a tu manera', text: 'Crea, ordena y comparte playlists públicas o privadas. Guarda las de otras personas.' },
+  { title: 'Artistas independientes', text: 'Descubre música publicada directamente por sus autores, revisada antes de llegar al catálogo.' },
+  { title: 'Comentarios en el momento justo', text: 'Comenta una canción y ánclalo al segundo exacto que te ha gustado.' },
+  { title: 'Tu biblioteca en todos tus dispositivos', text: 'Favoritos, historial y playlists sincronizados con tu cuenta.' },
+  { title: 'Publica tu música', text: 'Si eres artista, sube tus canciones con su portada y licencia, y sigue sus reproducciones válidas.' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name: BRAND.name,
+  operatingSystem: 'Android, iOS',
+  applicationCategory: 'MusicApplication',
+  description: BRAND.description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+};
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <section className="aurora relative overflow-hidden">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 sm:px-6 md:grid-cols-[1.1fr_0.9fr] md:pt-24">
+          <div className="space-y-6">
+            <p className="inline-flex rounded-full border border-line bg-surface/60 px-3 py-1 text-xs font-semibold tracking-wide text-accent-strong">
+              GRATIS · ANDROID E IPHONE
+            </p>
+            <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
+              Tu música. <span className="text-gradient">Artistas que aún no conoces.</span>
+            </h1>
+            <p className="max-w-xl text-lg text-muted">{BRAND.description}</p>
+            <div className="flex flex-wrap gap-3">
+              <a href="#descargar" className="btn-primary rounded-full px-7 py-3.5 font-bold text-white shadow-lg shadow-accent/30">
+                Descargar la app
+              </a>
+              <a href="#funciones" className="rounded-full border border-line px-7 py-3.5 font-semibold hover:bg-surface">
+                Ver funciones
+              </a>
+            </div>
+          </div>
+          <div className="relative mx-auto flex gap-4">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/screenshots/mobile-signin.png"
+              alt="Captura real de la app: pantalla de inicio de sesión"
+              width={390}
+              height={844}
+              priority
+              className="w-56 rounded-[2rem] border border-line shadow-2xl shadow-accent/20 sm:w-64"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <Image
+              src="/screenshots/mobile-signup.png"
+              alt="Captura real de la app: registro de cuenta"
+              width={390}
+              height={844}
+              className="mt-16 hidden w-56 rounded-[2rem] border border-line shadow-2xl sm:block sm:w-64"
+            />
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section id="descargar" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6" aria-labelledby="descargar-titulo">
+        <h2 id="descargar-titulo" className="mb-2 text-3xl font-extrabold tracking-tight">
+          Descarga {BRAND.name}
+        </h2>
+        <p className="mb-8 text-muted">Elige tu dispositivo. Solo mostramos versiones publicadas y verificadas.</p>
+        <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-surface" aria-label="Cargando versiones" />}>
+          <DownloadSection />
+        </Suspense>
+      </section>
+
+      <section id="funciones" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6">
+        <h2 className="mb-10 text-3xl font-extrabold tracking-tight">Todo lo que necesitas para escuchar y descubrir</h2>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f) => (
+            <article key={f.title} className="glass rounded-[var(--radius-card)] p-6">
+              <h3 className="mb-2 text-lg font-bold">{f.title}</h3>
+              <p className="text-sm text-muted">{f.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6" aria-labelledby="req">
+        <h2 id="req" className="mb-6 text-2xl font-bold">Requisitos mínimos</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-line p-5">
+            <h3 className="font-semibold">Android</h3>
+            <p className="text-sm text-muted">Android 7.0 (API 24) o superior · unos 150 MB libres · conexión a internet para reproducir.</p>
+          </div>
+          <div className="rounded-2xl border border-line p-5">
+            <h3 className="font-semibold">iPhone y iPad</h3>
+            <p className="text-sm text-muted">iOS / iPadOS 15.1 o superior · conexión a internet para reproducir.</p>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-subtle">Los requisitos exactos de cada versión se muestran junto a su botón de descarga.</p>
+      </section>
+
+      <section id="preguntas" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6">
+        <h2 className="mb-8 text-3xl font-extrabold tracking-tight">Preguntas frecuentes</h2>
+        <Faq />
+      </section>
+    </>
   );
 }
