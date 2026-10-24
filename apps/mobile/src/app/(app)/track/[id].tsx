@@ -123,7 +123,7 @@ export default function TrackScreen() {
         )}
         ListEmptyComponent={comments.isLoading ? <Loading /> : <EmptyState icon="chatbubbles-outline" title="Sé la primera persona en comentar" />}
         onEndReached={() => comments.hasNextPage && !comments.isFetchingNextPage && comments.fetchNextPage()}
-        ListFooterComponent={comments.isFetchingNextPage ? <ActivityIndicator color={colors.text} /> : null}
+        ListFooterComponent={comments.isFetchingNextPage ? <ActivityIndicator color={colors.text} /> : undefined}
         contentContainerStyle={{ paddingBottom: spacing.xxl }}
       />
       <View style={styles.composer}>

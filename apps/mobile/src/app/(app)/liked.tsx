@@ -44,7 +44,7 @@ export default function Liked() {
         ListEmptyComponent={<EmptyState icon="heart-outline" title="Aún no tienes favoritos" message="Pulsa el corazón en cualquier canción para guardarla aquí." />}
         renderItem={({ item, index }) => <TrackRow track={item} onPress={() => void playList(tracks, index, { type: 'library' })} />}
         onEndReached={() => q.hasNextPage && !q.isFetchingNextPage && q.fetchNextPage()}
-        ListFooterComponent={q.isFetchingNextPage ? <ActivityIndicator color={colors.text} /> : null}
+        ListFooterComponent={q.isFetchingNextPage ? <ActivityIndicator color={colors.text} /> : undefined}
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
       />
     </>

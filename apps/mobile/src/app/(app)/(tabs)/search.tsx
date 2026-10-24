@@ -145,7 +145,7 @@ export default function Search() {
           onEndReached={() => results.hasNextPage && !results.isFetchingNextPage && results.fetchNextPage()}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={<EmptyState icon="search-outline" title={`Sin resultados para «${query}»`} message="Prueba con otras palabras o revisa la ortografía." />}
-          ListFooterComponent={results.isFetchingNextPage ? <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} /> : null}
+          ListFooterComponent={results.isFetchingNextPage ? <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} /> : undefined}
           renderItem={({ item }) => (
             <Pressable onPress={() => void open(item)} style={({ pressed }) => [styles.result, pressed && { backgroundColor: colors.surface }]} accessibilityRole="button">
               <Artwork

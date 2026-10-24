@@ -124,8 +124,10 @@ export interface Playlist {
   cover_path: string | null;
   is_public: boolean;
   is_featured: boolean;
+  is_collaborative: boolean;
   track_count: number;
   duration_ms: number;
+  save_count: number;
   created_at: ISODate;
   updated_at: ISODate;
 }

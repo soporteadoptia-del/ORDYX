@@ -106,7 +106,7 @@ export default function ArtistScreen() {
                 </View>
               ) : null}
             </>
-          ) : null
+          ) : undefined
         }
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
       />

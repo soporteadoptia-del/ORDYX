@@ -1,5 +1,5 @@
 import { formatDuration } from '@ordyx/shared';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PanResponder, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { colors, spacing } from '@/theme';
 import { Text } from './ui';
@@ -8,31 +8,32 @@ import { Text } from './ui';
 export function SeekBar({ positionMs, durationMs, onSeek }: { positionMs: number; durationMs: number; onSeek: (ms: number) => void }) {
   const [width, setWidth] = useState(1);
   const [dragMs, setDragMs] = useState<number | null>(null);
-  const widthRef = useRef(1);
-  const durationRef = useRef(durationMs);
-  durationRef.current = durationMs;
-  const startX = useRef(0);
+  // Los manejadores del gesto leen los valores actuales a través de refs (solo en eventos, no al renderizar).
+  const latest = useRef({ width: 1, durationMs, onSeek, startX: 0 });
+  useEffect(() => {
+    latest.current.durationMs = durationMs;
+    latest.current.onSeek = onSeek;
+  }, [durationMs, onSeek]);
 
-  const toMs = (x: number) => Math.max(0, Math.min(1, x / widthRef.current)) * durationRef.current;
-
-  const responder = useRef(
-    PanResponder.create({
+  // El ref solo se lee dentro de los manejadores del gesto (eventos), nunca durante el render.
+  // eslint-disable-next-line react-hooks/refs
+  const [responder] = useState(() => {
+    const toMs = (x: number) => Math.max(0, Math.min(1, x / latest.current.width)) * latest.current.durationMs;
+    return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: (e) => {
-        startX.current = e.nativeEvent.locationX;
-        setDragMs(toMs(startX.current));
+        latest.current.startX = e.nativeEvent.locationX;
+        setDragMs(toMs(latest.current.startX));
       },
-      onPanResponderMove: (_e, g) => setDragMs(toMs(startX.current + g.dx)),
+      onPanResponderMove: (_e, g) => setDragMs(toMs(latest.current.startX + g.dx)),
       onPanResponderRelease: (_e, g) => {
-        onSeekRef.current(toMs(startX.current + g.dx));
+        latest.current.onSeek(toMs(latest.current.startX + g.dx));
         setDragMs(null);
       },
       onPanResponderTerminate: () => setDragMs(null),
-    }),
-  ).current;
-  const onSeekRef = useRef(onSeek);
-  onSeekRef.current = onSeek;
+    });
+  });
 
   const shown = dragMs ?? positionMs;
   const ratio = durationMs > 0 ? Math.min(1, shown / durationMs) : 0;
@@ -41,7 +42,7 @@ export function SeekBar({ positionMs, durationMs, onSeek }: { positionMs: number
     <View>
       <View
         onLayout={(e: LayoutChangeEvent) => {
-          widthRef.current = e.nativeEvent.layout.width;
+          latest.current.width = e.nativeEvent.layout.width;
           setWidth(e.nativeEvent.layout.width);
         }}
         style={styles.touch}

@@ -6,8 +6,8 @@ import { colors } from '@/theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 const tabIcon = (focused: IconName, idle: IconName) =>
-  function TabIcon({ color, focused: isFocused }: { color: string; focused: boolean }) {
-    return <Ionicons name={isFocused ? focused : idle} size={24} color={color} />;
+  function TabIcon({ color, focused: isFocused }: { color: unknown; focused: boolean }) {
+    return <Ionicons name={isFocused ? focused : idle} size={24} color={color as string} />;
   };
 
 export default function TabsLayout() {

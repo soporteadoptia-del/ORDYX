@@ -1,4 +1,4 @@
-import { TRACK_STATUS_LABELS, type TrackStatus } from '@ordyx/shared';
+import { TRACK_STATUS_LABELS } from '@ordyx/shared';
 import { useQuery } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
@@ -7,17 +7,9 @@ import { Artwork } from '@/components/Artwork';
 import { Badge, Button, EmptyState, ErrorState, Loading, SectionHeader, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
+import { STATUS_TONE } from '@/lib/track-status';
 import { useAuth } from '@/providers/AuthProvider';
 import { colors, spacing } from '@/theme';
-
-export const STATUS_TONE: Record<TrackStatus, 'accent' | 'warning' | 'success' | 'danger' | 'muted'> = {
-  draft: 'muted',
-  processing: 'accent',
-  pending_review: 'warning',
-  published: 'success',
-  rejected: 'danger',
-  removed: 'danger',
-};
 
 export default function Studio() {
   const { canUpload } = useAuth();

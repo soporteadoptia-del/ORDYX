@@ -70,7 +70,7 @@ export default function Home() {
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />}
       >
-        <LinearGradient colors={['rgba(139,92,246,0.28)', 'transparent']} style={StyleSheet.absoluteFillObject} pointerEvents="none" />
+        <LinearGradient colors={['rgba(139,92,246,0.28)', 'transparent']} style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={styles.header}>
           <Text variant="display" accessibilityRole="header" style={{ flex: 1 }}>
             {greeting()}
