@@ -25,7 +25,9 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
     q: 'Soy artista, ¿cómo publico mi música?',
     a: (
       <>
-        Crea tu cuenta y escríbenos desde <Link href="/ayuda">Ayuda</Link> para activar tu perfil de artista. Solo puedes subir música propia o con autorización de sus titulares; cada canción se revisa antes de publicarse.
+        Crea tu cuenta y escríbenos desde <Link href="/ayuda">Ayuda</Link> para activar tu perfil de
+        artista. Solo puedes subir música propia o con autorización de sus titulares; cada canción
+        se revisa antes de publicarse.
       </>
     ),
   },
@@ -33,7 +35,8 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
     q: 'He encontrado música que me pertenece',
     a: (
       <>
-        Usa el <Link href="/derechos">formulario de reclamación de derechos</Link>. Revisamos cada reclamación y retiramos el contenido cuando procede.
+        Usa el <Link href="/derechos">formulario de reclamación de derechos</Link>. Revisamos cada
+        reclamación y retiramos el contenido cuando procede.
       </>
     ),
   },

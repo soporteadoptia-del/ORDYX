@@ -15,7 +15,13 @@ export function Logo({ size = 48 }: { size?: number }) {
       colors={gradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ width: size, height: size, borderRadius: size * 0.26, alignItems: 'center', justifyContent: 'center' }}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size * 0.26,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
       accessible
       accessibilityRole="image"
       accessibilityLabel="Logotipo de Ordyx"
@@ -34,7 +40,10 @@ export function Logo({ size = 48 }: { size?: number }) {
         }}
       >
         {heights.map((h, i) => (
-          <View key={i} style={{ width: bar, height: size * h, borderRadius: bar / 2, backgroundColor: '#fff' }} />
+          <View
+            key={i}
+            style={{ width: bar, height: size * h, borderRadius: bar / 2, backgroundColor: '#fff' }}
+          />
         ))}
       </View>
     </LinearGradient>

@@ -2,7 +2,16 @@ import { formatCount } from '@ordyx/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { getProfileByUsername, getPublicLikesOf, getPublicPlaylistsOf, getPublishedTracksOf, isBlocked, isFollowing, setBlocked, setFollowing } from '@/api/social';
+import {
+  getProfileByUsername,
+  getPublicLikesOf,
+  getPublicPlaylistsOf,
+  getPublishedTracksOf,
+  isBlocked,
+  isFollowing,
+  setBlocked,
+  setFollowing,
+} from '@/api/social';
 import { Artwork } from '@/components/Artwork';
 import { Carousel } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING } from '@/components/Screen';
@@ -20,21 +29,53 @@ export default function UserProfile() {
   const { session } = useAuth();
   const qc = useQueryClient();
   const toast = useToast();
-  const profile = useQuery({ queryKey: ['user', username], queryFn: () => getProfileByUsername(username) });
+  const profile = useQuery({
+    queryKey: ['user', username],
+    queryFn: () => getProfileByUsername(username),
+  });
   const uid = profile.data?.id;
   const isMe = uid === session?.user.id;
-  const playlists = useQuery({ queryKey: ['user', uid, 'playlists'], queryFn: () => getPublicPlaylistsOf(uid!), enabled: !!uid });
-  const tracks = useQuery({ queryKey: ['user', uid, 'tracks'], queryFn: () => getPublishedTracksOf(uid!), enabled: !!uid });
-  const likes = useQuery({ queryKey: ['user', uid, 'likes'], queryFn: () => getPublicLikesOf(uid!), enabled: !!uid && !isMe });
-  const following = useQuery({ queryKey: ['user', uid, 'following'], queryFn: () => isFollowing(uid!), enabled: !!uid && !isMe });
-  const blocked = useQuery({ queryKey: ['user', uid, 'blocked'], queryFn: () => isBlocked(uid!), enabled: !!uid && !isMe });
+  const playlists = useQuery({
+    queryKey: ['user', uid, 'playlists'],
+    queryFn: () => getPublicPlaylistsOf(uid!),
+    enabled: !!uid,
+  });
+  const tracks = useQuery({
+    queryKey: ['user', uid, 'tracks'],
+    queryFn: () => getPublishedTracksOf(uid!),
+    enabled: !!uid,
+  });
+  const likes = useQuery({
+    queryKey: ['user', uid, 'likes'],
+    queryFn: () => getPublicLikesOf(uid!),
+    enabled: !!uid && !isMe,
+  });
+  const following = useQuery({
+    queryKey: ['user', uid, 'following'],
+    queryFn: () => isFollowing(uid!),
+    enabled: !!uid && !isMe,
+  });
+  const blocked = useQuery({
+    queryKey: ['user', uid, 'blocked'],
+    queryFn: () => isBlocked(uid!),
+    enabled: !!uid && !isMe,
+  });
 
   const refresh = () => void qc.invalidateQueries({ queryKey: ['user'] });
-  const follow = useMutation({ mutationFn: () => setFollowing(uid!, !following.data), onSuccess: refresh, onError: (e) => toast.show(toUserMessage(e), 'error') });
+  const follow = useMutation({
+    mutationFn: () => setFollowing(uid!, !following.data),
+    onSuccess: refresh,
+    onError: (e) => toast.show(toUserMessage(e), 'error'),
+  });
   const block = useMutation({
     mutationFn: () => setBlocked(uid!, !blocked.data),
     onSuccess: () => {
-      toast.show(blocked.data ? 'Usuario desbloqueado' : 'Usuario bloqueado: no verás sus comentarios ni podrá seguirte', 'success');
+      toast.show(
+        blocked.data
+          ? 'Usuario desbloqueado'
+          : 'Usuario bloqueado: no verás sus comentarios ni podrá seguirte',
+        'success',
+      );
       refresh();
     },
     onError: (e) => toast.show(toUserMessage(e), 'error'),
@@ -46,40 +87,92 @@ export default function UserProfile() {
   const trackList = tracks.data ?? [];
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}>
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
+    >
       <Stack.Screen options={{ title: `@${p.username}` }} />
       <View style={styles.header}>
-        <Artwork uri={imageUrl('avatars', p.avatar_path)} size={104} rounded icon="person" seed={p.id} />
+        <Artwork
+          uri={imageUrl('avatars', p.avatar_path)}
+          size={104}
+          rounded
+          icon="person"
+          seed={p.id}
+        />
         <Text variant="title">{p.display_name || p.username}</Text>
         <Text muted>
-          @{p.username} · en Ordyx desde {new Date(p.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+          @{p.username} · en Ordyx desde{' '}
+          {new Date(p.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
         </Text>
         <View style={{ flexDirection: 'row', gap: spacing.xl }}>
-          <Text onPress={() => router.push({ pathname: '/user/[username]/follows', params: { username: p.username, kind: 'followers' } })}>
-            <Text variant="bodyStrong">{formatCount(p.follower_count)}</Text> <Text muted>seguidores</Text>
+          <Text
+            onPress={() =>
+              router.push({
+                pathname: '/user/[username]/follows',
+                params: { username: p.username, kind: 'followers' },
+              })
+            }
+          >
+            <Text variant="bodyStrong">{formatCount(p.follower_count)}</Text>{' '}
+            <Text muted>seguidores</Text>
           </Text>
-          <Text onPress={() => router.push({ pathname: '/user/[username]/follows', params: { username: p.username, kind: 'following' } })}>
-            <Text variant="bodyStrong">{formatCount(p.following_count)}</Text> <Text muted>siguiendo</Text>
+          <Text
+            onPress={() =>
+              router.push({
+                pathname: '/user/[username]/follows',
+                params: { username: p.username, kind: 'following' },
+              })
+            }
+          >
+            <Text variant="bodyStrong">{formatCount(p.following_count)}</Text>{' '}
+            <Text muted>siguiendo</Text>
           </Text>
         </View>
         {p.bio ? <Text style={{ textAlign: 'center' }}>{p.bio}</Text> : null}
         {!isMe ? (
           <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
             {!blocked.data ? (
-              <Button label={following.data ? 'Siguiendo' : 'Seguir'} variant={following.data ? 'secondary' : 'primary'} compact onPress={() => follow.mutate()} loading={follow.isPending} />
+              <Button
+                label={following.data ? 'Siguiendo' : 'Seguir'}
+                variant={following.data ? 'secondary' : 'primary'}
+                compact
+                onPress={() => follow.mutate()}
+                loading={follow.isPending}
+              />
             ) : null}
             <IconButton
               name={blocked.data ? 'lock-open-outline' : 'ban-outline'}
               label={blocked.data ? 'Desbloquear usuario' : 'Bloquear usuario'}
               color={colors.textMuted}
               onPress={() =>
-                Alert.alert(blocked.data ? 'Desbloquear' : 'Bloquear usuario', blocked.data ? `¿Desbloquear a @${p.username}?` : `@${p.username} no podrá seguirte ni comentar en tus canciones, y dejarás de ver sus comentarios.`, [
-                  { text: 'Cancelar', style: 'cancel' },
-                  { text: blocked.data ? 'Desbloquear' : 'Bloquear', style: 'destructive', onPress: () => block.mutate() },
-                ])
+                Alert.alert(
+                  blocked.data ? 'Desbloquear' : 'Bloquear usuario',
+                  blocked.data
+                    ? `¿Desbloquear a @${p.username}?`
+                    : `@${p.username} no podrá seguirte ni comentar en tus canciones, y dejarás de ver sus comentarios.`,
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                      text: blocked.data ? 'Desbloquear' : 'Bloquear',
+                      style: 'destructive',
+                      onPress: () => block.mutate(),
+                    },
+                  ],
+                )
               }
             />
-            <IconButton name="flag-outline" label="Denunciar perfil" color={colors.textMuted} onPress={() => router.push({ pathname: '/report', params: { type: 'profile', id: p.id, label: `@${p.username}` } })} />
+            <IconButton
+              name="flag-outline"
+              label="Denunciar perfil"
+              color={colors.textMuted}
+              onPress={() =>
+                router.push({
+                  pathname: '/report',
+                  params: { type: 'profile', id: p.id, label: `@${p.username}` },
+                })
+              }
+            />
           </View>
         ) : null}
       </View>
@@ -88,7 +181,11 @@ export default function UserProfile() {
         <>
           <SectionHeader title="Canciones publicadas" />
           {trackList.slice(0, 10).map((t, i) => (
-            <TrackRow key={t.id} track={t} onPress={() => void playList(trackList, i, { type: 'profile', id: p.id })} />
+            <TrackRow
+              key={t.id}
+              track={t}
+              onPress={() => void playList(trackList, i, { type: 'profile', id: p.id })}
+            />
           ))}
         </>
       ) : null}
@@ -112,7 +209,11 @@ export default function UserProfile() {
         <>
           <SectionHeader title="Favoritos" />
           {likes.data!.slice(0, 10).map((t, i) => (
-            <TrackRow key={t.id} track={t} onPress={() => void playList(likes.data!, i, { type: 'profile', id: p.id })} />
+            <TrackRow
+              key={t.id}
+              track={t}
+              onPress={() => void playList(likes.data!, i, { type: 'profile', id: p.id })}
+            />
           ))}
         </>
       ) : null}
@@ -120,4 +221,6 @@ export default function UserProfile() {
   );
 }
 
-const styles = StyleSheet.create({ header: { alignItems: 'center', gap: spacing.sm, padding: spacing.xl } });
+const styles = StyleSheet.create({
+  header: { alignItems: 'center', gap: spacing.sm, padding: spacing.xl },
+});

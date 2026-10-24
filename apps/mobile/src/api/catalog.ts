@@ -16,11 +16,15 @@ import {
 const published = () => supabase.from('tracks').select(TRACK_FIELDS).eq('status', 'published');
 
 export async function getNewReleases(limit = 12): Promise<TrackListItem[]> {
-  return unwrap(await published().order('published_at', { ascending: false }).limit(limit)) as unknown as TrackListItem[];
+  return unwrap(
+    await published().order('published_at', { ascending: false }).limit(limit),
+  ) as unknown as TrackListItem[];
 }
 
 export async function getPopularTracks(limit = 12): Promise<TrackListItem[]> {
-  return unwrap(await published().order('play_count', { ascending: false }).limit(limit)) as unknown as TrackListItem[];
+  return unwrap(
+    await published().order('play_count', { ascending: false }).limit(limit),
+  ) as unknown as TrackListItem[];
 }
 
 /** Música independiente: lanzamientos recientes de artistas no verificados (comunidad). */
@@ -28,7 +32,12 @@ export async function getIndependentTracks(limit = 12): Promise<TrackListItem[]>
   const rows = unwrap(
     await supabase
       .from('tracks')
-      .select(TRACK_FIELDS.replace('artist:artists(id,name,slug,image_path)', 'artist:artists!inner(id,name,slug,image_path,is_verified)'))
+      .select(
+        TRACK_FIELDS.replace(
+          'artist:artists(id,name,slug,image_path)',
+          'artist:artists!inner(id,name,slug,image_path,is_verified)',
+        ),
+      )
       .eq('status', 'published')
       .eq('artist.is_verified', false)
       .order('published_at', { ascending: false })
@@ -40,17 +49,24 @@ export async function getIndependentTracks(limit = 12): Promise<TrackListItem[]>
 export async function getTracksByGenre(genreId: number, page = 0): Promise<TrackListItem[]> {
   const [from, to] = range(page, LIMITS.pageSize);
   return unwrap(
-    await published().eq('genre_id', genreId).order('play_count', { ascending: false }).range(from, to),
+    await published()
+      .eq('genre_id', genreId)
+      .order('play_count', { ascending: false })
+      .range(from, to),
   ) as unknown as TrackListItem[];
 }
 
 export async function getTrack(id: string): Promise<TrackDetail> {
-  return unwrap(await supabase.from('tracks').select(TRACK_DETAIL_FIELDS).eq('id', id).single()) as unknown as TrackDetail;
+  return unwrap(
+    await supabase.from('tracks').select(TRACK_DETAIL_FIELDS).eq('id', id).single(),
+  ) as unknown as TrackDetail;
 }
 
 export async function getTracksByIds(ids: string[]): Promise<TrackListItem[]> {
   if (ids.length === 0) return [];
-  const rows = unwrap(await supabase.from('tracks').select(TRACK_FIELDS).in('id', ids)) as unknown as TrackListItem[];
+  const rows = unwrap(
+    await supabase.from('tracks').select(TRACK_FIELDS).in('id', ids),
+  ) as unknown as TrackListItem[];
   const byId = new Map(rows.map((r) => [r.id, r]));
   return ids.map((id) => byId.get(id)).filter((t): t is TrackListItem => Boolean(t));
 }
@@ -112,7 +128,9 @@ export async function getPopularAlbums(limit = 12): Promise<AlbumSummary[]> {
   ) as unknown as AlbumSummary[];
 }
 
-export async function getAlbum(id: string): Promise<AlbumSummary & { description: string | null; tracks: TrackListItem[] }> {
+export async function getAlbum(
+  id: string,
+): Promise<AlbumSummary & { description: string | null; tracks: TrackListItem[] }> {
   const album = unwrap(
     await supabase.from('albums').select(`${ALBUM_FIELDS},description`).eq('id', id).single(),
   ) as unknown as AlbumSummary & { description: string | null };
@@ -123,7 +141,10 @@ export async function getAlbum(id: string): Promise<AlbumSummary & { description
       .eq('album_id', id)
       .order('position'),
   ) as unknown as { position: number; track: TrackListItem | null }[];
-  return { ...album, tracks: items.map((i) => i.track).filter((t): t is TrackListItem => t !== null) };
+  return {
+    ...album,
+    tracks: items.map((i) => i.track).filter((t): t is TrackListItem => t !== null),
+  };
 }
 
 export async function getFeaturedPlaylists(limit = 12): Promise<PlaylistSummary[]> {
@@ -140,10 +161,16 @@ export async function getFeaturedPlaylists(limit = 12): Promise<PlaylistSummary[
 }
 
 export async function getGenres(): Promise<Genre[]> {
-  return unwrap(await supabase.from('genres').select('id,slug,name').order('sort_order')) as Genre[];
+  return unwrap(
+    await supabase.from('genres').select('id,slug,name').order('sort_order'),
+  ) as Genre[];
 }
 
-export async function searchCatalog(query: string, kind: SearchKind | null, page: number): Promise<SearchResult[]> {
+export async function searchCatalog(
+  query: string,
+  kind: SearchKind | null,
+  page: number,
+): Promise<SearchResult[]> {
   return unwrap(
     await supabase.rpc('search_catalog', {
       p_query: query,

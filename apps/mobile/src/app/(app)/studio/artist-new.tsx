@@ -34,11 +34,24 @@ export default function ArtistNew() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}>
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}
+    >
       <Stack.Screen options={{ title: 'Nuevo artista' }} />
-      <Text muted>El nombre artístico se mostrará en tus canciones. No uses el nombre de otro artista: la suplantación conlleva la retirada del contenido.</Text>
+      <Text muted>
+        El nombre artístico se mostrará en tus canciones. No uses el nombre de otro artista: la
+        suplantación conlleva la retirada del contenido.
+      </Text>
       <TextField label="Nombre artístico" value={name} onChangeText={setName} maxLength={80} />
-      <TextField label="Biografía (opcional)" value={bio} onChangeText={setBio} multiline maxLength={2000} style={{ minHeight: 110, textAlignVertical: 'top' }} />
+      <TextField
+        label="Biografía (opcional)"
+        value={bio}
+        onChangeText={setBio}
+        multiline
+        maxLength={2000}
+        style={{ minHeight: 110, textAlignVertical: 'top' }}
+      />
       {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
       <Button label="Crear artista" onPress={save} loading={saving} />
     </ScrollView>

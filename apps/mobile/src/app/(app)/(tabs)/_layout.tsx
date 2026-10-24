@@ -27,10 +27,22 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Inicio', tabBarIcon: tabIcon('home', 'home-outline') }} />
-      <Tabs.Screen name="search" options={{ title: 'Buscar', tabBarIcon: tabIcon('search', 'search-outline') }} />
-      <Tabs.Screen name="library" options={{ title: 'Biblioteca', tabBarIcon: tabIcon('library', 'library-outline') }} />
-      <Tabs.Screen name="me" options={{ title: 'Perfil', tabBarIcon: tabIcon('person-circle', 'person-circle-outline') }} />
+      <Tabs.Screen
+        name="index"
+        options={{ title: 'Inicio', tabBarIcon: tabIcon('home', 'home-outline') }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{ title: 'Buscar', tabBarIcon: tabIcon('search', 'search-outline') }}
+      />
+      <Tabs.Screen
+        name="library"
+        options={{ title: 'Biblioteca', tabBarIcon: tabIcon('library', 'library-outline') }}
+      />
+      <Tabs.Screen
+        name="me"
+        options={{ title: 'Perfil', tabBarIcon: tabIcon('person-circle', 'person-circle-outline') }}
+      />
     </Tabs>
   );
 }

@@ -1,20 +1,43 @@
-import { formatDuration, LICENSE_LABELS, TRACK_STATUS_LABELS, TRACK_STATUSES, type TrackLicense, type TrackStatus } from '@ordyx/shared';
+import {
+  formatDuration,
+  LICENSE_LABELS,
+  TRACK_STATUS_LABELS,
+  TRACK_STATUSES,
+  type TrackLicense,
+  type TrackStatus,
+} from '@ordyx/shared';
 import Link from 'next/link';
-import { Badge, btnDanger, btnGhost, btnPrimary, Card, Empty, Flash, input, PageTitle } from '@/components/ui';
+import {
+  Badge,
+  btnDanger,
+  btnGhost,
+  btnPrimary,
+  Card,
+  Empty,
+  Flash,
+  input,
+  PageTitle,
+} from '@/components/ui';
 import { requireStaff } from '@/lib/auth';
 import { serverClient } from '@/lib/supabase-server';
 import { reviewTrack } from '../actions';
 
-type Props = { searchParams: Promise<{ estado?: string; q?: string; ok?: string; error?: string }> };
+type Props = {
+  searchParams: Promise<{ estado?: string; q?: string; ok?: string; error?: string }>;
+};
 
 export default async function Tracks({ searchParams }: Props) {
   await requireStaff();
   const sp = await searchParams;
-  const status = (TRACK_STATUSES as readonly string[]).includes(sp.estado ?? '') ? (sp.estado as TrackStatus) : 'pending_review';
+  const status = (TRACK_STATUSES as readonly string[]).includes(sp.estado ?? '')
+    ? (sp.estado as TrackStatus)
+    : 'pending_review';
   const supabase = await serverClient();
   let query = supabase
     .from('tracks')
-    .select('id,title,status,description,duration_ms,audio_path,audio_mime,audio_size_bytes,license,rights_holder,rights_confirmed_at,review_note,is_demo,created_at,artist:artists(name,is_verified),owner:profiles(username)')
+    .select(
+      'id,title,status,description,duration_ms,audio_path,audio_mime,audio_size_bytes,license,rights_holder,rights_confirmed_at,review_note,is_demo,created_at,artist:artists(name,is_verified),owner:profiles(username)',
+    )
     .eq('status', status)
     .order('created_at', { ascending: true })
     .limit(50);
@@ -32,11 +55,18 @@ export default async function Tracks({ searchParams }: Props) {
 
   return (
     <>
-      <PageTitle title="Canciones" subtitle="Revisa que el audio y los metadatos sean correctos y que el contenido no infrinja derechos." />
+      <PageTitle
+        title="Canciones"
+        subtitle="Revisa que el audio y los metadatos sean correctos y que el contenido no infrinja derechos."
+      />
       <Flash ok={sp.ok} error={sp.error ?? error?.message} />
       <div className="mb-5 flex flex-wrap gap-2">
         {TRACK_STATUSES.map((s) => (
-          <Link key={s} href={`/canciones?estado=${s}`} className={`${btnGhost} ${s === status ? 'border-accent text-accent-strong' : ''}`}>
+          <Link
+            key={s}
+            href={`/canciones?estado=${s}`}
+            className={`${btnGhost} ${s === status ? 'border-accent text-accent-strong' : ''}`}
+          >
             {TRACK_STATUS_LABELS[s]}
           </Link>
         ))}
@@ -60,21 +90,40 @@ export default async function Tracks({ searchParams }: Props) {
                     {t.is_demo ? <Badge value="draft" label="demo" /> : null}
                   </div>
                   <p className="text-sm text-muted">
-                    {artist?.name} {artist?.is_verified ? '✓' : ''} · subida por @{owner?.username} · {formatDuration(t.duration_ms)} · {t.audio_mime ?? '—'} ·{' '}
+                    {artist?.name} {artist?.is_verified ? '✓' : ''} · subida por @{owner?.username}{' '}
+                    · {formatDuration(t.duration_ms)} · {t.audio_mime ?? '—'} ·{' '}
                     {t.audio_size_bytes ? `${(t.audio_size_bytes / 1048576).toFixed(1)} MB` : '—'}
                   </p>
                   <p className="text-sm text-muted">
-                    Licencia: {LICENSE_LABELS[t.license as TrackLicense] ?? t.license} · Titular: {t.rights_holder ?? '—'} · Derechos confirmados:{' '}
-                    {t.rights_confirmed_at ? new Date(t.rights_confirmed_at).toLocaleString('es-ES') : 'no'}
+                    Licencia: {LICENSE_LABELS[t.license as TrackLicense] ?? t.license} · Titular:{' '}
+                    {t.rights_holder ?? '—'} · Derechos confirmados:{' '}
+                    {t.rights_confirmed_at
+                      ? new Date(t.rights_confirmed_at).toLocaleString('es-ES')
+                      : 'no'}
                   </p>
                   {t.description ? <p className="text-sm">{t.description}</p> : null}
-                  {t.review_note ? <p className="text-sm text-warning">Nota anterior: {t.review_note}</p> : null}
-                  {signed.get(t.id) ? <audio controls preload="none" src={signed.get(t.id)} className="mt-2 w-full max-w-md" /> : <p className="text-sm text-danger">Sin archivo de audio</p>}
+                  {t.review_note ? (
+                    <p className="text-sm text-warning">Nota anterior: {t.review_note}</p>
+                  ) : null}
+                  {signed.get(t.id) ? (
+                    <audio
+                      controls
+                      preload="none"
+                      src={signed.get(t.id)}
+                      className="mt-2 w-full max-w-md"
+                    />
+                  ) : (
+                    <p className="text-sm text-danger">Sin archivo de audio</p>
+                  )}
                 </div>
                 <form action={reviewTrack} className="flex w-full flex-col gap-2 sm:w-72">
                   <input type="hidden" name="id" value={t.id} />
                   <input type="hidden" name="back" value={back} />
-                  <input name="note" placeholder="Nota para el artista (opcional)" className={input} />
+                  <input
+                    name="note"
+                    placeholder="Nota para el artista (opcional)"
+                    className={input}
+                  />
                   <div className="flex flex-wrap gap-2">
                     {t.status !== 'published' && t.status !== 'removed' ? (
                       <button name="decision" value="publish" className={btnPrimary}>

@@ -5,7 +5,10 @@ import { toPlayable, usePlayer, type PlayContext, type PlayableTrack } from './s
 export function playList(tracks: TrackListItem[], index: number, context: PlayContext) {
   const target = tracks[index];
   const playable = tracks.map(toPlayable).filter((t): t is PlayableTrack => t !== null);
-  const start = Math.max(0, playable.findIndex((t) => t.id === target?.id));
+  const start = Math.max(
+    0,
+    playable.findIndex((t) => t.id === target?.id),
+  );
   return usePlayer.getState().playTracks(playable, start, context);
 }
 

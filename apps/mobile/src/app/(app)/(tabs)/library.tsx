@@ -5,7 +5,12 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { getFollowedArtists, getMyPlaylists, getSavedAlbums, getSavedPlaylists } from '@/api/library';
+import {
+  getFollowedArtists,
+  getMyPlaylists,
+  getSavedAlbums,
+  getSavedPlaylists,
+} from '@/api/library';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import { Chip, EmptyState, ErrorState, IconButton, Loading, Text } from '@/components/ui';
@@ -19,8 +24,16 @@ export default function Library() {
   const [tab, setTab] = useState<Tab>('playlists');
   const mine = useQuery({ queryKey: ['library', 'myPlaylists'], queryFn: getMyPlaylists });
   const saved = useQuery({ queryKey: ['library', 'savedPlaylists'], queryFn: getSavedPlaylists });
-  const artists = useQuery({ queryKey: ['library', 'artists'], queryFn: getFollowedArtists, enabled: tab === 'artists' });
-  const albums = useQuery({ queryKey: ['library', 'albums'], queryFn: getSavedAlbums, enabled: tab === 'albums' });
+  const artists = useQuery({
+    queryKey: ['library', 'artists'],
+    queryFn: getFollowedArtists,
+    enabled: tab === 'artists',
+  });
+  const albums = useQuery({
+    queryKey: ['library', 'albums'],
+    queryFn: getSavedAlbums,
+    enabled: tab === 'albums',
+  });
   const active = tab === 'playlists' ? mine : tab === 'artists' ? artists : albums;
 
   return (
@@ -29,16 +42,38 @@ export default function Library() {
         <Text variant="display" accessibilityRole="header" style={{ flex: 1 }}>
           Tu biblioteca
         </Text>
-        <IconButton name="add" size={28} label="Crear playlist" onPress={() => router.push('/playlist/new')} />
+        <IconButton
+          name="add"
+          size={28}
+          label="Crear playlist"
+          onPress={() => router.push('/playlist/new')}
+        />
       </View>
       <View style={styles.tabs}>
-        <Chip label="Playlists" selected={tab === 'playlists'} onPress={() => setTab('playlists')} />
+        <Chip
+          label="Playlists"
+          selected={tab === 'playlists'}
+          onPress={() => setTab('playlists')}
+        />
         <Chip label="Artistas" selected={tab === 'artists'} onPress={() => setTab('artists')} />
         <Chip label="Álbumes" selected={tab === 'albums'} onPress={() => setTab('albums')} />
       </View>
       <ScrollView
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING, flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => void Promise.all([mine.refetch(), saved.refetch(), artists.refetch(), albums.refetch()])} tintColor={colors.text} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={false}
+            onRefresh={() =>
+              void Promise.all([
+                mine.refetch(),
+                saved.refetch(),
+                artists.refetch(),
+                albums.refetch(),
+              ])
+            }
+            tintColor={colors.text}
+          />
+        }
       >
         {tab === 'playlists' ? (
           <>
@@ -67,7 +102,14 @@ export default function Library() {
                 key={p.id}
                 title={p.title}
                 subtitle={`Playlist · ${p.owner?.username === undefined ? '' : `@${p.owner?.username} · `}${p.track_count} canciones${p.is_public ? '' : ' · Privada'}`}
-                art={<Artwork uri={imageUrl('playlist-images', p.cover_path)} size={56} icon="list" seed={p.id} />}
+                art={
+                  <Artwork
+                    uri={imageUrl('playlist-images', p.cover_path)}
+                    size={56}
+                    icon="list"
+                    seed={p.id}
+                  />
+                }
                 onPress={() => router.push(`/playlist/${p.id}`)}
               />
             ))}
@@ -79,7 +121,15 @@ export default function Library() {
                 key={a.id}
                 title={a.name}
                 subtitle={`Artista · ${formatCount(a.follower_count)} seguidores`}
-                art={<Artwork uri={imageUrl('covers', a.image_path)} size={56} rounded icon="person" seed={a.id} />}
+                art={
+                  <Artwork
+                    uri={imageUrl('covers', a.image_path)}
+                    size={56}
+                    rounded
+                    icon="person"
+                    seed={a.id}
+                  />
+                }
                 onPress={() => router.push(`/artist/${a.id}`)}
               />
             ))
@@ -90,25 +140,55 @@ export default function Library() {
                 key={a.id}
                 title={a.title}
                 subtitle={`Álbum · ${a.artist?.name ?? ''}`}
-                art={<Artwork uri={imageUrl('covers', a.cover_path)} size={56} icon="disc" seed={a.id} />}
+                art={
+                  <Artwork
+                    uri={imageUrl('covers', a.cover_path)}
+                    size={56}
+                    icon="disc"
+                    seed={a.id}
+                  />
+                }
                 onPress={() => router.push(`/album/${a.id}`)}
               />
             ))
           : null}
         {active.isLoading ? <Loading /> : null}
-        {active.error ? <ErrorState message={toUserMessage(active.error)} onRetry={() => active.refetch()} /> : null}
-        {tab === 'artists' && artists.data?.length === 0 ? (
-          <EmptyState icon="person-add-outline" title="Aún no sigues a ningún artista" message="Sigue a tus artistas favoritos para encontrarlos aquí." />
+        {active.error ? (
+          <ErrorState message={toUserMessage(active.error)} onRetry={() => active.refetch()} />
         ) : null}
-        {tab === 'albums' && albums.data?.length === 0 ? <EmptyState icon="disc-outline" title="No has guardado álbumes" /> : null}
+        {tab === 'artists' && artists.data?.length === 0 ? (
+          <EmptyState
+            icon="person-add-outline"
+            title="Aún no sigues a ningún artista"
+            message="Sigue a tus artistas favoritos para encontrarlos aquí."
+          />
+        ) : null}
+        {tab === 'albums' && albums.data?.length === 0 ? (
+          <EmptyState icon="disc-outline" title="No has guardado álbumes" />
+        ) : null}
       </ScrollView>
     </Screen>
   );
 }
 
-function Row({ title, subtitle, art, onPress }: { title: string; subtitle: string; art: React.ReactNode; onPress: () => void }) {
+function Row({
+  title,
+  subtitle,
+  art,
+  onPress,
+}: {
+  title: string;
+  subtitle: string;
+  art: React.ReactNode;
+  onPress: () => void;
+}) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}, ${subtitle}`} style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.surface }]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}, ${subtitle}`}
+      style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.surface }]}
+    >
       {art}
       <View style={{ flex: 1 }}>
         <Text variant="bodyStrong" numberOfLines={1}>
@@ -123,8 +203,30 @@ function Row({ title, subtitle, art, onPress }: { title: string; subtitle: strin
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
-  tabs: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  gradientArt: { width: 56, height: 56, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  tabs: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  gradientArt: {
+    width: 56,
+    height: 56,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

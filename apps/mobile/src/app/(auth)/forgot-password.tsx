@@ -30,11 +30,21 @@ export default function ForgotPassword() {
   return (
     <AuthShell
       title="Recupera tu contraseña"
-      subtitle={sent ? 'Si existe una cuenta con ese correo, recibirás un enlace para crear una contraseña nueva. Ábrelo en este dispositivo.' : 'Te enviaremos un enlace para restablecerla.'}
+      subtitle={
+        sent
+          ? 'Si existe una cuenta con ese correo, recibirás un enlace para crear una contraseña nueva. Ábrelo en este dispositivo.'
+          : 'Te enviaremos un enlace para restablecerla.'
+      }
     >
       {!sent ? (
         <>
-          <TextField label="Correo electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+          <TextField
+            label="Correo electrónico"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
           {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
           <Button label="Enviar enlace" onPress={submit} loading={loading} />
         </>

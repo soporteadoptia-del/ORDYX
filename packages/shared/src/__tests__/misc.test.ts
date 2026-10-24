@@ -64,12 +64,22 @@ describe('validación', () => {
     const base = { email: 'a@b.com', password: 'secreto123', username: 'ana' };
     expect(signUpSchema.safeParse({ ...base, acceptTerms: true }).success).toBe(true);
     expect(signUpSchema.safeParse({ ...base, acceptTerms: false }).success).toBe(false);
-    expect(signUpSchema.safeParse({ ...base, password: 'corta', acceptTerms: true }).success).toBe(false);
+    expect(signUpSchema.safeParse({ ...base, password: 'corta', acceptTerms: true }).success).toBe(
+      false,
+    );
   });
   it('archivo de audio', () => {
-    expect(audioFileSchema.safeParse({ name: 'a.mp3', size: 1000, mimeType: 'audio/mpeg' }).success).toBe(true);
-    expect(audioFileSchema.safeParse({ name: 'a.exe', size: 1000, mimeType: 'application/x-msdownload' }).success).toBe(false);
-    expect(audioFileSchema.safeParse({ name: 'a.mp3', size: 500 * 1024 * 1024, mimeType: 'audio/mpeg' }).success).toBe(false);
+    expect(
+      audioFileSchema.safeParse({ name: 'a.mp3', size: 1000, mimeType: 'audio/mpeg' }).success,
+    ).toBe(true);
+    expect(
+      audioFileSchema.safeParse({ name: 'a.exe', size: 1000, mimeType: 'application/x-msdownload' })
+        .success,
+    ).toBe(false);
+    expect(
+      audioFileSchema.safeParse({ name: 'a.mp3', size: 500 * 1024 * 1024, mimeType: 'audio/mpeg' })
+        .success,
+    ).toBe(false);
   });
   it('versiones: un APK necesita hash y tamaño, y el método debe cuadrar con la plataforma', () => {
     const v = {
@@ -88,8 +98,12 @@ describe('validación', () => {
     expect(appVersionSchema.safeParse(v).success).toBe(true);
     expect(appVersionSchema.safeParse({ ...v, sha256: null }).success).toBe(false);
     expect(appVersionSchema.safeParse({ ...v, install_method: 'testflight' }).success).toBe(false);
-    expect(appVersionSchema.safeParse({ ...v, download_url: 'http://insecure' }).success).toBe(false);
-    expect(appVersionSchema.safeParse({ ...v, platform: 'ios', install_method: 'testflight' }).success).toBe(true);
+    expect(appVersionSchema.safeParse({ ...v, download_url: 'http://insecure' }).success).toBe(
+      false,
+    );
+    expect(
+      appVersionSchema.safeParse({ ...v, platform: 'ios', install_method: 'testflight' }).success,
+    ).toBe(true);
   });
 });
 
@@ -102,7 +116,9 @@ describe('utilidades', () => {
     expect(fileExtension('Song.MP3')).toBe('mp3');
     expect(toUserMessage({ message: 'ordyx:rate_limited' })).toMatch(/demasiado rápido/);
     expect(toUserMessage({ message: 'x', code: '42501' })).toMatch(/permiso/);
-    expect(toUserMessage({ message: 'Invalid login credentials' })).toBe('Correo o contraseña incorrectos.');
+    expect(toUserMessage({ message: 'Invalid login credentials' })).toBe(
+      'Correo o contraseña incorrectos.',
+    );
     expect(toUserMessage(new TypeError('Network request failed'))).toMatch(/Sin conexión/);
   });
 });

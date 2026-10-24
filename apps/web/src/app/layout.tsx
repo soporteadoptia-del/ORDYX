@@ -8,7 +8,10 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
-  title: { default: `${BRAND.name} — Música independiente y tus playlists`, template: `%s · ${BRAND.name}` },
+  title: {
+    default: `${BRAND.name} — Música independiente y tus playlists`,
+    template: `%s · ${BRAND.name}`,
+  },
   description: BRAND.description,
   applicationName: BRAND.name,
   icons: { icon: '/brand/favicon.png', apple: '/brand/apple-touch-icon.png' },
@@ -32,7 +35,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="es">
       <body className="min-h-screen">
-        <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-fg focus:px-3 focus:py-2 focus:text-ink">
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-fg focus:px-3 focus:py-2 focus:text-ink"
+        >
           Saltar al contenido
         </a>
         {config.maintenanceMessage ? (
@@ -42,7 +48,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         ) : null}
         <SiteHeader name={config.platformName} />
         <main id="contenido">{children}</main>
-        <SiteFooter name={config.platformName} supportEmail={config.supportEmail} socialLinks={config.socialLinks} />
+        <SiteFooter
+          name={config.platformName}
+          supportEmail={config.supportEmail}
+          socialLinks={config.socialLinks}
+        />
       </body>
     </html>
   );

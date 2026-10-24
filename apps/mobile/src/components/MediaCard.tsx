@@ -14,21 +14,44 @@ export interface CardItem {
   onPress: () => void;
 }
 
-export const MediaCard = memo(function MediaCard({ item, size = 148 }: { item: CardItem; size?: number }) {
+export const MediaCard = memo(function MediaCard({
+  item,
+  size = 148,
+}: {
+  item: CardItem;
+  size?: number;
+}) {
   return (
     <Pressable
       onPress={item.onPress}
       accessibilityRole="button"
       accessibilityLabel={[item.title, item.subtitle].filter(Boolean).join(', ')}
-      style={({ pressed }) => [{ width: size, opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] }]}
+      style={({ pressed }) => [
+        { width: size, opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
+      ]}
     >
-      <Artwork uri={item.imageUrl} size={size} rounded={item.round} icon={item.icon} seed={item.id} />
+      <Artwork
+        uri={item.imageUrl}
+        size={size}
+        rounded={item.round}
+        icon={item.icon}
+        seed={item.id}
+      />
       <View style={styles.text}>
-        <Text variant="bodyStrong" numberOfLines={1} style={item.round ? { textAlign: 'center' } : undefined}>
+        <Text
+          variant="bodyStrong"
+          numberOfLines={1}
+          style={item.round ? { textAlign: 'center' } : undefined}
+        >
           {item.title}
         </Text>
         {item.subtitle ? (
-          <Text muted variant="caption" numberOfLines={1} style={item.round ? { textAlign: 'center' } : undefined}>
+          <Text
+            muted
+            variant="caption"
+            numberOfLines={1}
+            style={item.round ? { textAlign: 'center' } : undefined}
+          >
             {item.subtitle}
           </Text>
         ) : null}

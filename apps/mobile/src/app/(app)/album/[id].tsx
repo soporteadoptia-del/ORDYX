@@ -48,10 +48,14 @@ export default function AlbumScreen() {
             title={a.title}
             description={a.description}
             subtitle={
-              <Pressable onPress={() => a.artist && router.push(`/artist/${a.artist.id}`)} accessibilityRole="link">
+              <Pressable
+                onPress={() => a.artist && router.push(`/artist/${a.artist.id}`)}
+                accessibilityRole="link"
+              >
                 <Text muted>
                   {a.artist?.name ?? ''}
-                  {a.release_date ? ` · ${a.release_date.slice(0, 4)}` : ''} · {a.tracks.length} canciones · {formatLongDuration(total)}
+                  {a.release_date ? ` · ${a.release_date.slice(0, 4)}` : ''} · {a.tracks.length}{' '}
+                  canciones · {formatLongDuration(total)}
                 </Text>
               </Pressable>
             }
@@ -69,7 +73,12 @@ export default function AlbumScreen() {
           />
         }
         renderItem={({ item, index }) => (
-          <TrackRow track={item} index={index} showArtwork={false} onPress={() => void playList(a.tracks, index, { type: 'album', id: a.id })} />
+          <TrackRow
+            track={item}
+            index={index}
+            showArtwork={false}
+            onPress={() => void playList(a.tracks, index, { type: 'album', id: a.id })}
+          />
         )}
         ListEmptyComponent={<EmptyState title="Este álbum todavía no tiene canciones" />}
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}

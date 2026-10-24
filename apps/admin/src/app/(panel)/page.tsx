@@ -3,7 +3,9 @@ import { Card, Flash, PageTitle } from '@/components/ui';
 import { requireStaff } from '@/lib/auth';
 import { serverClient } from '@/lib/supabase-server';
 
-type Stats = Record<string, number> & { top_tracks_7d: { id: string; title: string; artist: string; plays: number }[] };
+type Stats = Record<string, number> & {
+  top_tracks_7d: { id: string; title: string; artist: string; plays: number }[];
+};
 
 const CARDS: [keyof Stats, string, string?][] = [
   ['users_total', 'Usuarios'],
@@ -23,7 +25,11 @@ const CARDS: [keyof Stats, string, string?][] = [
   ['errors_1d', 'Errores de cliente (24 h)', '/errores'],
 ];
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   await requireStaff();
   const { error } = await searchParams;
   const supabase = await serverClient();
@@ -31,8 +37,17 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const stats = data as Stats | null;
   return (
     <>
-      <PageTitle title="Resumen" subtitle="Estadísticas agregadas. No se muestran datos de escucha individuales." />
-      <Flash error={error === 'solo-administradores' ? 'Esa sección es solo para administradores.' : statsError?.message} />
+      <PageTitle
+        title="Resumen"
+        subtitle="Estadísticas agregadas. No se muestran datos de escucha individuales."
+      />
+      <Flash
+        error={
+          error === 'solo-administradores'
+            ? 'Esa sección es solo para administradores.'
+            : statsError?.message
+        }
+      />
       {stats ? (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
@@ -40,7 +55,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               const body = (
                 <Card className="h-full">
                   <p className="text-xs text-muted">{label}</p>
-                  <p className="mt-1 text-2xl font-extrabold">{Number(stats[key] ?? 0).toLocaleString('es-ES')}</p>
+                  <p className="mt-1 text-2xl font-extrabold">
+                    {Number(stats[key] ?? 0).toLocaleString('es-ES')}
+                  </p>
                 </Card>
               );
               return href ? (
@@ -53,7 +70,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             })}
           </div>
           <Card className="mt-6">
-            <h2 className="mb-3 font-bold">Canciones más escuchadas (7 días, reproducciones válidas)</h2>
+            <h2 className="mb-3 font-bold">
+              Canciones más escuchadas (7 días, reproducciones válidas)
+            </h2>
             {stats.top_tracks_7d.length === 0 ? (
               <p className="text-sm text-muted">Sin datos todavía.</p>
             ) : (
@@ -70,7 +89,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             )}
           </Card>
           <p className="mt-4 text-xs text-subtle">
-            Una reproducción es válida cuando se escuchan al menos 30 s reales (o el 90 % si la canción es más corta); las repeticiones del mismo usuario en 5 minutos no vuelven a
+            Una reproducción es válida cuando se escuchan al menos 30 s reales (o el 90 % si la
+            canción es más corta); las repeticiones del mismo usuario en 5 minutos no vuelven a
             contar.
           </p>
         </>

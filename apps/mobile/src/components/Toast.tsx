@@ -5,7 +5,9 @@ import { colors, radius, spacing } from '@/theme';
 import { Text } from './ui';
 
 type Tone = 'info' | 'success' | 'error';
-const ToastContext = createContext<{ show: (message: string, tone?: Tone) => void }>({ show: () => undefined });
+const ToastContext = createContext<{ show: (message: string, tone?: Tone) => void }>({
+  show: () => undefined,
+});
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<{ message: string; tone: Tone } | null>(null);
@@ -19,7 +21,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToast({ message, tone });
       Animated.timing(opacity, { toValue: 1, duration: 180, useNativeDriver: true }).start();
       timer.current = setTimeout(() => {
-        Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => setToast(null));
+        Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }).start(() =>
+          setToast(null),
+        );
       }, 2800);
     },
     [opacity],
@@ -29,11 +33,24 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ show }}>
       {children}
       {toast ? (
-        <Animated.View pointerEvents="none" style={[styles.wrap, { top: insets.top + spacing.sm, opacity }]}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.wrap, { top: insets.top + spacing.sm, opacity }]}
+        >
           <View
             accessibilityLiveRegion="polite"
             accessibilityRole="alert"
-            style={[styles.toast, { borderLeftColor: toast.tone === 'error' ? colors.danger : toast.tone === 'success' ? colors.success : colors.accent }]}
+            style={[
+              styles.toast,
+              {
+                borderLeftColor:
+                  toast.tone === 'error'
+                    ? colors.danger
+                    : toast.tone === 'success'
+                      ? colors.success
+                      : colors.accent,
+              },
+            ]}
           >
             <Text variant="bodyStrong">{toast.message}</Text>
           </View>

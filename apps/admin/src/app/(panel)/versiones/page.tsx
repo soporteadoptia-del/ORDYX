@@ -1,5 +1,15 @@
 import { formatBytes } from '@ordyx/shared';
-import { Badge, btnDanger, btnGhost, btnPrimary, Card, Empty, Flash, input, PageTitle } from '@/components/ui';
+import {
+  Badge,
+  btnDanger,
+  btnGhost,
+  btnPrimary,
+  Card,
+  Empty,
+  Flash,
+  input,
+  PageTitle,
+} from '@/components/ui';
 import { requireAdmin } from '@/lib/auth';
 import { serverClient } from '@/lib/supabase-server';
 import { publishVersion, saveVersion, verifyVersion, withdrawVersion } from '../actions';
@@ -13,11 +23,19 @@ const METHOD_LABEL: Record<string, string> = {
   web_distribution: 'Distribución web UE (requiere aprobación de Apple)',
 };
 
-export default async function Versions({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string }> }) {
+export default async function Versions({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string; error?: string }>;
+}) {
   await requireAdmin();
   const sp = await searchParams;
   const supabase = await serverClient();
-  const { data: versions } = await supabase.from('app_versions').select('*').order('created_at', { ascending: false }).limit(100);
+  const { data: versions } = await supabase
+    .from('app_versions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   return (
     <>
@@ -30,7 +48,11 @@ export default async function Versions({ searchParams }: { searchParams: Promise
       <Card className="mb-8">
         <h2 className="mb-3 font-bold">Nueva versión (borrador)</h2>
         <ReleaseUploader />
-        <form id="new-version" action={saveVersion} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <form
+          id="new-version"
+          action={saveVersion}
+          className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        >
           <label className="space-y-1 text-sm">
             <span className="text-muted">Plataforma</span>
             <select name="platform" className={input} defaultValue="android">
@@ -68,7 +90,10 @@ export default async function Versions({ searchParams }: { searchParams: Promise
             <input name="min_os_version" placeholder="7.0 / 15.1" className={input} />
           </label>
           <label className="space-y-1 text-sm sm:col-span-2 lg:col-span-3">
-            <span className="text-muted">URL HTTPS de descarga o instalación (APK externo, enlace público de TestFlight, App Store o Play Store)</span>
+            <span className="text-muted">
+              URL HTTPS de descarga o instalación (APK externo, enlace público de TestFlight, App
+              Store o Play Store)
+            </span>
             <input name="download_url" placeholder="https://…" className={input} />
           </label>
           <label className="space-y-1 text-sm">
@@ -104,18 +129,26 @@ export default async function Versions({ searchParams }: { searchParams: Promise
               <Badge value={v.status} />
               <Badge value="draft" label={v.channel} />
               <span className="text-sm text-muted">{METHOD_LABEL[v.install_method]}</span>
-              {v.verified_at ? <Badge value="published" label="verificada" /> : <Badge value="pending_review" label="sin verificar" />}
+              {v.verified_at ? (
+                <Badge value="published" label="verificada" />
+              ) : (
+                <Badge value="pending_review" label="sin verificar" />
+              )}
             </div>
             <p className="mt-1 break-all text-xs text-muted">
-              {v.download_url ?? `releases/${v.storage_path}`} · {formatBytes(v.file_size_bytes)} {v.sha256 ? `· SHA-256 ${v.sha256}` : ''}
+              {v.download_url ?? `releases/${v.storage_path}`} · {formatBytes(v.file_size_bytes)}{' '}
+              {v.sha256 ? `· SHA-256 ${v.sha256}` : ''}
             </p>
-            {v.withdrawn_reason ? <p className="text-sm text-danger">Retirada: {v.withdrawn_reason}</p> : null}
+            {v.withdrawn_reason ? (
+              <p className="text-sm text-danger">Retirada: {v.withdrawn_reason}</p>
+            ) : null}
             <div className="mt-3 flex flex-wrap gap-3">
               {v.status === 'draft' ? (
                 <form action={verifyVersion} className="flex flex-wrap items-center gap-2">
                   <input type="hidden" name="id" value={v.id} />
                   <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="install_tested" required /> He instalado y abierto esta versión en un dispositivo real
+                    <input type="checkbox" name="install_tested" required /> He instalado y abierto
+                    esta versión en un dispositivo real
                   </label>
                   <button className={btnGhost}>Verificar</button>
                 </form>
@@ -129,7 +162,13 @@ export default async function Versions({ searchParams }: { searchParams: Promise
               {v.status === 'published' ? (
                 <form action={withdrawVersion} className="flex gap-2">
                   <input type="hidden" name="id" value={v.id} />
-                  <input name="reason" required minLength={3} placeholder="Motivo de la retirada" className={`${input} w-64`} />
+                  <input
+                    name="reason"
+                    required
+                    minLength={3}
+                    placeholder="Motivo de la retirada"
+                    className={`${input} w-64`}
+                  />
                   <button className={btnDanger}>Retirar</button>
                 </form>
               ) : null}

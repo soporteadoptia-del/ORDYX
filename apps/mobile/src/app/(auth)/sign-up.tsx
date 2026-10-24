@@ -39,7 +39,10 @@ export default function SignUp() {
 
   if (done) {
     return (
-      <AuthShell title="Revisa tu correo" subtitle={`Te hemos enviado un enlace de confirmación a ${form.email}. Ábrelo y después inicia sesión.`}>
+      <AuthShell
+        title="Revisa tu correo"
+        subtitle={`Te hemos enviado un enlace de confirmación a ${form.email}. Ábrelo y después inicia sesión.`}
+      >
         <Link href="/sign-in" asChild>
           <Button label="Ir a iniciar sesión" />
         </Link>
@@ -49,9 +52,30 @@ export default function SignUp() {
 
   return (
     <AuthShell title="Crea tu cuenta" subtitle="Gratis. Sin tarjeta.">
-      <TextField label="Nombre de usuario" value={form.username} onChangeText={set('username')} autoCapitalize="none" autoComplete="username" placeholder="tu_nombre" />
-      <TextField label="Correo electrónico" value={form.email} onChangeText={set('email')} autoCapitalize="none" keyboardType="email-address" autoComplete="email" />
-      <TextField label="Contraseña (mín. 8, con letras y números)" value={form.password} onChangeText={set('password')} secureTextEntry autoComplete="new-password" textContentType="newPassword" />
+      <TextField
+        label="Nombre de usuario"
+        value={form.username}
+        onChangeText={set('username')}
+        autoCapitalize="none"
+        autoComplete="username"
+        placeholder="tu_nombre"
+      />
+      <TextField
+        label="Correo electrónico"
+        value={form.email}
+        onChangeText={set('email')}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+      />
+      <TextField
+        label="Contraseña (mín. 8, con letras y números)"
+        value={form.password}
+        onChangeText={set('password')}
+        secureTextEntry
+        autoComplete="new-password"
+        textContentType="newPassword"
+      />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
         <Switch
           value={form.acceptTerms}
@@ -61,11 +85,19 @@ export default function SignUp() {
         />
         <Text variant="caption" style={{ flex: 1 }}>
           Acepto las{' '}
-          <Text variant="caption" style={{ color: colors.accentStrong }} onPress={() => WebBrowser.openBrowserAsync(`${env.webUrl}/condiciones`)}>
+          <Text
+            variant="caption"
+            style={{ color: colors.accentStrong }}
+            onPress={() => WebBrowser.openBrowserAsync(`${env.webUrl}/condiciones`)}
+          >
             condiciones de uso
           </Text>{' '}
           y la{' '}
-          <Text variant="caption" style={{ color: colors.accentStrong }} onPress={() => WebBrowser.openBrowserAsync(`${env.webUrl}/privacidad`)}>
+          <Text
+            variant="caption"
+            style={{ color: colors.accentStrong }}
+            onPress={() => WebBrowser.openBrowserAsync(`${env.webUrl}/privacidad`)}
+          >
             política de privacidad
           </Text>
           .

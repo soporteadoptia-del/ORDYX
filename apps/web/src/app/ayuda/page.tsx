@@ -23,23 +23,30 @@ export default async function Help() {
         <h2 className="text-xl font-bold">Instalar en Android</h2>
         <ol className="list-decimal space-y-1 pl-5 text-muted">
           <li>Abre esta web en tu móvil y pulsa «Descargar para Android».</li>
-          <li>Abre el archivo descargado. Si aparece «Por tu seguridad, tu teléfono no puede instalar apps desconocidas», pulsa Ajustes, activa «Permitir de esta fuente» y vuelve atrás.</li>
+          <li>
+            Abre el archivo descargado. Si aparece «Por tu seguridad, tu teléfono no puede instalar
+            apps desconocidas», pulsa Ajustes, activa «Permitir de esta fuente» y vuelve atrás.
+          </li>
           <li>Pulsa Instalar. Al terminar, abre la app.</li>
-          <li>Opcional: comprueba la huella SHA-256 del archivo con la que mostramos junto al botón.</li>
+          <li>
+            Opcional: comprueba la huella SHA-256 del archivo con la que mostramos junto al botón.
+          </li>
         </ol>
       </section>
       <section className="space-y-3">
         <h2 className="text-xl font-bold">Instalar en iPhone o iPad</h2>
         <p className="text-muted">
-          Apple solo permite instalar apps mediante sus canales oficiales. Mientras la app esté en pruebas usamos TestFlight; después estará en el App Store. Un archivo
-          descargado no se puede instalar en un iPhone, así que nunca te pediremos que lo hagas.
+          Apple solo permite instalar apps mediante sus canales oficiales. Mientras la app esté en
+          pruebas usamos TestFlight; después estará en el App Store. Un archivo descargado no se
+          puede instalar en un iPhone, así que nunca te pediremos que lo hagas.
         </p>
       </section>
       <section className="space-y-3">
         <h2 className="text-xl font-bold">Cuentas de artista</h2>
         <p className="text-muted">
-          Para publicar música escríbenos desde el correo de tu cuenta con tu nombre artístico y enlaces a tu trabajo. Revisamos cada solicitud. Recuerda que solo puedes subir
-          música propia o con permiso de sus titulares.
+          Para publicar música escríbenos desde el correo de tu cuenta con tu nombre artístico y
+          enlaces a tu trabajo. Revisamos cada solicitud. Recuerda que solo puedes subir música
+          propia o con permiso de sus titulares.
         </p>
       </section>
       <section>
@@ -47,7 +54,11 @@ export default async function Help() {
         <Faq />
       </section>
       <p className="text-sm text-muted">
-        Para reclamar derechos de autor usa el <Link className="text-accent-strong underline" href="/derechos">formulario específico</Link>.
+        Para reclamar derechos de autor usa el{' '}
+        <Link className="text-accent-strong underline" href="/derechos">
+          formulario específico
+        </Link>
+        .
       </p>
     </div>
   );

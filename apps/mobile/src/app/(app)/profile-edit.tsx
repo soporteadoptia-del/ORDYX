@@ -18,14 +18,22 @@ export default function ProfileEdit() {
   const { profile, refreshProfile, session } = useAuth();
   const qc = useQueryClient();
   const toast = useToast();
-  const [form, setForm] = useState({ username: profile?.username ?? '', display_name: profile?.display_name ?? '', bio: profile?.bio ?? '' });
+  const [form, setForm] = useState({
+    username: profile?.username ?? '',
+    display_name: profile?.display_name ?? '',
+    bio: profile?.bio ?? '',
+  });
   const [avatar, setAvatar] = useState<PickedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   if (!profile) return <Loading />;
 
   async function save() {
-    const parsed = profileUpdateSchema.safeParse({ ...form, display_name: form.display_name.trim() || null, bio: form.bio.trim() || null });
+    const parsed = profileUpdateSchema.safeParse({
+      ...form,
+      display_name: form.display_name.trim() || null,
+      bio: form.bio.trim() || null,
+    });
     if (!parsed.success) return setError(firstError(parsed.error));
     setSaving(true);
     setError(null);
@@ -45,7 +53,11 @@ export default function ProfileEdit() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Pressable
         onPress={async () => {
           const img = await pickImage();
@@ -55,13 +67,29 @@ export default function ProfileEdit() {
         accessibilityRole="button"
         accessibilityLabel="Cambiar foto de perfil"
       >
-        <Artwork uri={avatar?.uri ?? imageUrl('avatars', profile.avatar_path)} size={120} rounded icon="person" seed={profile.id} />
+        <Artwork
+          uri={avatar?.uri ?? imageUrl('avatars', profile.avatar_path)}
+          size={120}
+          rounded
+          icon="person"
+          seed={profile.id}
+        />
         <Text variant="caption" style={{ color: colors.accentStrong }}>
           Cambiar foto
         </Text>
       </Pressable>
-      <TextField label="Nombre de usuario" value={form.username} onChangeText={(username) => setForm((f) => ({ ...f, username }))} autoCapitalize="none" />
-      <TextField label="Nombre visible" value={form.display_name} onChangeText={(display_name) => setForm((f) => ({ ...f, display_name }))} maxLength={60} />
+      <TextField
+        label="Nombre de usuario"
+        value={form.username}
+        onChangeText={(username) => setForm((f) => ({ ...f, username }))}
+        autoCapitalize="none"
+      />
+      <TextField
+        label="Nombre visible"
+        value={form.display_name}
+        onChangeText={(display_name) => setForm((f) => ({ ...f, display_name }))}
+        maxLength={60}
+      />
       <TextField
         label="Biografía"
         value={form.bio}

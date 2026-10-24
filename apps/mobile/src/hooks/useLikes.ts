@@ -13,7 +13,8 @@ export function useLikes() {
   const { data } = useQuery({ queryKey: key, queryFn: getLikedIds, enabled: !!session });
 
   const mutation = useMutation({
-    mutationFn: ({ trackId, liked }: { trackId: string; liked: boolean }) => setLiked(trackId, liked),
+    mutationFn: ({ trackId, liked }: { trackId: string; liked: boolean }) =>
+      setLiked(trackId, liked),
     onMutate: async ({ trackId, liked }) => {
       await qc.cancelQueries({ queryKey: key });
       const previous = qc.getQueryData<Set<string>>(key);
@@ -34,6 +35,7 @@ export function useLikes() {
 
   return {
     isLiked: (trackId: string) => data?.has(trackId) ?? false,
-    toggle: (trackId: string) => mutation.mutate({ trackId, liked: !(data?.has(trackId) ?? false) }),
+    toggle: (trackId: string) =>
+      mutation.mutate({ trackId, liked: !(data?.has(trackId) ?? false) }),
   };
 }

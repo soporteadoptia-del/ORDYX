@@ -13,12 +13,27 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="player" options={{ presentation: 'modal', headerShown: false, animation: 'slide_from_bottom' }} />
-      <Stack.Screen name="queue" options={{ presentation: 'modal', title: 'Cola de reproducción' }} />
+      <Stack.Screen
+        name="player"
+        options={{ presentation: 'modal', headerShown: false, animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="queue"
+        options={{ presentation: 'modal', title: 'Cola de reproducción' }}
+      />
       <Stack.Screen name="report" options={{ presentation: 'modal', title: 'Denunciar' }} />
-      <Stack.Screen name="playlist/new" options={{ presentation: 'modal', title: 'Nueva playlist' }} />
-      <Stack.Screen name="playlist/edit/[id]" options={{ presentation: 'modal', title: 'Editar playlist' }} />
-      <Stack.Screen name="profile-edit" options={{ presentation: 'modal', title: 'Editar perfil' }} />
+      <Stack.Screen
+        name="playlist/new"
+        options={{ presentation: 'modal', title: 'Nueva playlist' }}
+      />
+      <Stack.Screen
+        name="playlist/edit/[id]"
+        options={{ presentation: 'modal', title: 'Editar playlist' }}
+      />
+      <Stack.Screen
+        name="profile-edit"
+        options={{ presentation: 'modal', title: 'Editar perfil' }}
+      />
     </Stack>
   );
 }

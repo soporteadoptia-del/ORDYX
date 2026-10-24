@@ -19,8 +19,18 @@ import { colors, gradient, radius, spacing, type } from '@/theme';
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 type Variant = keyof typeof type;
-export function Text({ variant = 'body', muted, style, ...rest }: TextProps & { variant?: Variant; muted?: boolean }) {
-  return <RNText {...rest} style={[type[variant], { color: muted ? colors.textMuted : colors.text }, style]} />;
+export function Text({
+  variant = 'body',
+  muted,
+  style,
+  ...rest
+}: TextProps & { variant?: Variant; muted?: boolean }) {
+  return (
+    <RNText
+      {...rest}
+      style={[type[variant], { color: muted ? colors.textMuted : colors.text }, style]}
+    />
+  );
 }
 
 type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -32,7 +42,16 @@ type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   compact?: boolean;
 };
 
-export function Button({ label, icon, variant = 'primary', loading, disabled, style, compact, ...rest }: ButtonProps) {
+export function Button({
+  label,
+  icon,
+  variant = 'primary',
+  loading,
+  disabled,
+  style,
+  compact,
+  ...rest
+}: ButtonProps) {
   const isDisabled = disabled || loading;
   const content = (
     <View style={[styles.buttonInner, compact && styles.buttonCompact]}>
@@ -40,8 +59,17 @@ export function Button({ label, icon, variant = 'primary', loading, disabled, st
         <ActivityIndicator color={variant === 'primary' ? '#fff' : colors.text} />
       ) : (
         <>
-          {icon ? <Ionicons name={icon} size={18} color={variant === 'danger' ? colors.danger : colors.text} /> : null}
-          <Text variant="bodyStrong" style={variant === 'danger' ? { color: colors.danger } : undefined}>
+          {icon ? (
+            <Ionicons
+              name={icon}
+              size={18}
+              color={variant === 'danger' ? colors.danger : colors.text}
+            />
+          ) : null}
+          <Text
+            variant="bodyStrong"
+            style={variant === 'danger' ? { color: colors.danger } : undefined}
+          >
             {label}
           </Text>
         </>
@@ -65,7 +93,12 @@ export function Button({ label, icon, variant = 'primary', loading, disabled, st
       {...rest}
     >
       {variant === 'primary' ? (
-        <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradientFill}>
+        <LinearGradient
+          colors={gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientFill}
+        >
           {content}
         </LinearGradient>
       ) : (
@@ -99,14 +132,23 @@ export function IconButton({
       hitSlop={10}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.iconButton, { opacity: disabled ? 0.35 : pressed ? 0.6 : 1 }, style]}
+      style={({ pressed }) => [
+        styles.iconButton,
+        { opacity: disabled ? 0.35 : pressed ? 0.6 : 1 },
+        style,
+      ]}
     >
       <Ionicons name={name} size={size} color={color} />
     </Pressable>
   );
 }
 
-export function TextField({ label, error, style, ...rest }: TextInputProps & { label: string; error?: string | null }) {
+export function TextField({
+  label,
+  error,
+  style,
+  ...rest
+}: TextInputProps & { label: string; error?: string | null }) {
   return (
     <View style={{ gap: spacing.xs }}>
       <Text variant="caption" muted>
@@ -127,7 +169,15 @@ export function TextField({ label, error, style, ...rest }: TextInputProps & { l
   );
 }
 
-export function Chip({ label, selected, onPress }: { label: string; selected?: boolean; onPress?: () => void }) {
+export function Chip({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected?: boolean;
+  onPress?: () => void;
+}) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -150,7 +200,12 @@ export function Loading({ label = 'Cargando…' }: { label?: string }) {
   );
 }
 
-export function EmptyState({ icon = 'musical-notes-outline', title, message, action }: {
+export function EmptyState({
+  icon = 'musical-notes-outline',
+  title,
+  message,
+  action,
+}: {
   icon?: IconName;
   title: string;
   message?: string;
@@ -182,12 +237,22 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <Text muted style={{ textAlign: 'center' }}>
         {message}
       </Text>
-      {onRetry ? <Button label="Reintentar" icon="refresh" variant="secondary" onPress={onRetry} compact /> : null}
+      {onRetry ? (
+        <Button label="Reintentar" icon="refresh" variant="secondary" onPress={onRetry} compact />
+      ) : null}
     </View>
   );
 }
 
-export function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+export function SectionHeader({
+  title,
+  action,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   return (
     <View style={styles.sectionHeader}>
       <Text variant="title" accessibilityRole="header">
@@ -204,8 +269,20 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
   );
 }
 
-export function Badge({ label, tone = 'accent' }: { label: string; tone?: 'accent' | 'warning' | 'success' | 'danger' | 'muted' }) {
-  const color = { accent: colors.accentStrong, warning: colors.warning, success: colors.success, danger: colors.danger, muted: colors.textMuted }[tone];
+export function Badge({
+  label,
+  tone = 'accent',
+}: {
+  label: string;
+  tone?: 'accent' | 'warning' | 'success' | 'danger' | 'muted';
+}) {
+  const color = {
+    accent: colors.accentStrong,
+    warning: colors.warning,
+    success: colors.success,
+    danger: colors.danger,
+    muted: colors.textMuted,
+  }[tone];
   return (
     <View style={[styles.badge, { borderColor: color }]}>
       <Text variant="micro" style={{ color }}>
@@ -216,8 +293,17 @@ export function Badge({ label, tone = 'accent' }: { label: string; tone?: 'accen
 }
 
 export const styles = StyleSheet.create({
-  button: { borderRadius: radius.pill, overflow: 'hidden', backgroundColor: colors.accent, minHeight: 48 },
-  buttonSecondary: { backgroundColor: colors.surfaceElevated, borderWidth: 1, borderColor: colors.border },
+  button: {
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+    backgroundColor: colors.accent,
+    minHeight: 48,
+  },
+  buttonSecondary: {
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   buttonGhost: { backgroundColor: 'transparent' },
   buttonDanger: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.danger },
   gradientFill: { flex: 1, borderRadius: radius.pill },
@@ -252,7 +338,13 @@ export const styles = StyleSheet.create({
   },
   chipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xxl },
-  state: { alignItems: 'center', justifyContent: 'center', padding: spacing.xxl, gap: spacing.md, flexGrow: 1 },
+  state: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xxl,
+    gap: spacing.md,
+    flexGrow: 1,
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -261,5 +353,11 @@ export const styles = StyleSheet.create({
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
-  badge: { borderWidth: 1, borderRadius: radius.sm, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start' },
+  badge: {
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+  },
 });

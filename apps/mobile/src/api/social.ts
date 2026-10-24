@@ -2,16 +2,29 @@ import { LIMITS, type Comment, type ReportInput } from '@ordyx/shared';
 import { supabase } from '@/lib/supabase';
 import { range, unwrap } from './client';
 import { currentUserId } from './library';
-import { PLAYLIST_FIELDS, PROFILE_FIELDS, TRACK_FIELDS, type PlaylistSummary, type ProfileSummary, type TrackListItem } from './types';
+import {
+  PLAYLIST_FIELDS,
+  PROFILE_FIELDS,
+  TRACK_FIELDS,
+  type PlaylistSummary,
+  type ProfileSummary,
+  type TrackListItem,
+} from './types';
 
 export async function getProfileByUsername(username: string): Promise<ProfileSummary> {
   return unwrap(
-    await supabase.from('profiles').select(PROFILE_FIELDS).eq('username', username.toLowerCase()).single(),
+    await supabase
+      .from('profiles')
+      .select(PROFILE_FIELDS)
+      .eq('username', username.toLowerCase())
+      .single(),
   ) as ProfileSummary;
 }
 
 export async function getProfileById(id: string): Promise<ProfileSummary> {
-  return unwrap(await supabase.from('profiles').select(PROFILE_FIELDS).eq('id', id).single()) as ProfileSummary;
+  return unwrap(
+    await supabase.from('profiles').select(PROFILE_FIELDS).eq('id', id).single(),
+  ) as ProfileSummary;
 }
 
 export async function getPublicPlaylistsOf(userId: string): Promise<PlaylistSummary[]> {
@@ -54,21 +67,34 @@ export async function getPublicLikesOf(userId: string): Promise<TrackListItem[]>
 export async function isFollowing(userId: string): Promise<boolean> {
   const me = await currentUserId();
   const rows = unwrap(
-    await supabase.from('follows').select('followee_id').eq('follower_id', me).eq('followee_id', userId),
+    await supabase
+      .from('follows')
+      .select('followee_id')
+      .eq('follower_id', me)
+      .eq('followee_id', userId),
   ) as unknown[];
   return rows.length > 0;
 }
 
 export async function setFollowing(userId: string, follow: boolean) {
   const me = await currentUserId();
-  if (follow) unwrap(await supabase.from('follows').insert({ follower_id: me, followee_id: userId }));
-  else unwrap(await supabase.from('follows').delete().eq('follower_id', me).eq('followee_id', userId));
+  if (follow)
+    unwrap(await supabase.from('follows').insert({ follower_id: me, followee_id: userId }));
+  else
+    unwrap(await supabase.from('follows').delete().eq('follower_id', me).eq('followee_id', userId));
 }
 
-export async function getFollowList(userId: string, kind: 'followers' | 'following', page = 0): Promise<ProfileSummary[]> {
+export async function getFollowList(
+  userId: string,
+  kind: 'followers' | 'following',
+  page = 0,
+): Promise<ProfileSummary[]> {
   const [from, to] = range(page, LIMITS.pageSize * 2);
   const column = kind === 'followers' ? 'followee_id' : 'follower_id';
-  const join = kind === 'followers' ? 'profile:profiles!follows_follower_id_fkey' : 'profile:profiles!follows_followee_id_fkey';
+  const join =
+    kind === 'followers'
+      ? 'profile:profiles!follows_follower_id_fkey'
+      : 'profile:profiles!follows_followee_id_fkey';
   const rows = unwrap(
     await supabase
       .from('follows')
@@ -99,7 +125,11 @@ export async function getComments(trackId: string, page = 0): Promise<CommentWit
 
 export async function addComment(trackId: string, body: string, timestampMs: number | null) {
   const me = await currentUserId();
-  unwrap(await supabase.from('comments').insert({ track_id: trackId, user_id: me, body, timestamp_ms: timestampMs }));
+  unwrap(
+    await supabase
+      .from('comments')
+      .insert({ track_id: trackId, user_id: me, body, timestamp_ms: timestampMs }),
+  );
 }
 
 export async function deleteComment(id: string) {
@@ -114,7 +144,11 @@ export async function submitReport(input: ReportInput) {
 export async function isBlocked(userId: string): Promise<boolean> {
   const me = await currentUserId();
   const rows = unwrap(
-    await supabase.from('blocks').select('blocked_id').eq('blocker_id', me).eq('blocked_id', userId),
+    await supabase
+      .from('blocks')
+      .select('blocked_id')
+      .eq('blocker_id', me)
+      .eq('blocked_id', userId),
   ) as unknown[];
   return rows.length > 0;
 }
@@ -128,7 +162,12 @@ export async function setBlocked(userId: string, blocked: boolean) {
 export async function getSearchHistory(): Promise<{ id: number; query: string }[]> {
   const me = await currentUserId();
   return unwrap(
-    await supabase.from('search_history').select('id,query').eq('user_id', me).order('created_at', { ascending: false }).limit(15),
+    await supabase
+      .from('search_history')
+      .select('id,query')
+      .eq('user_id', me)
+      .order('created_at', { ascending: false })
+      .limit(15),
   ) as { id: number; query: string }[];
 }
 

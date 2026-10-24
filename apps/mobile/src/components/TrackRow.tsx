@@ -26,7 +26,8 @@ export const TrackRow = memo(function TrackRow({
   const status = usePlayer((s) => s.status);
   const isCurrent = currentTrack?.id === track.id;
   const openActions = useTrackActions();
-  const cover = imageUrl('covers', track.cover_path) ?? imageUrl('covers', track.artist?.image_path);
+  const cover =
+    imageUrl('covers', track.cover_path) ?? imageUrl('covers', track.artist?.image_path);
 
   return (
     <Pressable
@@ -44,7 +45,11 @@ export const TrackRow = memo(function TrackRow({
       ) : null}
       {showArtwork ? <Artwork uri={cover} size={48} seed={track.id} /> : null}
       <View style={styles.meta}>
-        <Text numberOfLines={1} variant="bodyStrong" style={isCurrent ? { color: colors.accentStrong } : undefined}>
+        <Text
+          numberOfLines={1}
+          variant="bodyStrong"
+          style={isCurrent ? { color: colors.accentStrong } : undefined}
+        >
           {isCurrent && status === 'playing' ? '▶ ' : ''}
           {track.title}
         </Text>
@@ -56,13 +61,27 @@ export const TrackRow = memo(function TrackRow({
           </Text>
         </View>
       </View>
-      {trailing ?? <IconButton name="ellipsis-horizontal" label="Más opciones" size={20} color={colors.textMuted} onPress={() => openActions(track)} />}
+      {trailing ?? (
+        <IconButton
+          name="ellipsis-horizontal"
+          label="Más opciones"
+          size={20}
+          color={colors.textMuted}
+          onPress={() => openActions(track)}
+        />
+      )}
     </Pressable>
   );
 });
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
   index: { width: 24, textAlign: 'center' },
   meta: { flex: 1, gap: 2 },
   subline: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },

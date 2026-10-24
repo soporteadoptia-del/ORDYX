@@ -18,9 +18,15 @@ function describe(n: NotificationRow): { text: string; href?: string } {
     case 'track_published':
       return { text: `«${p.title}» ya está publicada`, href: `/track/${p.track_id}` };
     case 'track_rejected':
-      return { text: `«${p.title}» no se ha aprobado${p.note ? `: ${p.note}` : ''}`, href: '/studio' };
+      return {
+        text: `«${p.title}» no se ha aprobado${p.note ? `: ${p.note}` : ''}`,
+        href: '/studio',
+      };
     case 'track_removed':
-      return { text: `«${p.title}» ha sido retirada${p.note ? `: ${p.note}` : ''}`, href: '/studio' };
+      return {
+        text: `«${p.title}» ha sido retirada${p.note ? `: ${p.note}` : ''}`,
+        href: '/studio',
+      };
     case 'report_resolved':
       return { text: 'Hemos revisado tu denuncia. Gracias por ayudarnos.' };
     default:
@@ -31,7 +37,10 @@ function describe(n: NotificationRow): { text: string; href?: string } {
 export default function Notifications() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ['notifications'], queryFn: getNotifications });
-  const markRead = useMutation({ mutationFn: markAllNotificationsRead, onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }) });
+  const markRead = useMutation({
+    mutationFn: markAllNotificationsRead,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+  });
   useEffect(() => {
     if (q.data?.some((n) => !n.read_at)) markRead.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,18 +49,26 @@ export default function Notifications() {
   return (
     <>
       <Stack.Screen options={{ title: 'Notificaciones' }} />
-      {q.isLoading ? <Loading /> : q.error ? (
+      {q.isLoading ? (
+        <Loading />
+      ) : q.error ? (
         <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />
       ) : (
         <FlatList
           style={{ backgroundColor: colors.background }}
           data={q.data}
           keyExtractor={(n) => n.id}
-          ListEmptyComponent={<EmptyState icon="notifications-off-outline" title="No tienes notificaciones" />}
+          ListEmptyComponent={
+            <EmptyState icon="notifications-off-outline" title="No tienes notificaciones" />
+          }
           renderItem={({ item }) => {
             const d = describe(item);
             return (
-              <Pressable onPress={() => d.href && router.push(d.href as never)} style={styles.row} accessibilityRole={d.href ? 'link' : 'text'}>
+              <Pressable
+                onPress={() => d.href && router.push(d.href as never)}
+                style={styles.row}
+                accessibilityRole={d.href ? 'link' : 'text'}
+              >
                 {!item.read_at ? <View style={styles.dot} /> : <View style={{ width: 8 }} />}
                 <View style={{ flex: 1 }}>
                   <Text>{d.text}</Text>
@@ -69,6 +86,13 @@ export default function Notifications() {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.md, alignItems: 'center', padding: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accentStrong },
 });

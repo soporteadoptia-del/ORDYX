@@ -23,16 +23,27 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <div className="p-5">
           <p className="font-extrabold">Ordyx · Admin</p>
           <p className="truncate text-xs text-muted">{session.email}</p>
-          <p className="text-xs text-accent-strong">{session.isAdmin ? 'Administración' : 'Moderación'}</p>
+          <p className="text-xs text-accent-strong">
+            {session.isAdmin ? 'Administración' : 'Moderación'}
+          </p>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible" aria-label="Secciones">
+        <nav
+          className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible"
+          aria-label="Secciones"
+        >
           {NAV.filter((n) => !n.adminOnly || session.isAdmin).map((n) => (
-            <Link key={n.href} href={n.href} className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-muted hover:bg-elevated hover:text-fg">
+            <Link
+              key={n.href}
+              href={n.href}
+              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-muted hover:bg-elevated hover:text-fg"
+            >
               {n.label}
             </Link>
           ))}
           <form action={signOut} className="md:mt-4">
-            <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10">Cerrar sesión</button>
+            <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10">
+              Cerrar sesión
+            </button>
           </form>
         </nav>
       </aside>

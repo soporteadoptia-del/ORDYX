@@ -19,10 +19,19 @@ export const requireStaff = cache(async (): Promise<StaffSession> => {
   const supabase = await serverClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) redirect('/login');
-  const { data: rows } = await supabase.from('user_roles').select('role').eq('user_id', data.user.id);
+  const { data: rows } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', data.user.id);
   const roles = (rows ?? []).map((r) => r.role as AppRole);
-  if (!roles.includes('admin') && !roles.includes('moderator')) redirect('/login?error=sin-permisos');
-  return { userId: data.user.id, email: data.user.email ?? '', roles, isAdmin: roles.includes('admin') };
+  if (!roles.includes('admin') && !roles.includes('moderator'))
+    redirect('/login?error=sin-permisos');
+  return {
+    userId: data.user.id,
+    email: data.user.email ?? '',
+    roles,
+    isAdmin: roles.includes('admin'),
+  };
 });
 
 export async function requireAdmin(): Promise<StaffSession> {

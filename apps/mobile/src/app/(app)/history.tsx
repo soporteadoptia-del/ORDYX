@@ -26,7 +26,11 @@ export default function History() {
       void qc.invalidateQueries({ queryKey: ['home', 'recent'] });
     },
   });
-  const rows = (q.data?.pages.flat() ?? []).filter((r) => r.track) as { id: number; played_at: string; track: TrackListItem }[];
+  const rows = (q.data?.pages.flat() ?? []).filter((r) => r.track) as {
+    id: number;
+    played_at: string;
+    track: TrackListItem;
+  }[];
   const tracks = rows.map((r) => r.track);
 
   return (
@@ -39,10 +43,14 @@ export default function History() {
               name="trash-outline"
               label="Borrar historial"
               onPress={() =>
-                Alert.alert('Borrar historial', 'Se eliminará tu historial de escucha. Las estadísticas agregadas no se ven afectadas.', [
-                  { text: 'Cancelar', style: 'cancel' },
-                  { text: 'Borrar', style: 'destructive', onPress: () => clear.mutate() },
-                ])
+                Alert.alert(
+                  'Borrar historial',
+                  'Se eliminará tu historial de escucha. Las estadísticas agregadas no se ven afectadas.',
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Borrar', style: 'destructive', onPress: () => clear.mutate() },
+                  ],
+                )
               }
             />
           ),
@@ -59,7 +67,11 @@ export default function History() {
             <TrackRow
               track={item.track}
               onPress={() => void playList(tracks, index, { type: 'library' })}
-              trailing={<Text variant="caption" muted>{formatRelative(item.played_at)}</Text>}
+              trailing={
+                <Text variant="caption" muted>
+                  {formatRelative(item.played_at)}
+                </Text>
+              }
             />
           )}
           ListEmptyComponent={<EmptyState icon="time-outline" title="Tu historial está vacío" />}

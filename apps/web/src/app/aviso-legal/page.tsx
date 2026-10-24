@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/LegalPage';
 
-export const metadata: Metadata = { title: 'Aviso legal', alternates: { canonical: '/aviso-legal' } };
+export const metadata: Metadata = {
+  title: 'Aviso legal',
+  alternates: { canonical: '/aviso-legal' },
+};
 
 export default function LegalNotice() {
   return (
@@ -15,7 +18,9 @@ export default function LegalNotice() {
         <li>Datos registrales, si es una sociedad: [Pendiente]</li>
       </ul>
       <h2>Punto de contacto (Reglamento de Servicios Digitales, arts. 11 y 12)</h2>
-      <p>[Pendiente: punto único de contacto para autoridades y para usuarios, e idiomas admitidos.]</p>
+      <p>
+        [Pendiente: punto único de contacto para autoridades y para usuarios, e idiomas admitidos.]
+      </p>
     </LegalPage>
   );
 }

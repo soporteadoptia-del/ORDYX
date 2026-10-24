@@ -8,8 +8,14 @@ import { imageUrl } from '@/lib/media';
 import { colors, spacing } from '@/theme';
 
 export default function Follows() {
-  const { username, kind } = useLocalSearchParams<{ username: string; kind: 'followers' | 'following' }>();
-  const profile = useQuery({ queryKey: ['user', username], queryFn: () => getProfileByUsername(username) });
+  const { username, kind } = useLocalSearchParams<{
+    username: string;
+    kind: 'followers' | 'following';
+  }>();
+  const profile = useQuery({
+    queryKey: ['user', username],
+    queryFn: () => getProfileByUsername(username),
+  });
   const list = useInfiniteQuery({
     queryKey: ['user', profile.data?.id, kind],
     queryFn: ({ pageParam }) => getFollowList(profile.data!.id, kind, pageParam),
@@ -31,8 +37,23 @@ export default function Follows() {
           onEndReached={() => list.hasNextPage && list.fetchNextPage()}
           ListEmptyComponent={<EmptyState icon="people-outline" title="Nadie por aquí todavía" />}
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(`/user/${item.username}`)} style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center', padding: spacing.md, paddingHorizontal: spacing.lg }}>
-              <Artwork uri={imageUrl('avatars', item.avatar_path)} size={48} rounded icon="person" seed={item.id} />
+            <Pressable
+              onPress={() => router.push(`/user/${item.username}`)}
+              style={{
+                flexDirection: 'row',
+                gap: spacing.md,
+                alignItems: 'center',
+                padding: spacing.md,
+                paddingHorizontal: spacing.lg,
+              }}
+            >
+              <Artwork
+                uri={imageUrl('avatars', item.avatar_path)}
+                size={48}
+                rounded
+                icon="person"
+                seed={item.id}
+              />
               <View>
                 <Text variant="bodyStrong">{item.display_name || item.username}</Text>
                 <Text variant="caption" muted>

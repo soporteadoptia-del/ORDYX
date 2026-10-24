@@ -31,5 +31,9 @@ export async function submitClaim(_prev: ClaimState, form: FormData): Promise<Cl
     p_good_faith: d.good_faith,
   });
   if (error) return { status: 'error', message: toUserMessage(error) };
-  return { status: 'ok', reference: String(data).slice(0, 8), message: 'Hemos recibido tu reclamación.' };
+  return {
+    status: 'ok',
+    reference: String(data).slice(0, 8),
+    message: 'Hemos recibido tu reclamación.',
+  };
 }

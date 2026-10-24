@@ -26,7 +26,8 @@ export default function EditPlaylist() {
       onSubmit={async (values, cover) => {
         try {
           let cover_path = p.cover_path;
-          if (cover) cover_path = (await uploadImage('playlist', cover, session!.user.id, p.id)).path;
+          if (cover)
+            cover_path = (await uploadImage('playlist', cover, session!.user.id, p.id)).path;
           await updatePlaylist(p.id, { ...values, cover_path });
           await qc.invalidateQueries({ queryKey: ['playlist', id] });
           await qc.invalidateQueries({ queryKey: ['library'] });

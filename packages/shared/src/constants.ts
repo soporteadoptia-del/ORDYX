@@ -74,7 +74,14 @@ export const TRACK_STATUS_LABELS: Record<(typeof TRACK_STATUSES)[number], string
   removed: 'Retirada',
 };
 
-export const REPORT_REASONS = ['copyright', 'spam', 'abuse', 'illegal', 'impersonation', 'other'] as const;
+export const REPORT_REASONS = [
+  'copyright',
+  'spam',
+  'abuse',
+  'illegal',
+  'impersonation',
+  'other',
+] as const;
 
 export const REPORT_REASON_LABELS: Record<(typeof REPORT_REASONS)[number], string> = {
   copyright: 'Infracción de derechos de autor',
@@ -85,7 +92,14 @@ export const REPORT_REASON_LABELS: Record<(typeof REPORT_REASONS)[number], strin
   other: 'Otro motivo',
 };
 
-export const REPORT_TARGETS = ['track', 'comment', 'profile', 'playlist', 'artist', 'album'] as const;
+export const REPORT_TARGETS = [
+  'track',
+  'comment',
+  'profile',
+  'playlist',
+  'artist',
+  'album',
+] as const;
 
 export const TRACK_LICENSES = [
   'all-rights-reserved',
@@ -112,4 +126,10 @@ export const LICENSE_LABELS: Record<(typeof TRACK_LICENSES)[number], string> = {
 export const PLATFORMS = ['android', 'ios'] as const;
 export const RELEASE_CHANNELS = ['stable', 'beta'] as const;
 export const RELEASE_STATUSES = ['draft', 'published', 'withdrawn'] as const;
-export const INSTALL_METHODS = ['apk', 'play_store', 'testflight', 'app_store', 'web_distribution'] as const;
+export const INSTALL_METHODS = [
+  'apk',
+  'play_store',
+  'testflight',
+  'app_store',
+  'web_distribution',
+] as const;

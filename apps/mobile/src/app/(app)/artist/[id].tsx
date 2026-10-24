@@ -10,7 +10,15 @@ import { Carousel } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING } from '@/components/Screen';
 import { useToast } from '@/components/Toast';
 import { TrackRow } from '@/components/TrackRow';
-import { Badge, Button, EmptyState, ErrorState, IconButton, Loading, SectionHeader } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  ErrorState,
+  IconButton,
+  Loading,
+  SectionHeader,
+} from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList, shufflePlay } from '@/player/play';
@@ -21,9 +29,18 @@ export default function ArtistScreen() {
   const qc = useQueryClient();
   const toast = useToast();
   const artist = useQuery({ queryKey: ['artist', id], queryFn: () => getArtist(id) });
-  const tracks = useQuery({ queryKey: ['artist', id, 'tracks'], queryFn: () => getArtistTracks(id) });
-  const albums = useQuery({ queryKey: ['artist', id, 'albums'], queryFn: () => getArtistAlbums(id) });
-  const following = useQuery({ queryKey: ['artist', id, 'following'], queryFn: () => isFollowingArtist(id) });
+  const tracks = useQuery({
+    queryKey: ['artist', id, 'tracks'],
+    queryFn: () => getArtistTracks(id),
+  });
+  const albums = useQuery({
+    queryKey: ['artist', id, 'albums'],
+    queryFn: () => getArtistAlbums(id),
+  });
+  const following = useQuery({
+    queryKey: ['artist', id, 'following'],
+    queryFn: () => isFollowingArtist(id),
+  });
   const follow = useMutation({
     mutationFn: () => setFollowingArtist(id, !following.data),
     onMutate: () => qc.setQueryData(['artist', id, 'following'], !following.data),
@@ -35,7 +52,8 @@ export default function ArtistScreen() {
   });
 
   if (artist.isLoading) return <Loading />;
-  if (!artist.data) return <ErrorState message={toUserMessage(artist.error)} onRetry={() => artist.refetch()} />;
+  if (!artist.data)
+    return <ErrorState message={toUserMessage(artist.error)} onRetry={() => artist.refetch()} />;
   const a = artist.data;
   const list = tracks.data ?? [];
   const links = Object.entries(a.links ?? {}).filter(([, url]) => /^https:\/\//.test(url));
@@ -70,22 +88,58 @@ export default function ArtistScreen() {
                     onPress={() => follow.mutate()}
                     accessibilityState={{ selected: !!following.data }}
                   />
-                  <IconButton name="flag-outline" label="Denunciar artista" color={colors.textMuted} onPress={() => router.push({ pathname: '/report', params: { type: 'artist', id: a.id, label: a.name } })} />
+                  <IconButton
+                    name="flag-outline"
+                    label="Denunciar artista"
+                    color={colors.textMuted}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/report',
+                        params: { type: 'artist', id: a.id, label: a.name },
+                      })
+                    }
+                  />
                 </>
               }
             />
             {links.length > 0 ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, paddingHorizontal: spacing.lg }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: spacing.sm,
+                  paddingHorizontal: spacing.lg,
+                }}
+              >
                 {links.map(([name, url]) => (
-                  <Button key={name} label={name} icon="open-outline" variant="ghost" compact onPress={() => WebBrowser.openBrowserAsync(url)} />
+                  <Button
+                    key={name}
+                    label={name}
+                    icon="open-outline"
+                    variant="ghost"
+                    compact
+                    onPress={() => WebBrowser.openBrowserAsync(url)}
+                  />
                 ))}
               </View>
             ) : null}
             <SectionHeader title="Populares" />
           </>
         }
-        renderItem={({ item, index }) => <TrackRow track={item} index={index} onPress={() => void playList(list, index, { type: 'artist', id: a.id })} />}
-        ListEmptyComponent={tracks.isLoading ? <Loading /> : <EmptyState title="Este artista aún no ha publicado canciones" />}
+        renderItem={({ item, index }) => (
+          <TrackRow
+            track={item}
+            index={index}
+            onPress={() => void playList(list, index, { type: 'artist', id: a.id })}
+          />
+        )}
+        ListEmptyComponent={
+          tracks.isLoading ? (
+            <Loading />
+          ) : (
+            <EmptyState title="Este artista aún no ha publicado canciones" />
+          )
+        }
         ListFooterComponent={
           (albums.data?.length ?? 0) > 0 ? (
             <>

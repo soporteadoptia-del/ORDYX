@@ -18,11 +18,16 @@ import { Loading, Text } from './ui';
 const Ctx = createContext<(track: TrackListItem) => void>(() => undefined);
 export const useTrackActions = () => useContext(Ctx);
 
-const icon = (name: React.ComponentProps<typeof Ionicons>['name'], color: string = colors.text) => <Ionicons name={name} size={22} color={color} />;
+const icon = (name: React.ComponentProps<typeof Ionicons>['name'], color: string = colors.text) => (
+  <Ionicons name={name} size={22} color={color} />
+);
 
 export function shareTrack(track: { id: string; title: string; artistName?: string }) {
   const url = `${env.webUrl}/t/${track.id}`;
-  return Share.share({ message: `${track.title}${track.artistName ? ` · ${track.artistName}` : ''} — ${url}`, url });
+  return Share.share({
+    message: `${track.title}${track.artistName ? ` · ${track.artistName}` : ''} — ${url}`,
+    url,
+  });
 }
 
 export function TrackActionsProvider({ children }: { children: ReactNode }) {
@@ -39,9 +44,14 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
   const addToQueue = usePlayer((s) => s.addToQueue);
   const qc = useQueryClient();
 
-  const playlists = useQuery({ queryKey: ['library', 'myPlaylists'], queryFn: getMyPlaylists, enabled: mode === 'playlists' && !!track });
+  const playlists = useQuery({
+    queryKey: ['library', 'myPlaylists'],
+    queryFn: getMyPlaylists,
+    enabled: mode === 'playlists' && !!track,
+  });
   const add = useMutation({
-    mutationFn: ({ playlistId }: { playlistId: string }) => addTrackToPlaylist(playlistId, track!.id),
+    mutationFn: ({ playlistId }: { playlistId: string }) =>
+      addTrackToPlaylist(playlistId, track!.id),
     onSuccess: (_d, { playlistId }) => {
       toast.show('Añadida a la playlist', 'success');
       void qc.invalidateQueries({ queryKey: ['playlist', playlistId] });
@@ -56,18 +66,29 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={open}>
       {children}
-      <Sheet visible={!!track} onClose={close} title={track ? `${track.title} · ${track.artist?.name ?? ''}` : undefined}>
+      <Sheet
+        visible={!!track}
+        onClose={close}
+        title={track ? `${track.title} · ${track.artist?.name ?? ''}` : undefined}
+      >
         {track && mode === 'menu' ? (
           <View>
             <SheetItem
-              icon={icon(isLiked(track.id) ? 'heart' : 'heart-outline', isLiked(track.id) ? colors.accentWarm : colors.text)}
+              icon={icon(
+                isLiked(track.id) ? 'heart' : 'heart-outline',
+                isLiked(track.id) ? colors.accentWarm : colors.text,
+              )}
               label={isLiked(track.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
               onPress={() => {
                 toggle(track.id);
                 close();
               }}
             />
-            <SheetItem icon={icon('add-circle-outline')} label="Añadir a una playlist" onPress={() => setMode('playlists')} />
+            <SheetItem
+              icon={icon('add-circle-outline')}
+              label="Añadir a una playlist"
+              onPress={() => setMode('playlists')}
+            />
             {playable ? (
               <>
                 <SheetItem
@@ -112,7 +133,11 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
               icon={icon('share-outline')}
               label="Compartir"
               onPress={() => {
-                void shareTrack({ id: track.id, title: track.title, artistName: track.artist?.name });
+                void shareTrack({
+                  id: track.id,
+                  title: track.title,
+                  artistName: track.artist?.name,
+                });
                 close();
               }}
             />
@@ -122,7 +147,10 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
               danger
               onPress={() => {
                 close();
-                router.push({ pathname: '/report', params: { type: 'track', id: track.id, label: track.title } });
+                router.push({
+                  pathname: '/report',
+                  params: { type: 'track', id: track.id, label: track.title },
+                });
               }}
             />
           </View>
@@ -144,7 +172,12 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
               </Text>
             ) : null}
             {playlists.data?.map((p) => (
-              <SheetItem key={p.id} icon={icon('musical-notes-outline')} label={p.title} onPress={() => add.mutate({ playlistId: p.id })} />
+              <SheetItem
+                key={p.id}
+                icon={icon('musical-notes-outline')}
+                label={p.title}
+                onPress={() => add.mutate({ playlistId: p.id })}
+              />
             ))}
             {playlists.data?.length === 0 ? (
               <Text muted style={{ padding: spacing.xl }}>

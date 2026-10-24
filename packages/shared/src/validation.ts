@@ -40,7 +40,9 @@ export const signUpSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   username: usernameSchema,
-  acceptTerms: z.literal(true, { message: 'Debes aceptar las condiciones y la política de privacidad' }),
+  acceptTerms: z.literal(true, {
+    message: 'Debes aceptar las condiciones y la política de privacidad',
+  }),
 });
 
 export const signInSchema = z.object({
@@ -85,7 +87,9 @@ export const audioFileSchema = z.object({
     .number()
     .positive('El archivo está vacío')
     .max(LIMITS.audioMaxBytes, `El archivo supera ${LIMITS.audioMaxBytes / 1024 / 1024} MB`),
-  mimeType: z.enum(AUDIO_MIME_TYPES, { message: 'Formato de audio no compatible (MP3, M4A, AAC, WAV, FLAC u OGG)' }),
+  mimeType: z.enum(AUDIO_MIME_TYPES, {
+    message: 'Formato de audio no compatible (MP3, M4A, AAC, WAV, FLAC u OGG)',
+  }),
 });
 
 export const imageFileSchema = z.object({
@@ -93,7 +97,9 @@ export const imageFileSchema = z.object({
     .number()
     .positive()
     .max(LIMITS.imageMaxBytes, `La imagen supera ${LIMITS.imageMaxBytes / 1024 / 1024} MB`),
-  mimeType: z.enum(IMAGE_MIME_TYPES, { message: 'Formato de imagen no compatible (JPG, PNG o WebP)' }),
+  mimeType: z.enum(IMAGE_MIME_TYPES, {
+    message: 'Formato de imagen no compatible (JPG, PNG o WebP)',
+  }),
 });
 
 export const artistSchema = z.object({
@@ -117,7 +123,9 @@ export const rightsClaimSchema = z.object({
   good_faith: z.literal(true, { message: 'Debes confirmar la declaración de buena fe' }),
 });
 
-export const semverSchema = z.string().regex(/^\d+\.\d+\.\d+$/, 'Usa el formato MAJOR.MINOR.PATCH (p. ej. 1.2.0)');
+export const semverSchema = z
+  .string()
+  .regex(/^\d+\.\d+\.\d+$/, 'Usa el formato MAJOR.MINOR.PATCH (p. ej. 1.2.0)');
 
 export const appVersionSchema = z
   .object({
@@ -140,10 +148,16 @@ export const appVersionSchema = z
     message: 'Indica una URL de descarga/instalación o una ruta en Storage',
     path: ['download_url'],
   })
-  .refine((v) => (v.platform === 'android' ? true : v.install_method !== 'apk' && v.install_method !== 'play_store'), {
-    message: 'Método de instalación no válido para iOS',
-    path: ['install_method'],
-  })
+  .refine(
+    (v) =>
+      v.platform === 'android'
+        ? true
+        : v.install_method !== 'apk' && v.install_method !== 'play_store',
+    {
+      message: 'Método de instalación no válido para iOS',
+      path: ['install_method'],
+    },
+  )
   .refine((v) => (v.platform === 'ios' ? true : ['apk', 'play_store'].includes(v.install_method)), {
     message: 'Método de instalación no válido para Android',
     path: ['install_method'],

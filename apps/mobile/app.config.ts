@@ -34,7 +34,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       // Reproducción en segundo plano (expo-audio también lo añade con enableBackgroundPlayback).
       UIBackgroundModes: ['audio'],
-      NSPhotoLibraryUsageDescription: 'Ordyx usa tu fototeca solo para elegir portadas y fotos de perfil.',
+      NSPhotoLibraryUsageDescription:
+        'Ordyx usa tu fototeca solo para elegir portadas y fotos de perfil.',
       ITSAppUsesNonExemptEncryption: false,
     },
   },
@@ -65,11 +66,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-secure-store',
-    ['expo-image-picker', { photosPermission: 'Ordyx usa tu fototeca solo para elegir portadas y fotos de perfil.', cameraPermission: false, microphonePermission: false }],
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'Ordyx usa tu fototeca solo para elegir portadas y fotos de perfil.',
+        cameraPermission: false,
+        microphonePermission: false,
+      },
+    ],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   runtimeVersion: { policy: 'appVersion' },
-  updates: process.env.EAS_PROJECT_ID ? { url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID}` } : undefined,
+  updates: process.env.EAS_PROJECT_ID
+    ? { url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID}` }
+    : undefined,
   extra: {
     eas: process.env.EAS_PROJECT_ID ? { projectId: process.env.EAS_PROJECT_ID } : undefined,
     variant,

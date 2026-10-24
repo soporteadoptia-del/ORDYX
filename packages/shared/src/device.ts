@@ -5,7 +5,10 @@ export type DetectedDevice = 'android' | 'ios' | 'desktop' | 'unknown';
  * Nunca debe usarse para bloquear contenido: la web siempre permite elegir manualmente.
  * iPadOS 13+ se presenta como "Macintosh"; se distingue con `maxTouchPoints` cuando está disponible.
  */
-export function detectDevice(userAgent: string | null | undefined, maxTouchPoints?: number): DetectedDevice {
+export function detectDevice(
+  userAgent: string | null | undefined,
+  maxTouchPoints?: number,
+): DetectedDevice {
   if (!userAgent) return 'unknown';
   const ua = userAgent.toLowerCase();
   if (ua.includes('android')) return 'android';

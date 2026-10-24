@@ -76,18 +76,31 @@ export async function getPublicConfig(): Promise<PublicConfig> {
   'use cache';
   cacheLife('minutes');
   cacheTag('app-config');
-  const fallback: PublicConfig = { platformName: BRAND.name, supportEmail: BRAND.supportEmail, socialLinks: {}, maintenanceMessage: null };
+  const fallback: PublicConfig = {
+    platformName: BRAND.name,
+    supportEmail: BRAND.supportEmail,
+    socialLinks: {},
+    maintenanceMessage: null,
+  };
   if (!isConfigured) return fallback;
   try {
     const { data, error } = await anonClient().from('app_config').select('key,value');
     if (error) throw error;
-    const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value])) as Record<string, unknown>;
+    const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value])) as Record<
+      string,
+      unknown
+    >;
     const links = (map.social_links ?? {}) as Record<string, string>;
     return {
-      platformName: typeof map.platform_name === 'string' ? map.platform_name : fallback.platformName,
-      supportEmail: typeof map.support_email === 'string' ? map.support_email : fallback.supportEmail,
-      socialLinks: Object.fromEntries(Object.entries(links).filter(([, u]) => typeof u === 'string' && u.startsWith('https://'))),
-      maintenanceMessage: typeof map.maintenance_message === 'string' ? map.maintenance_message : null,
+      platformName:
+        typeof map.platform_name === 'string' ? map.platform_name : fallback.platformName,
+      supportEmail:
+        typeof map.support_email === 'string' ? map.support_email : fallback.supportEmail,
+      socialLinks: Object.fromEntries(
+        Object.entries(links).filter(([, u]) => typeof u === 'string' && u.startsWith('https://')),
+      ),
+      maintenanceMessage:
+        typeof map.maintenance_message === 'string' ? map.maintenance_message : null,
     };
   } catch {
     return fallback;

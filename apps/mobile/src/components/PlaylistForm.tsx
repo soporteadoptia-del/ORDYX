@@ -14,7 +14,12 @@ export interface PickedImage {
 }
 
 export async function pickImage(): Promise<PickedImage | null> {
-  const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.85 });
+  const res = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.85,
+  });
   if (res.canceled || !res.assets[0]) return null;
   const a = res.assets[0];
   return {
@@ -42,7 +47,10 @@ export function PlaylistForm({
   const [saving, setSaving] = useState(false);
 
   async function submit() {
-    const parsed = playlistSchema.safeParse({ ...values, description: values.description?.trim() || null });
+    const parsed = playlistSchema.safeParse({
+      ...values,
+      description: values.description?.trim() || null,
+    });
     if (!parsed.success) return setError(firstError(parsed.error));
     setError(null);
     setSaving(true);
@@ -56,7 +64,11 @@ export function PlaylistForm({
   }
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Pressable
         onPress={async () => {
           const img = await pickImage();
@@ -66,12 +78,22 @@ export function PlaylistForm({
         accessibilityLabel="Elegir portada"
         style={{ alignSelf: 'center', alignItems: 'center', gap: spacing.sm }}
       >
-        <Artwork uri={cover?.uri ?? currentCover ?? null} size={160} icon="list" seed={values.title} />
+        <Artwork
+          uri={cover?.uri ?? currentCover ?? null}
+          size={160}
+          icon="list"
+          seed={values.title}
+        />
         <Text variant="caption" style={{ color: colors.accentStrong }}>
           Elegir portada
         </Text>
       </Pressable>
-      <TextField label="Título" value={values.title} onChangeText={(title) => setValues((v) => ({ ...v, title }))} maxLength={100} />
+      <TextField
+        label="Título"
+        value={values.title}
+        onChangeText={(title) => setValues((v) => ({ ...v, title }))}
+        maxLength={100}
+      />
       <TextField
         label="Descripción (opcional)"
         value={values.description ?? ''}

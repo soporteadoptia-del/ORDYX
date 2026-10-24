@@ -15,7 +15,8 @@
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-danger: #f87171;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --radius-card: 1.25rem;
 }
 

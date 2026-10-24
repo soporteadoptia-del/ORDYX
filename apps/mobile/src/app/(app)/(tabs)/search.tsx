@@ -3,12 +3,28 @@ import { LIMITS, type SearchKind, type SearchResult } from '@ordyx/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { getGenres, getTracksByIds, searchCatalog } from '@/api/catalog';
 import { addSearchHistory, clearSearchHistory, getSearchHistory } from '@/api/social';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
-import { Chip, EmptyState, ErrorState, IconButton, Loading, SectionHeader, Text } from '@/components/ui';
+import {
+  Chip,
+  EmptyState,
+  ErrorState,
+  IconButton,
+  Loading,
+  SectionHeader,
+  Text,
+} from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList } from '@/player/play';
@@ -23,7 +39,13 @@ const KINDS: { kind: SearchKind | null; label: string }[] = [
   { kind: 'profile', label: 'Perfiles' },
 ];
 
-const KIND_LABEL: Record<SearchKind, string> = { track: 'Canción', artist: 'Artista', album: 'Álbum', playlist: 'Playlist', profile: 'Perfil' };
+const KIND_LABEL: Record<SearchKind, string> = {
+  track: 'Canción',
+  artist: 'Artista',
+  album: 'Álbum',
+  playlist: 'Playlist',
+  profile: 'Perfil',
+};
 
 function useDebounced<T>(value: T, ms: number) {
   const [v, setV] = useState(value);
@@ -47,13 +69,20 @@ export default function Search() {
     getNextPageParam: (last, pages) => (last.length === LIMITS.pageSize ? pages.length : undefined),
     enabled: query.length > 0,
   });
-  const history = useQuery({ queryKey: ['search', 'history'], queryFn: getSearchHistory, enabled: query.length === 0 });
+  const history = useQuery({
+    queryKey: ['search', 'history'],
+    queryFn: getSearchHistory,
+    enabled: query.length === 0,
+  });
   const genres = useQuery({ queryKey: ['genres'], queryFn: getGenres, staleTime: 3_600_000 });
   const saveHistory = useMutation({
     mutationFn: addSearchHistory,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['search', 'history'] }),
   });
-  const clearHistory = useMutation({ mutationFn: clearSearchHistory, onSuccess: () => qc.invalidateQueries({ queryKey: ['search', 'history'] }) });
+  const clearHistory = useMutation({
+    mutationFn: clearSearchHistory,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['search', 'history'] }),
+  });
 
   async function open(r: SearchResult) {
     if (query) saveHistory.mutate(query);
@@ -96,22 +125,51 @@ export default function Search() {
             onSubmitEditing={() => query && saveHistory.mutate(query)}
             accessibilityLabel="Buscar"
           />
-          {text ? <IconButton name="close-circle" label="Borrar búsqueda" size={20} color={colors.textMuted} onPress={() => setText('')} /> : null}
+          {text ? (
+            <IconButton
+              name="close-circle"
+              label="Borrar búsqueda"
+              size={20}
+              color={colors.textMuted}
+              onPress={() => setText('')}
+            />
+          ) : null}
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: spacing.sm }}
+        >
           {KINDS.map((k) => (
-            <Chip key={k.label} label={k.label} selected={kind === k.kind} onPress={() => setKind(k.kind)} />
+            <Chip
+              key={k.label}
+              label={k.label}
+              selected={kind === k.kind}
+              onPress={() => setKind(k.kind)}
+            />
           ))}
         </ScrollView>
       </View>
 
       {query.length === 0 ? (
-        <ScrollView contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
+          keyboardShouldPersistTaps="handled"
+        >
           {(history.data?.length ?? 0) > 0 ? (
             <>
-              <SectionHeader title="Búsquedas recientes" action="Borrar" onAction={() => clearHistory.mutate()} />
+              <SectionHeader
+                title="Búsquedas recientes"
+                action="Borrar"
+                onAction={() => clearHistory.mutate()}
+              />
               {history.data!.map((h) => (
-                <Pressable key={h.id} onPress={() => setText(h.query)} style={styles.historyRow} accessibilityRole="button">
+                <Pressable
+                  key={h.id}
+                  onPress={() => setText(h.query)}
+                  style={styles.historyRow}
+                  accessibilityRole="button"
+                >
                   <Ionicons name="time-outline" size={18} color={colors.textMuted} />
                   <Text>{h.query}</Text>
                 </Pressable>
@@ -123,8 +181,16 @@ export default function Search() {
             {genres.data?.map((g, i) => (
               <Pressable
                 key={g.id}
-                onPress={() => router.push({ pathname: '/genre/[id]', params: { id: String(g.id), name: g.name } })}
-                style={[styles.genre, { backgroundColor: `hsl(${(i * 47 + 260) % 360}, 55%, 32%)` }]}
+                onPress={() =>
+                  router.push({
+                    pathname: '/genre/[id]',
+                    params: { id: String(g.id), name: g.name },
+                  })
+                }
+                style={[
+                  styles.genre,
+                  { backgroundColor: `hsl(${(i * 47 + 260) % 360}, 55%, 32%)` },
+                ]}
                 accessibilityRole="button"
               >
                 <Text variant="heading">{g.name}</Text>
@@ -142,17 +208,51 @@ export default function Search() {
           keyExtractor={(r) => `${r.kind}-${r.id}`}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING, flexGrow: 1 }}
-          onEndReached={() => results.hasNextPage && !results.isFetchingNextPage && results.fetchNextPage()}
+          onEndReached={() =>
+            results.hasNextPage && !results.isFetchingNextPage && results.fetchNextPage()
+          }
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={<EmptyState icon="search-outline" title={`Sin resultados para «${query}»`} message="Prueba con otras palabras o revisa la ortografía." />}
-          ListFooterComponent={results.isFetchingNextPage ? <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} /> : undefined}
+          ListEmptyComponent={
+            <EmptyState
+              icon="search-outline"
+              title={`Sin resultados para «${query}»`}
+              message="Prueba con otras palabras o revisa la ortografía."
+            />
+          }
+          ListFooterComponent={
+            results.isFetchingNextPage ? (
+              <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} />
+            ) : undefined
+          }
           renderItem={({ item }) => (
-            <Pressable onPress={() => void open(item)} style={({ pressed }) => [styles.result, pressed && { backgroundColor: colors.surface }]} accessibilityRole="button">
+            <Pressable
+              onPress={() => void open(item)}
+              style={({ pressed }) => [
+                styles.result,
+                pressed && { backgroundColor: colors.surface },
+              ]}
+              accessibilityRole="button"
+            >
               <Artwork
-                uri={imageUrl(item.kind === 'profile' ? 'avatars' : item.kind === 'playlist' ? 'playlist-images' : 'covers', item.image_path)}
+                uri={imageUrl(
+                  item.kind === 'profile'
+                    ? 'avatars'
+                    : item.kind === 'playlist'
+                      ? 'playlist-images'
+                      : 'covers',
+                  item.image_path,
+                )}
                 size={52}
                 rounded={item.kind === 'artist' || item.kind === 'profile'}
-                icon={item.kind === 'artist' || item.kind === 'profile' ? 'person' : item.kind === 'album' ? 'disc' : item.kind === 'playlist' ? 'list' : 'musical-notes'}
+                icon={
+                  item.kind === 'artist' || item.kind === 'profile'
+                    ? 'person'
+                    : item.kind === 'album'
+                      ? 'disc'
+                      : item.kind === 'playlist'
+                        ? 'list'
+                        : 'musical-notes'
+                }
                 seed={item.id}
               />
               <View style={{ flex: 1 }}>
@@ -173,7 +273,12 @@ export default function Search() {
 }
 
 const styles = StyleSheet.create({
-  top: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.md, paddingBottom: spacing.sm },
+  top: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    gap: spacing.md,
+    paddingBottom: spacing.sm,
+  },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -183,8 +288,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   input: { flex: 1, paddingVertical: 12, fontSize: 16, color: colors.background },
-  historyRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
-  genres: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, paddingHorizontal: spacing.lg },
-  genre: { width: '48.5%', height: 88, borderRadius: radius.md, padding: spacing.md, justifyContent: 'flex-end' },
-  result: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  historyRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  genres: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  genre: {
+    width: '48.5%',
+    height: 88,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    justifyContent: 'flex-end',
+  },
+  result: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
 });

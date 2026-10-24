@@ -38,8 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const userId = session?.user.id ?? null;
-  const profileQuery = useQuery({ queryKey: ['me', 'profile', userId], queryFn: getMyProfile, enabled: !!userId });
-  const rolesQuery = useQuery({ queryKey: ['me', 'roles', userId], queryFn: getMyRoles, enabled: !!userId });
+  const profileQuery = useQuery({
+    queryKey: ['me', 'profile', userId],
+    queryFn: getMyProfile,
+    enabled: !!userId,
+  });
+  const rolesQuery = useQuery({
+    queryKey: ['me', 'roles', userId],
+    queryFn: getMyRoles,
+    enabled: !!userId,
+  });
 
   const value = useMemo<AuthContextValue>(() => {
     const roles = rolesQuery.data ?? [];
@@ -48,7 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       initializing,
       profile: profileQuery.data ?? null,
       roles,
-      canUpload: profileQuery.data?.status === 'active' && (roles.includes('artist') || roles.includes('admin')),
+      canUpload:
+        profileQuery.data?.status === 'active' &&
+        (roles.includes('artist') || roles.includes('admin')),
       isStaff: roles.includes('admin') || roles.includes('moderator'),
       async signOut(scope = 'local') {
         await clearPersistedPlayer();

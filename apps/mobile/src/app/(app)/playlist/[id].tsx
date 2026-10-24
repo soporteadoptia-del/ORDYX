@@ -2,7 +2,14 @@ import { formatLongDuration } from '@ordyx/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, FlatList, Share, View } from 'react-native';
-import { deletePlaylist, getPlaylist, isPlaylistSaved, movePlaylistItem, removePlaylistItem, setPlaylistSaved } from '@/api/playlists';
+import {
+  deletePlaylist,
+  getPlaylist,
+  isPlaylistSaved,
+  movePlaylistItem,
+  removePlaylistItem,
+  setPlaylistSaved,
+} from '@/api/playlists';
 import { CollectionHeader } from '@/components/CollectionHeader';
 import { LIST_BOTTOM_PADDING } from '@/components/Screen';
 import { useToast } from '@/components/Toast';
@@ -22,7 +29,11 @@ export default function PlaylistScreen() {
   const toast = useToast();
   const q = useQuery({ queryKey: ['playlist', id], queryFn: () => getPlaylist(id) });
   const isOwner = q.data?.owner_id === session?.user.id;
-  const saved = useQuery({ queryKey: ['playlist', id, 'saved'], queryFn: () => isPlaylistSaved(id), enabled: !!q.data && !isOwner });
+  const saved = useQuery({
+    queryKey: ['playlist', id, 'saved'],
+    queryFn: () => isPlaylistSaved(id),
+    enabled: !!q.data && !isOwner,
+  });
 
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ['playlist', id] });
@@ -30,11 +41,18 @@ export default function PlaylistScreen() {
   };
   const onError = (e: unknown) => toast.show(toUserMessage(e), 'error');
   const remove = useMutation({ mutationFn: removePlaylistItem, onSuccess: invalidate, onError });
-  const moveItem = useMutation({ mutationFn: ({ item, to }: { item: number; to: number }) => movePlaylistItem(item, to), onSuccess: invalidate, onError });
+  const moveItem = useMutation({
+    mutationFn: ({ item, to }: { item: number; to: number }) => movePlaylistItem(item, to),
+    onSuccess: invalidate,
+    onError,
+  });
   const toggleSave = useMutation({
     mutationFn: () => setPlaylistSaved(id, !saved.data),
     onSuccess: () => {
-      toast.show(saved.data ? 'Eliminada de tu biblioteca' : 'Guardada en tu biblioteca', 'success');
+      toast.show(
+        saved.data ? 'Eliminada de tu biblioteca' : 'Guardada en tu biblioteca',
+        'success',
+      );
       invalidate();
     },
     onError,
@@ -49,7 +67,8 @@ export default function PlaylistScreen() {
   });
 
   if (q.isLoading) return <Loading />;
-  if (q.error || !q.data) return <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />;
+  if (q.error || !q.data)
+    return <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />;
   const p = q.data;
   const tracks = p.items.map((i) => i.track);
 
@@ -76,15 +95,23 @@ export default function PlaylistScreen() {
               <>
                 {isOwner ? (
                   <>
-                    <IconButton name="create-outline" label="Editar playlist" onPress={() => router.push(`/playlist/edit/${p.id}`)} />
+                    <IconButton
+                      name="create-outline"
+                      label="Editar playlist"
+                      onPress={() => router.push(`/playlist/edit/${p.id}`)}
+                    />
                     <IconButton
                       name="trash-outline"
                       label="Eliminar playlist"
                       onPress={() =>
-                        Alert.alert('Eliminar playlist', `¿Seguro que quieres eliminar «${p.title}»?`, [
-                          { text: 'Cancelar', style: 'cancel' },
-                          { text: 'Eliminar', style: 'destructive', onPress: () => del.mutate() },
-                        ])
+                        Alert.alert(
+                          'Eliminar playlist',
+                          `¿Seguro que quieres eliminar «${p.title}»?`,
+                          [
+                            { text: 'Cancelar', style: 'cancel' },
+                            { text: 'Eliminar', style: 'destructive', onPress: () => del.mutate() },
+                          ],
+                        )
                       }
                     />
                   </>
@@ -97,7 +124,13 @@ export default function PlaylistScreen() {
                   />
                 )}
                 {p.is_public ? (
-                  <IconButton name="share-outline" label="Compartir" onPress={() => void Share.share({ message: `${p.title} — ${env.webUrl}/p/${p.id}` })} />
+                  <IconButton
+                    name="share-outline"
+                    label="Compartir"
+                    onPress={() =>
+                      void Share.share({ message: `${p.title} — ${env.webUrl}/p/${p.id}` })
+                    }
+                  />
                 ) : null}
               </>
             }
@@ -107,8 +140,21 @@ export default function PlaylistScreen() {
           <EmptyState
             icon="musical-notes-outline"
             title="Esta playlist está vacía"
-            message={isOwner ? 'Mantén pulsada cualquier canción y elige «Añadir a una playlist».' : undefined}
-            action={isOwner ? <Button label="Buscar canciones" compact variant="secondary" onPress={() => router.push('/search')} /> : undefined}
+            message={
+              isOwner
+                ? 'Mantén pulsada cualquier canción y elige «Añadir a una playlist».'
+                : undefined
+            }
+            action={
+              isOwner ? (
+                <Button
+                  label="Buscar canciones"
+                  compact
+                  variant="secondary"
+                  onPress={() => router.push('/search')}
+                />
+              ) : undefined
+            }
           />
         }
         renderItem={({ item, index }) => (
@@ -118,9 +164,27 @@ export default function PlaylistScreen() {
             trailing={
               isOwner ? (
                 <View style={{ flexDirection: 'row' }}>
-                  <IconButton name="chevron-up" label="Subir" size={18} disabled={index === 0} onPress={() => moveItem.mutate({ item: item.id, to: index })} />
-                  <IconButton name="chevron-down" label="Bajar" size={18} disabled={index === p.items.length - 1} onPress={() => moveItem.mutate({ item: item.id, to: index + 2 })} />
-                  <IconButton name="remove-circle-outline" label="Quitar de la playlist" size={18} color={colors.textMuted} onPress={() => remove.mutate(item.id)} />
+                  <IconButton
+                    name="chevron-up"
+                    label="Subir"
+                    size={18}
+                    disabled={index === 0}
+                    onPress={() => moveItem.mutate({ item: item.id, to: index })}
+                  />
+                  <IconButton
+                    name="chevron-down"
+                    label="Bajar"
+                    size={18}
+                    disabled={index === p.items.length - 1}
+                    onPress={() => moveItem.mutate({ item: item.id, to: index + 2 })}
+                  />
+                  <IconButton
+                    name="remove-circle-outline"
+                    label="Quitar de la playlist"
+                    size={18}
+                    color={colors.textMuted}
+                    onPress={() => remove.mutate(item.id)}
+                  />
                 </View>
               ) : undefined
             }

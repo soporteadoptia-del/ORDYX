@@ -10,7 +10,8 @@ export default function Queue() {
   const remove = usePlayer((s) => s.removeFromQueue);
   const move = usePlayer((s) => s.moveInQueue);
 
-  if (queue.entries.length === 0) return <EmptyState icon="list-outline" title="La cola está vacía" />;
+  if (queue.entries.length === 0)
+    return <EmptyState icon="list-outline" title="La cola está vacía" />;
 
   return (
     <FlatList
@@ -18,7 +19,9 @@ export default function Queue() {
       data={queue.entries}
       keyExtractor={(e) => e.key}
       ListHeaderComponent={
-        <SectionHeader title={`${queue.entries.length} canciones${queue.shuffle ? ' · aleatorio' : ''}${queue.repeat !== 'off' ? ' · repetición' : ''}`} />
+        <SectionHeader
+          title={`${queue.entries.length} canciones${queue.shuffle ? ' · aleatorio' : ''}${queue.repeat !== 'off' ? ' · repetición' : ''}`}
+        />
       }
       contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
       renderItem={({ item, index }) => {
@@ -32,16 +35,38 @@ export default function Queue() {
           >
             <Artwork uri={item.item.coverUrl} size={44} seed={item.item.id} />
             <View style={{ flex: 1 }}>
-              <Text variant="bodyStrong" numberOfLines={1} style={isCurrent ? { color: colors.accentStrong } : undefined}>
+              <Text
+                variant="bodyStrong"
+                numberOfLines={1}
+                style={isCurrent ? { color: colors.accentStrong } : undefined}
+              >
                 {item.item.title}
               </Text>
               <Text variant="caption" muted numberOfLines={1}>
                 {item.item.artistName}
               </Text>
             </View>
-            <IconButton name="chevron-up" label="Subir" size={20} disabled={index === 0} onPress={() => move(index, index - 1)} />
-            <IconButton name="chevron-down" label="Bajar" size={20} disabled={index === queue.entries.length - 1} onPress={() => move(index, index + 1)} />
-            <IconButton name="close" label="Quitar de la cola" size={20} color={colors.textMuted} onPress={() => void remove(index)} />
+            <IconButton
+              name="chevron-up"
+              label="Subir"
+              size={20}
+              disabled={index === 0}
+              onPress={() => move(index, index - 1)}
+            />
+            <IconButton
+              name="chevron-down"
+              label="Bajar"
+              size={20}
+              disabled={index === queue.entries.length - 1}
+              onPress={() => move(index, index + 1)}
+            />
+            <IconButton
+              name="close"
+              label="Quitar de la cola"
+              size={20}
+              color={colors.textMuted}
+              onPress={() => void remove(index)}
+            />
           </Pressable>
         );
       }}
@@ -50,5 +75,11 @@ export default function Queue() {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
 });

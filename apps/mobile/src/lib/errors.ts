@@ -6,7 +6,10 @@ import { supabase } from './supabase';
 export { toUserMessage };
 
 /** Registra un error relevante en el servidor (sin datos sensibles) para el panel de administración. */
-export function reportError(error: unknown, context: Record<string, string | number | boolean | null> = {}) {
+export function reportError(
+  error: unknown,
+  context: Record<string, string | number | boolean | null> = {},
+) {
   const message = error instanceof Error ? error.message : String(error);
   if (__DEV__) console.warn('[ordyx]', message, context);
   supabase

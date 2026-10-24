@@ -27,7 +27,10 @@ export default function ResetPassword() {
 
   if (!session) {
     return (
-      <AuthShell title="Enlace no válido" subtitle="El enlace ha caducado o ya se ha usado. Solicita uno nuevo desde «¿Has olvidado tu contraseña?».">
+      <AuthShell
+        title="Enlace no válido"
+        subtitle="El enlace ha caducado o ya se ha usado. Solicita uno nuevo desde «¿Has olvidado tu contraseña?»."
+      >
         <Button label="Volver" onPress={() => router.replace('/sign-in')} />
       </AuthShell>
     );
@@ -35,7 +38,13 @@ export default function ResetPassword() {
 
   return (
     <AuthShell title="Nueva contraseña">
-      <TextField label="Contraseña nueva" value={password} onChangeText={setPassword} secureTextEntry autoComplete="new-password" />
+      <TextField
+        label="Contraseña nueva"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="new-password"
+      />
       {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
       <Button label="Guardar contraseña" onPress={submit} loading={loading} />
     </AuthShell>

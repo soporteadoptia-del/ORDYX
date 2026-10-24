@@ -1,5 +1,10 @@
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
-import { QueryClient, QueryClientProvider, focusManager, onlineManager } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+  onlineManager,
+} from '@tanstack/react-query';
 import * as Linking from 'expo-linking';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -22,7 +27,11 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 60_000,
       // Reintentos controlados: 2 veces, salvo errores de permisos o de "no encontrado".
-      retry: (count, error) => count < 2 && !/42501|PGRST116|not_allowed|not_found/.test(String((error as { code?: string })?.code ?? error)),
+      retry: (count, error) =>
+        count < 2 &&
+        !/42501|PGRST116|not_allowed|not_found/.test(
+          String((error as { code?: string })?.code ?? error),
+        ),
     },
   },
 });
@@ -35,7 +44,14 @@ onlineManager.setOnline(true);
 
 const navTheme = {
   ...DarkTheme,
-  colors: { ...DarkTheme.colors, background: colors.background, card: colors.surface, text: colors.text, border: colors.border, primary: colors.accentStrong },
+  colors: {
+    ...DarkTheme.colors,
+    background: colors.background,
+    card: colors.surface,
+    text: colors.text,
+    border: colors.border,
+    primary: colors.accentStrong,
+  },
 };
 
 /** Procesa los enlaces de recuperación de contraseña: ordyx://reset-password#access_token=…&refresh_token=… */
@@ -68,7 +84,9 @@ function RootNavigator() {
   if (initializing) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+    <Stack
+      screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
+    >
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="(app)" />
       </Stack.Protected>

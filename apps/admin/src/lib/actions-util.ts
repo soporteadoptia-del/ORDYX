@@ -3,7 +3,11 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 /** Ejecuta una operación administrativa y vuelve a la página con un mensaje legible. */
-export async function runAndReturn(path: string, okMessage: string, fn: () => Promise<{ error: unknown } | void>) {
+export async function runAndReturn(
+  path: string,
+  okMessage: string,
+  fn: () => Promise<{ error: unknown } | void>,
+) {
   let errorMessage: string | null = null;
   try {
     const result = await fn();
@@ -13,11 +17,14 @@ export async function runAndReturn(path: string, okMessage: string, fn: () => Pr
   }
   revalidatePath(path);
   const sep = path.includes('?') ? '&' : '?';
-  redirect(`${path}${sep}${errorMessage ? `error=${encodeURIComponent(errorMessage)}` : `ok=${encodeURIComponent(okMessage)}`}`);
+  redirect(
+    `${path}${sep}${errorMessage ? `error=${encodeURIComponent(errorMessage)}` : `ok=${encodeURIComponent(okMessage)}`}`,
+  );
 }
 
 function detail(e: unknown) {
-  const d = (e as { details?: string; detail?: string })?.details ?? (e as { detail?: string })?.detail;
+  const d =
+    (e as { details?: string; detail?: string })?.details ?? (e as { detail?: string })?.detail;
   return d ? ` (${d})` : '';
 }
 

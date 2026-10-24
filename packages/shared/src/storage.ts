@@ -6,11 +6,16 @@ import { STORAGE_BUCKETS } from './constants';
  */
 export const storagePaths = {
   avatar: (userId: string, ext: string) => `${userId}/avatar-${Date.now()}.${ext}`,
-  trackCover: (userId: string, trackId: string, ext: string) => `${userId}/tracks/${trackId}-${Date.now()}.${ext}`,
-  albumCover: (userId: string, albumId: string, ext: string) => `${userId}/albums/${albumId}-${Date.now()}.${ext}`,
-  artistImage: (userId: string, artistId: string, ext: string) => `${userId}/artists/${artistId}-${Date.now()}.${ext}`,
-  playlistImage: (userId: string, playlistId: string, ext: string) => `${userId}/${playlistId}-${Date.now()}.${ext}`,
-  audioOriginal: (userId: string, trackId: string, ext: string) => `${userId}/${trackId}/original.${ext}`,
+  trackCover: (userId: string, trackId: string, ext: string) =>
+    `${userId}/tracks/${trackId}-${Date.now()}.${ext}`,
+  albumCover: (userId: string, albumId: string, ext: string) =>
+    `${userId}/albums/${albumId}-${Date.now()}.${ext}`,
+  artistImage: (userId: string, artistId: string, ext: string) =>
+    `${userId}/artists/${artistId}-${Date.now()}.${ext}`,
+  playlistImage: (userId: string, playlistId: string, ext: string) =>
+    `${userId}/${playlistId}-${Date.now()}.${ext}`,
+  audioOriginal: (userId: string, trackId: string, ext: string) =>
+    `${userId}/${trackId}/original.${ext}`,
 };
 
 /** URL pública de una imagen en un bucket público. Devuelve null si no hay ruta. */

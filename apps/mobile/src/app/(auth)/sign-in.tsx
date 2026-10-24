@@ -25,9 +25,28 @@ export default function SignIn() {
   }
 
   return (
-    <AuthShell title="Inicia sesión" subtitle="Tu música y tus playlists, en todos tus dispositivos.">
-      <TextField label="Correo electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" textContentType="emailAddress" />
-      <TextField label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" textContentType="password" onSubmitEditing={submit} />
+    <AuthShell
+      title="Inicia sesión"
+      subtitle="Tu música y tus playlists, en todos tus dispositivos."
+    >
+      <TextField
+        label="Correo electrónico"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
+      />
+      <TextField
+        label="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="password"
+        textContentType="password"
+        onSubmitEditing={submit}
+      />
       {error ? (
         <Text style={{ color: colors.danger }} accessibilityRole="alert">
           {error}

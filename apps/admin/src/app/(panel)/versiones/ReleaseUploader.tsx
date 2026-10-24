@@ -20,7 +20,10 @@ export function ReleaseUploader() {
       setState('Subiendo a Storage…');
       const { error } = await browserClient()
         .storage.from('releases')
-        .upload(path, file, { contentType: 'application/vnd.android.package-archive', upsert: false });
+        .upload(path, file, {
+          contentType: 'application/vnd.android.package-archive',
+          upsert: false,
+        });
       if (error) throw error;
       const set = (name: string, value: string) => {
         const el = document.querySelector<HTMLInputElement>(`#new-version [name="${name}"]`);
@@ -39,10 +42,16 @@ export function ReleaseUploader() {
     <div className="rounded-lg border border-dashed border-line p-3 text-sm">
       <label className={`${btnGhost} cursor-pointer`}>
         Subir APK al bucket «releases»
-        <input type="file" accept=".apk,application/vnd.android.package-archive" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+        <input
+          type="file"
+          accept=".apk,application/vnd.android.package-archive"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
+        />
       </label>
       <p className="mt-2 text-xs text-muted">
-        {state ?? 'Opcional. También puedes alojar el APK fuera (p. ej. GitHub Releases) y pegar su URL HTTPS. Revisa el límite de tamaño por archivo de tu plan de Supabase.'}
+        {state ??
+          'Opcional. También puedes alojar el APK fuera (p. ej. GitHub Releases) y pegar su URL HTTPS. Revisa el límite de tamaño por archivo de tu plan de Supabase.'}
       </p>
     </div>
   );

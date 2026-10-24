@@ -68,7 +68,8 @@ export function nextIndex<T>(state: QueueState<T>, auto: boolean): number | null
 export function previousIndex<T>(state: QueueState<T>, positionMs: number): number {
   if (state.entries.length === 0) return -1;
   if (positionMs > 3000 || state.index <= 0) {
-    if (state.index <= 0 && state.repeat === 'all' && positionMs <= 3000) return state.entries.length - 1;
+    if (state.index <= 0 && state.repeat === 'all' && positionMs <= 3000)
+      return state.entries.length - 1;
     return Math.max(0, state.index);
   }
   return state.index - 1;
@@ -86,7 +87,11 @@ export function cycleRepeat<T>(state: QueueState<T>): QueueState<T> {
 }
 
 /** Activa/desactiva el modo aleatorio manteniendo la canción actual en reproducción. */
-export function setShuffle<T>(state: QueueState<T>, on: boolean, random: () => number = Math.random): QueueState<T> {
+export function setShuffle<T>(
+  state: QueueState<T>,
+  on: boolean,
+  random: () => number = Math.random,
+): QueueState<T> {
   if (on === state.shuffle) return state;
   const cur = current(state);
   if (on) {
@@ -120,7 +125,12 @@ export function enqueue<T>(state: QueueState<T>, items: T[]): QueueState<T> {
   const added = items.map((item) => ({ key: makeKey(), item }));
   const entries = [...state.entries, ...added];
   const original = state.shuffle ? [...state.original, ...added] : entries;
-  return { ...state, entries, original, index: state.index === -1 && entries.length ? 0 : state.index };
+  return {
+    ...state,
+    entries,
+    original,
+    index: state.index === -1 && entries.length ? 0 : state.index,
+  };
 }
 
 export function removeAt<T>(state: QueueState<T>, index: number): QueueState<T> {

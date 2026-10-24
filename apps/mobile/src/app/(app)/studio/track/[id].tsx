@@ -1,4 +1,9 @@
-import { firstError, TRACK_STATUS_LABELS, trackMetadataSchema, type TrackLicense } from '@ordyx/shared';
+import {
+  firstError,
+  TRACK_STATUS_LABELS,
+  trackMetadataSchema,
+  type TrackLicense,
+} from '@ordyx/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -18,7 +23,8 @@ export default function EditTrackScreen() {
   const tracks = useQuery({ queryKey: ['studio', 'tracks'], queryFn: getMyTracks });
   const track = tracks.data?.find((t) => t.id === id);
   if (tracks.isLoading) return <Loading />;
-  if (!track) return <ErrorState message={toUserMessage(tracks.error ?? new Error('ordyx:not_found'))} />;
+  if (!track)
+    return <ErrorState message={toUserMessage(tracks.error ?? new Error('ordyx:not_found'))} />;
   return <EditTrack track={track} />;
 }
 
@@ -50,7 +56,11 @@ function EditTrack({ track }: { track: TrackDetail }) {
   };
 
   function save() {
-    const parsed = trackMetadataSchema.safeParse({ ...meta, description: meta.description.trim() || null, release_date: track.release_date });
+    const parsed = trackMetadataSchema.safeParse({
+      ...meta,
+      description: meta.description.trim() || null,
+      release_date: track.release_date,
+    });
     if (!parsed.success) return toast.show(firstError(parsed.error), 'error');
     void run(() => updateTrack(track.id, parsed.data), 'Cambios guardados');
   }
@@ -58,7 +68,14 @@ function EditTrack({ track }: { track: TrackDetail }) {
   const canSubmit = (track.status === 'draft' || track.status === 'rejected') && !!track.audio_path;
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{
+        padding: spacing.xl,
+        gap: spacing.lg,
+        paddingBottom: spacing.xxl * 3,
+      }}
+    >
       <Stack.Screen options={{ title: 'Editar canción' }} />
       <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
         <Badge label={TRACK_STATUS_LABELS[track.status]} tone={STATUS_TONE[track.status]} />
@@ -67,7 +84,13 @@ function EditTrack({ track }: { track: TrackDetail }) {
         </Text>
       </View>
       {track.review_note ? (
-        <View style={{ padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surfaceElevated }}>
+        <View
+          style={{
+            padding: spacing.md,
+            borderRadius: radius.md,
+            backgroundColor: colors.surfaceElevated,
+          }}
+        >
           <Text variant="caption" muted>
             Nota de moderación
           </Text>
@@ -75,10 +98,15 @@ function EditTrack({ track }: { track: TrackDetail }) {
         </View>
       ) : null}
       {track.status === 'removed' ? (
-        <Text muted>Esta canción ha sido retirada por moderación y no puede editarse. Si crees que es un error, contacta con soporte.</Text>
+        <Text muted>
+          Esta canción ha sido retirada por moderación y no puede editarse. Si crees que es un
+          error, contacta con soporte.
+        </Text>
       ) : (
         <>
-          {genres.data ? <TrackMetaForm values={meta} onChange={setMeta} genres={genres.data} /> : null}
+          {genres.data ? (
+            <TrackMetaForm values={meta} onChange={setMeta} genres={genres.data} />
+          ) : null}
           <Button label="Guardar cambios" onPress={save} loading={busy} />
           {canSubmit ? (
             <Button
@@ -86,17 +114,35 @@ function EditTrack({ track }: { track: TrackDetail }) {
               variant="secondary"
               icon="send-outline"
               onPress={() =>
-                Alert.alert('Confirmar derechos', 'Confirmo que tengo los derechos o la autorización para publicar esta canción.', [
-                  { text: 'Cancelar', style: 'cancel' },
-                  { text: 'Confirmo', onPress: () => void run(() => submitTrack(track.id), 'Enviada a revisión') },
-                ])
+                Alert.alert(
+                  'Confirmar derechos',
+                  'Confirmo que tengo los derechos o la autorización para publicar esta canción.',
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                      text: 'Confirmo',
+                      onPress: () => void run(() => submitTrack(track.id), 'Enviada a revisión'),
+                    },
+                  ],
+                )
               }
             />
           ) : null}
           {track.status === 'published' || track.status === 'pending_review' ? (
-            <Button label="Retirar de la publicación" variant="secondary" icon="eye-off-outline" onPress={() => void run(() => unpublishTrack(track.id), 'Vuelve a ser un borrador')} />
+            <Button
+              label="Retirar de la publicación"
+              variant="secondary"
+              icon="eye-off-outline"
+              onPress={() => void run(() => unpublishTrack(track.id), 'Vuelve a ser un borrador')}
+            />
           ) : null}
-          {track.status === 'published' ? <Button label="Ver en el catálogo" variant="ghost" onPress={() => router.push(`/track/${track.id}`)} /> : null}
+          {track.status === 'published' ? (
+            <Button
+              label="Ver en el catálogo"
+              variant="ghost"
+              onPress={() => router.push(`/track/${track.id}`)}
+            />
+          ) : null}
         </>
       )}
       <Button
@@ -104,18 +150,22 @@ function EditTrack({ track }: { track: TrackDetail }) {
         variant="danger"
         icon="trash-outline"
         onPress={() =>
-          Alert.alert('Eliminar canción', 'Se borrarán la canción, su audio, sus comentarios y estadísticas. No se puede deshacer.', [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-              text: 'Eliminar',
-              style: 'destructive',
-              onPress: () =>
-                void run(async () => {
-                  await deleteTrack(track);
-                  router.back();
-                }, 'Canción eliminada'),
-            },
-          ])
+          Alert.alert(
+            'Eliminar canción',
+            'Se borrarán la canción, su audio, sus comentarios y estadísticas. No se puede deshacer.',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              {
+                text: 'Eliminar',
+                style: 'destructive',
+                onPress: () =>
+                  void run(async () => {
+                    await deleteTrack(track);
+                    router.back();
+                  }, 'Canción eliminada'),
+              },
+            ],
+          )
         }
       />
     </ScrollView>

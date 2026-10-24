@@ -14,14 +14,23 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       </label>
       <label className="block space-y-1 text-sm">
         <span className="text-muted">Contraseña</span>
-        <input name="password" type="password" autoComplete="current-password" required className={input} />
+        <input
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          className={input}
+        />
       </label>
       {error ? (
         <p role="alert" className="text-sm text-danger">
           {error}
         </p>
       ) : null}
-      <button disabled={pending} className="btn-primary w-full rounded-lg py-2.5 font-semibold text-white disabled:opacity-60">
+      <button
+        disabled={pending}
+        className="btn-primary w-full rounded-lg py-2.5 font-semibold text-white disabled:opacity-60"
+      >
         {pending ? 'Entrando…' : 'Entrar'}
       </button>
     </form>

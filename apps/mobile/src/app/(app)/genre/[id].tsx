@@ -21,14 +21,21 @@ export default function Genre() {
   return (
     <>
       <Stack.Screen options={{ title: name ?? 'Género' }} />
-      {q.isLoading ? <Loading /> : q.error ? (
+      {q.isLoading ? (
+        <Loading />
+      ) : q.error ? (
         <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />
       ) : (
         <FlatList
           style={{ backgroundColor: colors.background }}
           data={tracks}
           keyExtractor={(t) => t.id}
-          renderItem={({ item, index }) => <TrackRow track={item} onPress={() => void playList(tracks, index, { type: 'search' })} />}
+          renderItem={({ item, index }) => (
+            <TrackRow
+              track={item}
+              onPress={() => void playList(tracks, index, { type: 'search' })}
+            />
+          )}
           ListEmptyComponent={<EmptyState title="Todavía no hay canciones en este género" />}
           onEndReached={() => q.hasNextPage && !q.isFetchingNextPage && q.fetchNextPage()}
           contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING, flexGrow: 1 }}

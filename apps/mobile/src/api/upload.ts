@@ -14,12 +14,21 @@ import { unwrap } from './client';
 import { currentUserId } from './library';
 import { TRACK_DETAIL_FIELDS, type TrackDetail } from './types';
 
-export type MyArtist = { id: string; name: string; slug: string; image_path: string | null; member_role: string };
+export type MyArtist = {
+  id: string;
+  name: string;
+  slug: string;
+  image_path: string | null;
+  member_role: string;
+};
 
 export async function getMyArtists(): Promise<MyArtist[]> {
   const me = await currentUserId();
   const rows = unwrap(
-    await supabase.from('artist_members').select('member_role,artist:artists(id,name,slug,image_path)').eq('user_id', me),
+    await supabase
+      .from('artist_members')
+      .select('member_role,artist:artists(id,name,slug,image_path)')
+      .eq('user_id', me),
   ) as unknown as { member_role: string; artist: Omit<MyArtist, 'member_role'> | null }[];
   return rows.filter((r) => r.artist).map((r) => ({ ...r.artist!, member_role: r.member_role }));
 }
@@ -29,8 +38,13 @@ export async function createArtist(name: string, bio: string | null): Promise<st
   const base = slugify(name) || 'artista';
   // El slug debe ser único: se añade un sufijo corto aleatorio si ya existe.
   for (let attempt = 0; attempt < 5; attempt++) {
-    const slug = attempt === 0 ? base : `${base.slice(0, 52)}-${Math.random().toString(36).slice(2, 7)}`;
-    const { data, error } = await supabase.from('artists').insert({ name, bio, slug, created_by: me }).select('id').single();
+    const slug =
+      attempt === 0 ? base : `${base.slice(0, 52)}-${Math.random().toString(36).slice(2, 7)}`;
+    const { data, error } = await supabase
+      .from('artists')
+      .insert({ name, bio, slug, created_by: me })
+      .select('id')
+      .single();
     if (!error) return (data as { id: string }).id;
     if (error.code !== '23505') throw error;
   }
@@ -40,11 +54,19 @@ export async function createArtist(name: string, bio: string | null): Promise<st
 export async function getMyTracks(): Promise<TrackDetail[]> {
   const me = await currentUserId();
   return unwrap(
-    await supabase.from('tracks').select(TRACK_DETAIL_FIELDS).eq('owner_id', me).order('created_at', { ascending: false }),
+    await supabase
+      .from('tracks')
+      .select(TRACK_DETAIL_FIELDS)
+      .eq('owner_id', me)
+      .order('created_at', { ascending: false }),
   ) as unknown as TrackDetail[];
 }
 
-export async function createDraftTrack(artistId: string, meta: TrackMetadataInput, durationMs: number | null): Promise<string> {
+export async function createDraftTrack(
+  artistId: string,
+  meta: TrackMetadataInput,
+  durationMs: number | null,
+): Promise<string> {
   const me = await currentUserId();
   const row = unwrap(
     await supabase
@@ -70,7 +92,9 @@ export async function updateTrack(
 }
 
 export async function submitTrack(id: string): Promise<TrackStatus> {
-  return unwrap(await supabase.rpc('submit_track', { p_track_id: id, p_rights_confirmed: true })) as TrackStatus;
+  return unwrap(
+    await supabase.rpc('submit_track', { p_track_id: id, p_rights_confirmed: true }),
+  ) as TrackStatus;
 }
 
 export async function unpublishTrack(id: string) {
@@ -78,10 +102,16 @@ export async function unpublishTrack(id: string) {
 }
 
 /** Borra la canción y sus archivos (el audio y la portada están en carpetas del propio usuario). */
-export async function deleteTrack(track: { id: string; audio_path: string | null; cover_path: string | null }) {
+export async function deleteTrack(track: {
+  id: string;
+  audio_path: string | null;
+  cover_path: string | null;
+}) {
   unwrap(await supabase.from('tracks').delete().eq('id', track.id));
-  if (track.audio_path) await supabase.storage.from(STORAGE_BUCKETS.audio).remove([track.audio_path]);
-  if (track.cover_path) await supabase.storage.from(STORAGE_BUCKETS.covers).remove([track.cover_path]);
+  if (track.audio_path)
+    await supabase.storage.from(STORAGE_BUCKETS.audio).remove([track.audio_path]);
+  if (track.cover_path)
+    await supabase.storage.from(STORAGE_BUCKETS.covers).remove([track.cover_path]);
 }
 
 export interface LocalFile {
@@ -129,7 +159,8 @@ export async function uploadWithProgress(
     headers,
     mimeType: file.mimeType,
     sessionType: 'foreground',
-    onProgress: ({ bytesSent, totalBytes }) => onProgress(totalBytes > 0 ? bytesSent / totalBytes : 0),
+    onProgress: ({ bytesSent, totalBytes }) =>
+      onProgress(totalBytes > 0 ? bytesSent / totalBytes : 0),
     signal,
   } as Parameters<File['createUploadTask']>[1]);
   const result = await task.uploadAsync();
@@ -145,7 +176,12 @@ export async function uploadWithProgress(
   onProgress(1);
 }
 
-export async function uploadAudio(trackId: string, file: LocalFile, onProgress: (f: number) => void, signal?: AbortSignal) {
+export async function uploadAudio(
+  trackId: string,
+  file: LocalFile,
+  onProgress: (f: number) => void,
+  signal?: AbortSignal,
+) {
   const me = await currentUserId();
   const path = storagePaths.audioOriginal(me, trackId, fileExtension(file.name) || 'mp3');
   await uploadWithProgress(STORAGE_BUCKETS.audio, path, file, onProgress, signal);
@@ -164,7 +200,10 @@ export async function uploadImage(
       ? { bucket: STORAGE_BUCKETS.avatars, path: storagePaths.avatar(ownerId, ext) }
       : kind === 'trackCover'
         ? { bucket: STORAGE_BUCKETS.covers, path: storagePaths.trackCover(ownerId, entityId!, ext) }
-        : { bucket: STORAGE_BUCKETS.playlistImages, path: storagePaths.playlistImage(ownerId, entityId!, ext) };
+        : {
+            bucket: STORAGE_BUCKETS.playlistImages,
+            path: storagePaths.playlistImage(ownerId, entityId!, ext),
+          };
   await uploadWithProgress(target.bucket, target.path, file, () => undefined);
   return target;
 }

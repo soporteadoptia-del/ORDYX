@@ -16,7 +16,12 @@ import {
   type QueueState,
   type RepeatMode,
 } from '@ordyx/shared';
-import { createAudioPlayer, setAudioModeAsync, type AudioPlayer, type AudioStatus } from 'expo-audio';
+import {
+  createAudioPlayer,
+  setAudioModeAsync,
+  type AudioPlayer,
+  type AudioStatus,
+} from 'expo-audio';
 import { create } from 'zustand';
 import { reportPlayProgress, startPlay } from '@/api/plays';
 import type { TrackListItem } from '@/api/types';
@@ -50,7 +55,8 @@ export function toPlayable(t: TrackListItem): PlayableTrack | null {
 
 export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
 export interface PlayContext {
-  type: 'playlist' | 'album' | 'artist' | 'search' | 'home' | 'library' | 'track' | 'profile' | 'queue';
+  type:
+    'playlist' | 'album' | 'artist' | 'search' | 'home' | 'library' | 'track' | 'profile' | 'queue';
   id?: string | null;
 }
 
@@ -87,7 +93,14 @@ let audioModeReady: Promise<void> | null = null;
 let loadToken = 0;
 let loadTimer: ReturnType<typeof setTimeout> | null = null;
 let pendingSeekMs = 0;
-let session: { id: string | null; trackId: string; listenedMs: number; lastTick: number | null; lastReport: number; completed: boolean } | null = null;
+let session: {
+  id: string | null;
+  trackId: string;
+  listenedMs: number;
+  lastTick: number | null;
+  lastReport: number;
+  completed: boolean;
+} | null = null;
 
 function ensureAudioMode() {
   audioModeReady ??= setAudioModeAsync({
@@ -129,7 +142,9 @@ function flushProgress(completed: boolean) {
   if (!session?.id) return;
   const s = session;
   if (completed) s.completed = true;
-  reportPlayProgress(s.id!, s.listenedMs, completed).catch((e) => reportError(e, { where: 'reportPlayProgress' }));
+  reportPlayProgress(s.id!, s.listenedMs, completed).catch((e) =>
+    reportError(e, { where: 'reportPlayProgress' }),
+  );
 }
 
 function onStatus(status: AudioStatus) {
@@ -174,7 +189,12 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
   // Cerrar la sesión de escucha anterior antes de cambiar de pista.
   if (session && session.trackId !== track.id) flushProgress(false);
   clearLoadTimer();
-  usePlayer.setState({ status: 'loading', error: null, positionMs: startAtMs, durationMs: track.durationMs ?? 0 });
+  usePlayer.setState({
+    status: 'loading',
+    error: null,
+    positionMs: startAtMs,
+    durationMs: track.durationMs ?? 0,
+  });
 
   try {
     await ensureAudioMode();
@@ -190,7 +210,12 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
       p.setActiveForLockScreen(
         true,
         { title: track.title, artist: track.artistName, artworkUrl: track.coverUrl ?? undefined },
-        { showSeekBackward: true, showSeekForward: true, seekBackwardIntervalSeconds: 15, seekForwardIntervalSeconds: 15 },
+        {
+          showSeekBackward: true,
+          showSeekForward: true,
+          seekBackwardIntervalSeconds: 15,
+          seekForwardIntervalSeconds: 15,
+        },
       );
     } catch (e) {
       reportError(e, { where: 'lockScreen' });
@@ -203,12 +228,22 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
         invalidateStreamUrl(track.audioPath);
         void loadCurrent(autoplay, startAtMs, true);
       } else {
-        usePlayer.setState({ status: 'error', error: 'No se ha podido cargar la canción. Comprueba tu conexión.' });
+        usePlayer.setState({
+          status: 'error',
+          error: 'No se ha podido cargar la canción. Comprueba tu conexión.',
+        });
       }
     }, LOAD_TIMEOUT_MS);
 
     if (!session || session.trackId !== track.id || session.completed || autoplay) {
-      session = { id: null, trackId: track.id, listenedMs: 0, lastTick: null, lastReport: Date.now(), completed: false };
+      session = {
+        id: null,
+        trackId: track.id,
+        listenedMs: 0,
+        lastTick: null,
+        lastReport: Date.now(),
+        completed: false,
+      };
       if (autoplay) {
         const ctx = usePlayer.getState().context;
         const thisSession = session;
@@ -234,7 +269,14 @@ function persist() {
   persistTimer = setTimeout(() => {
     const { queue, positionMs, context } = usePlayer.getState();
     const entries = queue.entries.slice(0, 200).map((e) => e.item);
-    const payload = { entries, index: Math.min(queue.index, entries.length - 1), positionMs, shuffle: queue.shuffle, repeat: queue.repeat, context };
+    const payload = {
+      entries,
+      index: Math.min(queue.index, entries.length - 1),
+      positionMs,
+      shuffle: queue.shuffle,
+      repeat: queue.repeat,
+      context,
+    };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => undefined);
   }, 500);
 }
@@ -268,7 +310,13 @@ let restoredPositionMs = 0;
 export async function clearPersistedPlayer() {
   player?.pause();
   player?.clearLockScreenControls();
-  usePlayer.setState({ queue: emptyQueue(), status: 'idle', positionMs: 0, durationMs: 0, context: null });
+  usePlayer.setState({
+    queue: emptyQueue(),
+    status: 'idle',
+    positionMs: 0,
+    durationMs: 0,
+    context: null,
+  });
   await AsyncStorage.removeItem(STORAGE_KEY);
 }
 
@@ -286,7 +334,10 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     if (tracks.length === 0) return;
     const { queue } = get();
     restoredPositionMs = 0;
-    set({ queue: createQueue(tracks, startIndex, { shuffle: queue.shuffle, repeat: queue.repeat }), context });
+    set({
+      queue: createQueue(tracks, startIndex, { shuffle: queue.shuffle, repeat: queue.repeat }),
+      context,
+    });
     await loadCurrent(true);
   },
 
@@ -311,7 +362,14 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       session = null;
       const track = current(get().queue)?.item;
       if (track) {
-        session = { id: null, trackId: track.id, listenedMs: 0, lastTick: null, lastReport: Date.now(), completed: false };
+        session = {
+          id: null,
+          trackId: track.id,
+          listenedMs: 0,
+          lastTick: null,
+          lastReport: Date.now(),
+          completed: false,
+        };
         const s = session;
         startPlay(track.id, get().context?.type ?? null, get().context?.id ?? null)
           .then((id) => (s.id = id))
@@ -344,7 +402,8 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   async seek(ms) {
     const clamped = Math.max(0, Math.min(ms, get().durationMs || ms));
     set({ positionMs: clamped });
-    if (player?.isLoaded) await player.seekTo(clamped / 1000).catch((e) => reportError(e, { where: 'seek' }));
+    if (player?.isLoaded)
+      await player.seekTo(clamped / 1000).catch((e) => reportError(e, { where: 'seek' }));
     else restoredPositionMs = clamped;
     persist();
   },

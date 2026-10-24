@@ -23,9 +23,27 @@ export function Artwork({
   const r = rounded ? size / 2 : Math.max(6, Math.round(size * 0.08));
   const hue = [...seed].reduce((a, c) => (a + c.charCodeAt(0)) % 360, 260);
   return (
-    <View style={[{ width: size, height: size, borderRadius: r, overflow: 'hidden', backgroundColor: colors.surfaceElevated }, style]}>
+    <View
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: r,
+          overflow: 'hidden',
+          backgroundColor: colors.surfaceElevated,
+        },
+        style,
+      ]}
+    >
       {uri ? (
-        <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} recyclingKey={uri} accessibilityIgnoresInvertColors />
+        <Image
+          source={{ uri }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={200}
+          recyclingKey={uri}
+          accessibilityIgnoresInvertColors
+        />
       ) : (
         <LinearGradient
           colors={[`hsl(${hue}, 70%, 42%)`, `hsl(${(hue + 60) % 360}, 75%, 30%)`]}

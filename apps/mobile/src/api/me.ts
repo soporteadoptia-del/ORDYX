@@ -6,27 +6,40 @@ import { PROFILE_FIELDS, type ProfileSummary } from './types';
 
 export async function getMyProfile(): Promise<ProfileSummary> {
   const me = await currentUserId();
-  return unwrap(await supabase.from('profiles').select(PROFILE_FIELDS).eq('id', me).single()) as ProfileSummary;
+  return unwrap(
+    await supabase.from('profiles').select(PROFILE_FIELDS).eq('id', me).single(),
+  ) as ProfileSummary;
 }
 
-export async function updateMyProfile(patch: Partial<ProfileUpdateInput> & { avatar_path?: string | null }) {
+export async function updateMyProfile(
+  patch: Partial<ProfileUpdateInput> & { avatar_path?: string | null },
+) {
   const me = await currentUserId();
   unwrap(await supabase.from('profiles').update(patch).eq('id', me));
 }
 
 export async function getMyRoles(): Promise<AppRole[]> {
   const me = await currentUserId();
-  const rows = unwrap(await supabase.from('user_roles').select('role').eq('user_id', me)) as { role: AppRole }[];
+  const rows = unwrap(await supabase.from('user_roles').select('role').eq('user_id', me)) as {
+    role: AppRole;
+  }[];
   return rows.map((r) => r.role);
 }
 
 export async function getMySettings(): Promise<UserSettings> {
   const me = await currentUserId();
-  return unwrap(await supabase.from('user_settings').select('*').eq('user_id', me).single()) as UserSettings;
+  return unwrap(
+    await supabase.from('user_settings').select('*').eq('user_id', me).single(),
+  ) as UserSettings;
 }
 
 export async function updateMySettings(
-  patch: Partial<Pick<UserSettings, 'show_likes_public' | 'show_history_public' | 'allow_explicit' | 'email_notifications'>>,
+  patch: Partial<
+    Pick<
+      UserSettings,
+      'show_likes_public' | 'show_history_public' | 'allow_explicit' | 'email_notifications'
+    >
+  >,
 ) {
   const me = await currentUserId();
   unwrap(await supabase.from('user_settings').update(patch).eq('user_id', me));
@@ -35,7 +48,12 @@ export async function updateMySettings(
 export async function getNotifications(): Promise<NotificationRow[]> {
   const me = await currentUserId();
   return unwrap(
-    await supabase.from('notifications').select('*').eq('user_id', me).order('created_at', { ascending: false }).limit(50),
+    await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', me)
+      .order('created_at', { ascending: false })
+      .limit(50),
   ) as NotificationRow[];
 }
 

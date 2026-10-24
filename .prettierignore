@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+dist-check
+.expo
+pnpm-lock.yaml
+supabase/migrations
+supabase/remote
+supabase/tests
+backups
+apps/*/AGENTS.md
+apps/*/next-env.d.ts
