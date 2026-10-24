@@ -129,7 +129,7 @@ select tests.expect_count($$select 1 from public.admin_audit_logs where action =
 select tests.login(tests.id('alice'));
 insert into public.artists (slug, name, created_by) values ('alice-band', 'Alice Band', tests.id('alice'));
 insert into tests.ids select 'artist', id from public.artists where slug = 'alice-band';
-select tests.expect_true(public.is_artist_member(tests.id('artist')), 'quien crea el artista queda como propietario');
+select tests.expect_true(private.is_artist_member(tests.id('artist')), 'quien crea el artista queda como propietario');
 select tests.expect_error($$update public.artists set is_verified = true where id = tests.id('artist')$$, 'un artista NO puede verificarse a sí mismo', 'permission denied');
 
 insert into public.tracks (id, artist_id, title, genre_id, license, rights_holder, duration_ms, audio_path)
@@ -361,4 +361,21 @@ select tests.expect_true(
   (select bool_and(c.relrowsecurity) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r'),
   'TODAS las tablas de public tienen RLS activado');
 
+
+
+-- ---------------------------------------------------------------- superficie de la API
+select tests.expect_true(
+  not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.prosecdef
+      and p.proname in ('has_role', 'is_admin', 'is_moderator', 'is_active_user', 'is_blocked_between',
+                        'is_artist_member', 'is_artist_owner', 'can_upload', 'can_view_track', 'likes_are_public')
+  ),
+  'las auxiliares de RLS no están en el esquema expuesto por la API');
+select tests.expect_true(
+  not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname in ('public', 'private') and p.prosrc ~ 'public\.(has_role|is_admin|is_moderator|is_active_user|can_upload|can_view_track|is_artist_member)\('
+  ),
+  'ninguna función sigue llamando a auxiliares en public');
 \echo '✔ Todas las pruebas de seguridad han pasado'
