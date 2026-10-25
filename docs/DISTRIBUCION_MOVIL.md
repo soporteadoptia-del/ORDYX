@@ -30,7 +30,9 @@ Perfiles en `apps/mobile/eas.json`:
 ## Android: APK compilado en GitHub Actions (sin cuenta de Expo)
 
 El workflow `.github/workflows/android-apk.yml` compila el APK de release en los servidores de GitHub
-y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamaño.
+y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamaño. Compila solo para
+`arm64-v8a` (móviles Android de 64 bits, prácticamente todos desde 2017) y guarda en caché el
+código nativo (ccache y caché de Gradle), así que las compilaciones siguientes tardan menos.
 
 - Para lanzarlo: `git push origin HEAD:build/android` (o una etiqueta `android-v*`, o desde la pestaña
   Actions → «APK Android» → *Run workflow* cuando el workflow esté en `main`).
