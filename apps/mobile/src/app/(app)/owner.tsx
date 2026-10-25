@@ -15,10 +15,12 @@ import {
   reviewTrack,
   saveOwnerSetting,
   searchUsers,
+  setExternalHidden,
   setUserSuspended,
   type OwnerSettingKey,
   type OwnerUser,
 } from '@/api/owner';
+import { getCommunityTracks } from '@/api/community';
 import { formatEuros } from '@/api/plus';
 import { Artwork } from '@/components/Artwork';
 import { PressableScale } from '@/components/motion';
@@ -193,6 +195,7 @@ export default function OwnerScreen() {
 
       {tab === 'payments' ? <Payments /> : null}
       {tab === 'tracks' ? <Tracks /> : null}
+      {tab === 'tracks' ? <Community /> : null}
       {tab === 'users' ? <Users /> : null}
       {tab === 'settings' ? <Settings /> : null}
     </ScrollView>
@@ -374,6 +377,58 @@ function Tracks() {
               />
             </View>
           </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Lo importado por la comunidad: se puede ocultar si no debe estar (por ejemplo, una denuncia). */
+function Community() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const list = useQuery({
+    queryKey: ['owner', 'community'],
+    queryFn: () => getCommunityTracks(40),
+  });
+  const hide = useMutation({
+    mutationFn: (id: string) => setExternalHidden(id, true),
+    onSuccess: () => {
+      toast.show('Oculta para todo el mundo', 'success');
+      void qc.invalidateQueries({ queryKey: ['owner', 'community'] });
+      void qc.invalidateQueries({ queryKey: ['home', 'community'] });
+    },
+    onError: (e) => toast.show(toUserMessage(e), 'error'),
+  });
+  if (!list.data?.length) return null;
+  return (
+    <View style={[styles.list, { marginTop: spacing.xl }]}>
+      <Text variant="heading">Importado por la comunidad</Text>
+      {list.data.map((t) => (
+        <View key={t.id} style={[styles.card, { flexDirection: 'row', alignItems: 'center' }]}>
+          <Artwork uri={t.cover_url} size={44} seed={t.id} />
+          <View style={{ flex: 1 }}>
+            <Text variant="bodyStrong" numberOfLines={1}>
+              {t.title}
+            </Text>
+            <Text variant="caption" muted numberOfLines={1}>
+              {t.source} · {t.artist ?? '—'} · {t.import_count} importaciones
+            </Text>
+          </View>
+          <Button
+            label="Ocultar"
+            variant="ghost"
+            compact
+            disabled={hide.isPending}
+            onPress={() =>
+              confirm(
+                `¿Ocultar «${t.title}»?`,
+                'Dejará de verse en Inicio y en el buscador.',
+                'Ocultar',
+                () => hide.mutate(t.id),
+              )
+            }
+          />
         </View>
       ))}
     </View>

@@ -53,6 +53,16 @@ export function loadEmbed(ref: string, autoplay: boolean) {
   else pending = { ref, autoplay };
 }
 
+/**
+ * Portada de un vídeo de YouTube sin las franjas negras: «mqdefault» es 16:9 (la de «hqdefault»
+ * es 4:3 con bandas), y al recortarla en cuadrado queda limpia. Existe para todos los vídeos.
+ */
+export const youtubeCover = (id: string) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+/** Las miniaturas genéricas de YouTube (con bandas) se sustituyen; las portadas de verdad se conservan. */
+const realCover = (url: string | null, id: string) =>
+  url && !/^https:\/\/i\.ytimg\.com\//.test(url) ? url : youtubeCover(id);
+
 export function youtubeToPlayable(v: {
   id: string;
   title: string;
@@ -64,7 +74,7 @@ export function youtubeToPlayable(v: {
     title: v.title,
     artistName: v.artist ?? 'YouTube',
     artistId: null,
-    coverUrl: v.thumbnail ?? `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`,
+    coverUrl: realCover(v.thumbnail, v.id),
     audioPath: `${YT_PREFIX}${v.id}`,
     durationMs: null,
     isDemo: false,

@@ -19,7 +19,13 @@ import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
 import { PlusStrip } from '@/components/PlusStrip';
 import { GenreGrid } from '@/components/GenreGrid';
-import { Greeting, MadeForYou, NoticeBanner, RadioRow } from '@/components/HomeExtras';
+import {
+  CommunityRow,
+  Greeting,
+  MadeForYou,
+  NoticeBanner,
+  RadioRow,
+} from '@/components/HomeExtras';
 import { NowTrending } from '@/components/NowTrending';
 import { SideMenu } from '@/components/SideMenu';
 import { PressableScale, Skeleton } from '@/components/motion';
@@ -221,6 +227,7 @@ export default function Home() {
           ) : null}
 
           {show('music') ? <NowTrending /> : null}
+          {show('music') ? <CommunityRow /> : null}
           {show('music') ? <MadeForYou /> : null}
           {show('music') ? <RadioRow /> : null}
 
