@@ -10,6 +10,7 @@ import { getNotifications } from '@/api/me';
 import { getUnreadMessages } from '@/api/together';
 import { usePlus } from '@/hooks/usePlus';
 import { imageUrl } from '@/lib/media';
+import { safeBottom, safeTop } from '@/lib/safe-area';
 import { useAuth } from '@/providers/AuthProvider';
 import { colors, fonts, radius, spacing } from '@/theme';
 import { Artwork } from './Artwork';
@@ -94,7 +95,10 @@ export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () =
           <Animated.View
             style={[
               styles.panel,
-              { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.lg },
+              {
+                paddingTop: safeTop(insets.top, spacing.lg),
+                paddingBottom: safeBottom(insets.bottom, spacing.lg),
+              },
               !reduced && {
                 animationName: {
                   from: { transform: [{ translateX: -320 }] },

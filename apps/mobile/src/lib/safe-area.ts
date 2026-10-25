@@ -10,3 +10,12 @@ export function safeBottom(nativeInset: number, extra: number, tight = 0): numbe
   if (Platform.OS !== 'web') return Math.max(extra, nativeInset - tight + extra);
   return `max(${extra}px, calc(env(safe-area-inset-bottom) - ${tight}px + ${extra}px))` as unknown as number;
 }
+
+/**
+ * Margen superior seguro para lo que se abre por encima de la app (menús, modales): en la web se
+ * pinta fuera de #root, que es quien pone el hueco de la barra de estado, así que lo calcula aquí.
+ */
+export function safeTop(nativeInset: number, extra: number): number {
+  if (Platform.OS !== 'web') return nativeInset + extra;
+  return `calc(env(safe-area-inset-top) + ${extra}px)` as unknown as number;
+}
