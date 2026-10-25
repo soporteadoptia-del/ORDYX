@@ -42,3 +42,7 @@ token_verifications = 30
 
 [functions.delete-account]
 verify_jwt = true
+
+[functions.music-now]
+# Datos públicos de Audius; la publishable key de la web no es un JWT.
+verify_jwt = false

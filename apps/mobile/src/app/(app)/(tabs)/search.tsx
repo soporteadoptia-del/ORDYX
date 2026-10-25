@@ -15,6 +15,7 @@ import {
 import { getGenres, getTracksByIds, searchCatalog } from '@/api/catalog';
 import { addSearchHistory, clearSearchHistory, getSearchHistory } from '@/api/social';
 import { GenreGrid } from '@/components/GenreGrid';
+import { audiusToPlayable, searchAudius } from '@/api/audius';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import {
@@ -29,6 +30,7 @@ import {
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList } from '@/player/play';
+import { usePlayer } from '@/player/store';
 import { colors, radius, spacing } from '@/theme';
 
 const KINDS: { kind: SearchKind | null; label: string }[] = [
@@ -76,6 +78,15 @@ export default function Search() {
     enabled: query.length === 0,
   });
   const genres = useQuery({ queryKey: ['genres'], queryFn: getGenres, staleTime: 3_600_000 });
+  // También se busca en Audius (música actual de artistas independientes); si falla, se omite.
+  const audius = useQuery({
+    queryKey: ['audius', 'search', query],
+    queryFn: () => searchAudius(query, 8),
+    enabled: query.length >= 2 && (kind === null || kind === 'track'),
+    staleTime: 120_000,
+    retry: false,
+  });
+  const audiusItems = audius.data ?? [];
   const saveHistory = useMutation({
     mutationFn: addSearchHistory,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['search', 'history'] }),
@@ -195,16 +206,51 @@ export default function Search() {
           }
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <EmptyState
-              icon="search-outline"
-              title={`Sin resultados para «${query}»`}
-              message="Prueba con otras palabras o revisa la ortografía."
-            />
+            audiusItems.length > 0 ? undefined : (
+              <EmptyState
+                icon="search-outline"
+                title={`Sin resultados para «${query}»`}
+                message="Prueba con otras palabras o revisa la ortografía."
+              />
+            )
           }
           ListFooterComponent={
-            results.isFetchingNextPage ? (
-              <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} />
-            ) : undefined
+            <>
+              {results.isFetchingNextPage ? (
+                <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} />
+              ) : null}
+              {audiusItems.length > 0 ? (
+                <>
+                  <SectionHeader title="En Audius" />
+                  {audiusItems.map((t, i) => (
+                    <Pressable
+                      key={t.id}
+                      onPress={() =>
+                        void usePlayer
+                          .getState()
+                          .playTracks(audiusItems.map(audiusToPlayable), i, { type: 'search' })
+                      }
+                      style={({ pressed }) => [
+                        styles.result,
+                        pressed && { backgroundColor: colors.surface },
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t.title}, de ${t.artist}, en Audius`}
+                    >
+                      <Artwork uri={t.artwork} size={52} seed={t.id} />
+                      <View style={{ flex: 1 }}>
+                        <Text variant="bodyStrong" numberOfLines={1}>
+                          {t.title}
+                        </Text>
+                        <Text variant="caption" muted numberOfLines={1}>
+                          Canción · {t.artist}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </>
+              ) : null}
+            </>
           }
           renderItem={({ item }) => (
             <Pressable

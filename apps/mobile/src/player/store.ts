@@ -39,6 +39,8 @@ export interface PlayableTrack {
   audioPath: string;
   durationMs: number | null;
   isDemo: boolean;
+  /** Canciones de fuera (Audius): enlace a su página original. Sin favoritos ni comentarios. */
+  externalUrl?: string;
 }
 
 export function toPlayable(t: TrackListItem): PlayableTrack | null {
@@ -268,7 +270,7 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
         lastReport: Date.now(),
         completed: false,
       };
-      if (autoplay) {
+      if (autoplay && !track.externalUrl) {
         const ctx = usePlayer.getState().context;
         const thisSession = session;
         startPlay(track.id, ctx?.type ?? null, ctx?.id ?? null)
@@ -417,7 +419,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     if (!session || session.completed) {
       session = null;
       const track = current(get().queue)?.item;
-      if (track) {
+      if (track && !track.externalUrl) {
         session = {
           id: null,
           trackId: track.id,

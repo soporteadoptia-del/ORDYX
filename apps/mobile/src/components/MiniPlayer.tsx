@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { cubicBezier, useReducedMotion } from 'react-native-reanimated';
 import { useLikes } from '@/hooks/useLikes';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, MINI_PLAYER_HEIGHT, radius, spacing } from '@/theme';
 import { Artwork } from './Artwork';
-import { EASE_OUT, PressableScale } from './motion';
+import { PressableScale } from './motion';
 import { IconButton, Text } from './ui';
 
 /** Reproductor persistente que se mantiene visible sobre la barra de pestañas al navegar. */
@@ -17,15 +17,27 @@ export function MiniPlayer() {
   const toggle = usePlayer((s) => s.toggle);
   const next = usePlayer((s) => s.next);
   const { isLiked, toggle: toggleLike } = useLikes();
+  const reduced = useReducedMotion();
   if (!track) return null;
 
   const progress = durationMs > 0 ? Math.min(1, positionMs / durationMs) : 0;
   return (
     // Aparece una sola vez, al empezar a sonar algo: sube 12 px y aparece (220 ms, ease-out).
+    // Animación CSS (no «entering»): en la web las animaciones de montaje lo sacaban del flujo y
+    // quedaba flotando encima del contenido.
     <Animated.View
-      entering={FadeInDown.duration(220)
-        .easing(EASE_OUT)
-        .withInitialValues({ transform: [{ translateY: 12 }] })}
+      style={
+        reduced
+          ? undefined
+          : {
+              animationName: {
+                '0%': { opacity: 0, transform: [{ translateY: 12 }] },
+                '100%': { opacity: 1, transform: [{ translateY: 0 }] },
+              },
+              animationDuration: '220ms',
+              animationTimingFunction: cubicBezier(0.23, 1, 0.32, 1),
+            }
+      }
     >
       <PressableScale
         scaleTo={0.98}
@@ -46,12 +58,14 @@ export function MiniPlayer() {
                 : track.artistName}
             </Text>
           </View>
-          <IconButton
-            name={isLiked(track.id) ? 'heart' : 'heart-outline'}
-            color={isLiked(track.id) ? colors.accentWarm : colors.text}
-            label={isLiked(track.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-            onPress={() => toggleLike(track.id)}
-          />
+          {track.externalUrl ? null : (
+            <IconButton
+              name={isLiked(track.id) ? 'heart' : 'heart-outline'}
+              color={isLiked(track.id) ? colors.accentWarm : colors.text}
+              label={isLiked(track.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+              onPress={() => toggleLike(track.id)}
+            />
+          )}
           {status === 'loading' ? (
             <ActivityIndicator color={colors.text} style={{ width: 32 }} />
           ) : (
