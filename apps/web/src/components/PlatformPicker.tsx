@@ -31,16 +31,13 @@ export function PlatformPicker({
   return (
     <div className="space-y-6">
       {!backendOk ? (
-        <p
-          role="status"
-          className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning"
-        >
+        <p role="status" className="rounded-xl bg-warning/10 p-4 text-[15px] text-warning">
           Ahora mismo no podemos comprobar qué versiones están publicadas. No mostramos enlaces sin
           verificar: vuelve a intentarlo en unos minutos.
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
+      <div className="flex flex-wrap items-center gap-3 text-[15px] text-muted">
         <span>
           {detected === 'unknown'
             ? 'Elige tu dispositivo:'
@@ -51,7 +48,7 @@ export function PlatformPicker({
         <div
           role="tablist"
           aria-label="Plataforma"
-          className="inline-flex rounded-full border border-line p-1"
+          className="inline-flex rounded-full bg-surface p-1"
         >
           {(['android', 'ios'] as const).map((p) => (
             <button
@@ -83,13 +80,13 @@ export function PlatformPicker({
       </div>
 
       {detected === 'desktop' ? (
-        <div className="glass flex items-center gap-5 rounded-2xl p-5">
+        <div className="flex items-center gap-5 rounded-2xl bg-surface p-5">
           <div
             className="h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-white p-1"
             aria-hidden
             dangerouslySetInnerHTML={{ __html: qrSvg }}
           />
-          <p className="text-sm text-muted">
+          <p className="text-[15px] text-muted">
             Escanea el código con la cámara de tu móvil para abrir esta página allí y descargar la
             app.
           </p>
@@ -114,42 +111,36 @@ function PlatformCard({
   return (
     <section
       aria-labelledby={`card-${platform}`}
-      className={`relative rounded-[var(--radius-card)] border p-6 transition ${
-        highlighted
-          ? 'border-accent bg-elevated shadow-[0_0_80px_-20px_rgba(200,245,96,0.35)]'
-          : 'border-line bg-surface/80 backdrop-blur'
+      className={`relative rounded-[var(--radius-card)] p-6 transition-colors md:p-8 ${
+        highlighted ? 'bg-accent text-ink' : 'bg-surface text-fg'
       } ${dimmed ? 'opacity-80' : ''}`}
     >
-      {highlighted ? (
-        <span className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-0.5 text-xs font-semibold text-ink">
-          Recomendado para ti
-        </span>
-      ) : null}
-      <h3 id={`card-${platform}`} className="text-xl font-bold">
+      <h3 id={`card-${platform}`} className="text-lead leading-none">
         {name}
       </h3>
+      {highlighted ? <p className="mt-2 text-[15px] font-medium">Es tu dispositivo</p> : null}
 
       {offer.available && offer.href ? (
         <>
           <a
             href={offer.href}
             rel={offer.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            className="btn-primary mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-lg font-bold text-ink"
+            className={`${highlighted ? 'btn-ink' : 'btn-primary'} mt-6 w-full text-[17px]`}
           >
             {offer.label}
           </a>
-          <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-            <dt className="text-subtle">Versión</dt>
+          <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-1 text-[15px]">
+            <dt className="opacity-70">Versión</dt>
             <dd>{offer.version}</dd>
             {offer.sizeLabel ? (
               <>
-                <dt className="text-subtle">Tamaño</dt>
+                <dt className="opacity-70">Tamaño</dt>
                 <dd>{offer.sizeLabel}</dd>
               </>
             ) : null}
             {offer.minOs ? (
               <>
-                <dt className="text-subtle">Requiere</dt>
+                <dt className="opacity-70">Requiere</dt>
                 <dd>
                   {platform === 'android' ? 'Android' : 'iOS'} {offer.minOs} o superior
                 </dd>
@@ -157,7 +148,7 @@ function PlatformCard({
             ) : null}
             {offer.publishedAt ? (
               <>
-                <dt className="text-subtle">Publicada</dt>
+                <dt className="opacity-70">Publicada</dt>
                 <dd>
                   {new Date(offer.publishedAt).toLocaleDateString('es-ES', {
                     day: 'numeric',
@@ -169,11 +160,11 @@ function PlatformCard({
             ) : null}
           </dl>
           {offer.notes ? (
-            <p className="mt-3 line-clamp-3 text-sm text-muted">{offer.notes}</p>
+            <p className="mt-3 line-clamp-3 text-[15px] opacity-80">{offer.notes}</p>
           ) : null}
           <InstallSteps platform={platform} method={offer.method} />
           {offer.sha256 ? (
-            <details className="mt-3 text-xs text-subtle">
+            <details className="mt-3 text-[13px] opacity-70">
               <summary className="cursor-pointer">Verificar el archivo (SHA-256)</summary>
               <code className="mt-2 block break-all">{offer.sha256}</code>
             </details>
@@ -181,7 +172,7 @@ function PlatformCard({
           {offer.beta ? (
             <a
               href={offer.beta.href}
-              className="mt-3 inline-block text-sm text-accent-strong underline"
+              className="mt-3 inline-block text-[15px] underline underline-offset-4"
             >
               Probar la versión beta {offer.beta.version}
             </a>
@@ -191,17 +182,17 @@ function PlatformCard({
         <>
           <a
             href="/app"
-            className="btn-primary mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-lg font-bold text-ink"
+            className={`${highlighted ? 'btn-ink' : 'btn-primary'} mt-6 w-full text-[17px]`}
           >
             Usar en iPhone
           </a>
-          <p className="mt-3 text-sm text-muted">
+          <p className="mt-3 text-[15px] opacity-80">
             Mientras preparamos la versión del App Store, usa la app web: es la misma app, con tu
             cuenta y tus playlists, y se instala en la pantalla de inicio.
           </p>
-          <details className="mt-4 rounded-xl bg-ink/60 p-3 text-sm" open>
+          <details className="mt-4 rounded-xl bg-black/15 p-4 text-[15px]" open>
             <summary className="cursor-pointer font-medium">¿Cómo se instala?</summary>
-            <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+            <ol className="mt-2 list-decimal space-y-1 pl-5 opacity-85">
               <li>
                 Abre esta página en <strong>Safari</strong> y pulsa «Usar en iPhone».
               </li>
@@ -220,11 +211,11 @@ function PlatformCard({
         <>
           <button
             disabled
-            className="mt-5 w-full cursor-not-allowed rounded-full border border-line px-6 py-4 text-lg font-semibold text-subtle"
+            className="mt-6 min-h-[52px] w-full cursor-not-allowed rounded-full bg-black/20 px-6 font-semibold opacity-60"
           >
             Descargar para Android
           </button>
-          <p className="mt-3 text-sm text-muted">
+          <p className="mt-3 text-[15px] opacity-80">
             Todavía no hay una versión de Android publicada. Cuando esté verificada aparecerá aquí
             con su número de versión y tamaño. Mientras tanto puedes{' '}
             <a href="/app" className="text-accent underline">
@@ -247,9 +238,9 @@ function InstallSteps({
 }) {
   if (platform === 'android' && method === 'apk') {
     return (
-      <details className="mt-4 rounded-xl bg-ink/60 p-3 text-sm">
+      <details className="mt-4 rounded-xl bg-black/15 p-4 text-[15px]">
         <summary className="cursor-pointer font-medium">¿Cómo se instala?</summary>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+        <ol className="mt-2 list-decimal space-y-1 pl-5 opacity-85">
           <li>Pulsa «Descargar para Android» y espera a que termine la descarga.</li>
           <li>Abre el archivo descargado desde la notificación o la carpeta Descargas.</li>
           <li>
@@ -261,7 +252,7 @@ function InstallSteps({
             o iniciar sesión.
           </li>
         </ol>
-        <p className="mt-2 text-xs text-subtle">
+        <p className="mt-2 text-[13px] opacity-70">
           Android siempre muestra una confirmación al instalar apps fuera de Google Play; es normal.
         </p>
       </details>
@@ -269,9 +260,9 @@ function InstallSteps({
   }
   if (platform === 'ios' && method === 'testflight') {
     return (
-      <details className="mt-4 rounded-xl bg-ink/60 p-3 text-sm" open>
+      <details className="mt-4 rounded-xl bg-black/15 p-4 text-[15px]" open>
         <summary className="cursor-pointer font-medium">¿Cómo se instala?</summary>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+        <ol className="mt-2 list-decimal space-y-1 pl-5 opacity-85">
           <li>
             Pulsa «Instalar en iPhone». Si no tienes la app TestFlight de Apple, el enlace te
             llevará a instalarla (gratis).
@@ -282,7 +273,7 @@ function InstallSteps({
           </li>
           <li>Abre la app desde tu pantalla de inicio y regístrate o inicia sesión.</li>
         </ol>
-        <p className="mt-2 text-xs text-subtle">
+        <p className="mt-2 text-[13px] opacity-70">
           TestFlight es el programa oficial de pruebas de Apple. Las versiones de prueba caducan a
           los 90 días; la app se actualiza desde TestFlight.
         </p>

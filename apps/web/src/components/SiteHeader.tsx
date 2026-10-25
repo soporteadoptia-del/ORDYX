@@ -1,30 +1,31 @@
 import Link from 'next/link';
 import { Wordmark } from './Logo';
 
+/** Barra simple: marca, tres enlaces y una acción. Sin borde, sin desenfoque. */
 export function SiteHeader({ name }: { name: string }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-line/60 bg-ink/80 backdrop-blur">
+    <header className="relative z-40">
       <nav
-        className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3 sm:px-6"
+        className="mx-auto flex max-w-[1400px] items-center gap-8 px-[var(--gutter)] py-4"
         aria-label="Principal"
       >
-        <Link href="/" aria-label={`${name}, inicio`}>
-          <Wordmark name={name} size={32} />
+        <Link href="/" aria-label={`${name}, inicio`} className="press">
+          <Wordmark name={name} size={30} />
         </Link>
-        <div className="ml-auto hidden items-center gap-6 text-sm text-muted sm:flex">
-          <Link href="/#funciones" className="hover:text-fg">
-            Funciones
+        <div className="ml-auto hidden items-center gap-7 text-[15px] font-medium text-muted md:flex">
+          <Link href="/#funciones" className="transition-colors hover:text-fg">
+            La app
           </Link>
-          <Link href="/#preguntas" className="hover:text-fg">
+          <Link href="/#artistas" className="transition-colors hover:text-fg">
+            Para artistas
+          </Link>
+          <Link href="/#preguntas" className="transition-colors hover:text-fg">
             Preguntas
-          </Link>
-          <Link href="/ayuda" className="hover:text-fg">
-            Ayuda
           </Link>
         </div>
         <Link
           href="/#descargar"
-          className="btn-primary ml-auto rounded-full px-4 py-2 text-sm font-semibold text-ink sm:ml-0"
+          className="btn-primary ml-auto min-h-[44px] px-5 text-[15px] md:ml-0"
         >
           Descargar
         </Link>

@@ -33,3 +33,7 @@ supabase/.branches/
 
 # Copias de seguridad con datos (no versionar)
 backups/
+
+# Archivos de trabajo de taste-skill (capturas e informes del inspector)
+.taste-skill/*
+!.taste-skill/direction.json

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const ITEMS: { q: string; a: React.ReactNode }[] = [
+export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
   {
     q: '¿Es gratis?',
     a: 'Sí. Puedes escuchar, crear playlists y seguir a artistas sin pagar. Si en el futuro hay un plan de pago, será opcional y se anunciará con sus condiciones.',
@@ -45,7 +45,7 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
 export function Faq() {
   return (
     <div className="divide-y divide-line rounded-2xl border border-line">
-      {ITEMS.map((item) => (
+      {FAQ_ITEMS.map((item) => (
         <details key={item.q} className="group p-5 [&_a]:text-accent-strong [&_a]:underline">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
             {item.q}

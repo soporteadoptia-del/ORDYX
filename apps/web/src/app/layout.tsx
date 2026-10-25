@@ -1,6 +1,7 @@
 import { BRAND } from '@ordyx/shared';
 import type { Metadata, Viewport } from 'next';
 import { SiteFooter } from '@/components/SiteFooter';
+import { RevealObserver } from '@/components/RevealObserver';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getPublicConfig } from '@/lib/data';
 import { env } from '@/lib/env';
@@ -11,10 +12,10 @@ import './globals.css';
  * enlace de recuperación o de confirmación), se reenvía a la app web en /app, que es quien la lee.
  * Pasa cuando la dirección pedida no está en las Redirect URLs de Supabase y usa la Site URL.
  */
-const AUTH_FORWARD = `(function(){try{var l=location;if(l.pathname.indexOf('/app')===0)return;var h=l.hash||'';if(!/access_token=|error_description=/.test(h))return;l.replace((/type=recovery/.test(h)?'/app/reset-password':'/app/')+h);}catch(e){}})();`;
+const AUTH_FORWARD = `document.documentElement.classList.add('js');(function(){try{var l=location;if(l.pathname.indexOf('/app')===0)return;var h=l.hash||'';if(!/access_token=|error_description=/.test(h))return;l.replace((/type=recovery/.test(h)?'/app/reset-password':'/app/')+h);}catch(e){}})();`;
 
 const FONTS_URL =
-  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap';
+  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap';
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         ) : null}
         <SiteHeader name={config.platformName} />
         <main id="contenido">{children}</main>
+        <RevealObserver />
         <SiteFooter
           name={config.platformName}
           supportEmail={config.supportEmail}
