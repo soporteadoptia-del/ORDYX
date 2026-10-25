@@ -43,6 +43,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: androidPackage,
+    // Número de compilación: lo fija el workflow de GitHub Actions (debe subir en cada versión).
+    versionCode: Number(process.env.ANDROID_VERSION_CODE ?? 1),
     adaptiveIcon: {
       foregroundImage: './assets/brand/adaptive-foreground.png',
       monochromeImage: './assets/brand/adaptive-monochrome.png',

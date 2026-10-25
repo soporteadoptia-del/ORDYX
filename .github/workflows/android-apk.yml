@@ -1,0 +1,116 @@
+# Compila el APK de Android de Aurevix Music en los servidores de GitHub (tienen el SDK de Android)
+# y lo publica como «release» descargable. No necesita cuenta de Expo.
+#
+# Se lanza al subir una etiqueta `android-v*` (p. ej. android-v1.0.0) o a mano desde Actions.
+#
+# Firma: si existen los secretos ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS
+# y ANDROID_KEY_PASSWORD se usa esa clave (la definitiva: todas las actualizaciones deben firmarse
+# con ella). Si no existen, se firma con una clave temporal y la versión se marca como beta:
+# para instalar después la versión definitiva habrá que desinstalar la beta.
+name: APK Android
+
+on:
+  push:
+    tags: ['android-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Valores PÚBLICOS (acaban dentro de la app); los mismos que eas.json.
+  EXPO_PUBLIC_SUPABASE_URL: https://tqeradkfojhojwbvryob.supabase.co
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Ef7Nv4kgBJstXMbyrCyqDg_AgV60yQ9
+  EXPO_PUBLIC_WEB_URL: https://ordyx.vercel.app
+  APP_VARIANT: production
+  ANDROID_VERSION_CODE: ${{ github.run_number }}
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Generar el proyecto nativo
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install --clean
+
+      - name: Compilar
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+
+      - name: Firmar
+        id: sign
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KS_B64}" ]; then
+            echo "$KS_B64" | base64 -d > release.keystore
+            echo "kind=definitiva" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Sin secretos de firma: se usa una clave temporal (versión beta)."
+            KS_PASS=$(openssl rand -hex 16); KEY_PASS=$KS_PASS; KEY_ALIAS=aurevix
+            keytool -genkeypair -v -keystore release.keystore -storepass "$KS_PASS" -keypass "$KEY_PASS" \
+              -alias "$KEY_ALIAS" -keyalg RSA -keysize 4096 -validity 10000 \
+              -dname "CN=Aurevix Music, O=Aurevix, C=ES" >/dev/null
+            echo "kind=temporal" >> "$GITHUB_OUTPUT"
+          fi
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          VERSION=$(cd apps/mobile && node -e "const c=require('@expo/config').getConfig('.',{skipSDKVersionRequirement:true});console.log(c.exp.version)")
+          OUT="aurevix-music-${VERSION}-${ANDROID_VERSION_CODE}.apk"
+          "$BT/apksigner" sign --ks release.keystore --ks-pass "pass:$KS_PASS" --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "pass:$KEY_PASS" --out "$OUT" apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs "$OUT"
+          rm -f release.keystore
+          echo "file=$OUT" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(sha256sum "$OUT" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "size=$(stat -c%s "$OUT")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: ${{ steps.sign.outputs.file }}
+
+      - name: Publicar en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="android-v${{ steps.sign.outputs.version }}-${{ github.run_number }}"
+          PRE=""; [ "${{ steps.sign.outputs.kind }}" = "temporal" ] && PRE="--prerelease"
+          gh release create "$TAG" "${{ steps.sign.outputs.file }}" $PRE --target "${{ github.sha }}" \
+            --title "Aurevix Music ${{ steps.sign.outputs.version }} (Android, compilación ${{ github.run_number }})" \
+            --notes "APK de Android. Firma: ${{ steps.sign.outputs.kind }}.
+          SHA-256: \`${{ steps.sign.outputs.sha256 }}\`
+          Tamaño: ${{ steps.sign.outputs.size }} bytes"
+          echo "### APK publicado" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Etiqueta: $TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "- SHA-256: ${{ steps.sign.outputs.sha256 }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tamaño: ${{ steps.sign.outputs.size }}" >> "$GITHUB_STEP_SUMMARY"
