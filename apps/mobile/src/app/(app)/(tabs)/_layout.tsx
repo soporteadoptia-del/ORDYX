@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomTabBar, Tabs } from 'expo-router/tabs';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BrandBackground } from '@/components/BrandBackground';
 import { MiniPlayer } from '@/components/MiniPlayer';
 import { colors, fonts } from '@/theme';
 
@@ -15,8 +16,16 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   return (
     <Tabs
+      // Cada pestaña lleva su propio fondo opaco: las inactivas siguen montadas (sobre todo en la
+      // web) y, con fondo transparente, se veían unas encima de otras.
+      screenLayout={({ children }) => (
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <BrandBackground />
+          {children}
+        </View>
+      )}
       tabBar={(props) => (
-        <View style={{ backgroundColor: 'transparent' }}>
+        <View style={{ backgroundColor: colors.background }}>
           <MiniPlayer />
           <BottomTabBar {...props} />
         </View>
@@ -25,10 +34,9 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSubtle,
-        // Las pestañas dejan ver el fondo de marca del layout.
-        sceneStyle: { backgroundColor: 'transparent' },
+        sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: colors.background,
           borderTopColor: colors.border,
           // Algo más alta que la estándar para que quepan las etiquetas con Instrument Sans.
           height: 70 + insets.bottom,
