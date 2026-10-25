@@ -91,7 +91,10 @@ const head = `
     <link rel="manifest" href="${BASE}/manifest.webmanifest" />
     <style>html,body{background:#0C0C0E}</style>
 `;
-html = html.replace(/<title>[\s\S]*?<\/title>/, '').replace('</head>', `${head}</head>`);
+html = html
+  .replace(/<html lang="[^"]*"/, '<html lang="es"')
+  .replace(/<title>[\s\S]*?<\/title>/, '')
+  .replace('</head>', `${head}</head>`);
 // Ocupar toda la pantalla bajo la muesca del iPhone.
 html = html.replace(
   /<meta name="viewport" content="([^"]*)"/,
