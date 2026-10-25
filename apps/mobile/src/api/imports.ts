@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { audiusToPlayable, searchAudius } from '@/api/audius';
 import { getTracksByIds, searchCatalog } from '@/api/catalog';
 import { env } from '@/lib/env';
+import { soundcloudToPlayable, youtubeToPlayable } from '@/player/embed';
 import { toPlayable, type PlayableTrack } from '@/player/store';
 
 export interface ResolvedLink {
@@ -92,25 +93,109 @@ function similar(wanted: string, found: string) {
 
 async function findMatch(r: ResolvedLink): Promise<PlayableTrack | null> {
   const wanted = r.title ?? r.query;
-  const q = [r.artist, r.title].filter(Boolean).join(' ') || r.query;
-  try {
-    const own = (await searchCatalog(q, 'track', 0)).slice(0, 3);
-    if (own.length) {
-      const full = await getTracksByIds(own.map((o) => o.id));
-      const hit = full.find((t) => similar(wanted, t.title));
-      const p = hit ? toPlayable(hit) : null;
-      if (p) return p;
+  const queries = [
+    [r.artist, r.title].filter(Boolean).join(' ') || r.query,
+    r.title ?? '',
+    // Sin «feat.» ni lo que va entre paréntesis.
+    (r.title ?? r.query).replace(/\s*[([].*?[)\]]/g, '').replace(/\s+(feat|ft)\.?\s.*$/i, ''),
+  ].filter((q, i, all) => q.trim().length > 1 && all.indexOf(q) === i);
+
+  for (const q of queries) {
+    try {
+      const own = (await searchCatalog(q, 'track', 0)).slice(0, 3);
+      if (own.length) {
+        const full = await getTracksByIds(own.map((o) => o.id));
+        const hit = full.find((t) => similar(wanted, t.title));
+        const p = hit ? toPlayable(hit) : null;
+        if (p) return p;
+      }
+    } catch {
+      // seguimos con Audius
     }
-  } catch {
-    // seguimos con Audius
+    try {
+      const found = await searchAudius(q, 6);
+      const hit = found.find((t) => similar(wanted, `${t.title} ${t.artist}`));
+      if (hit) return audiusToPlayable(hit);
+    } catch {
+      // probamos la siguiente variante
+    }
   }
+  return null;
+}
+
+/** Busca en YouTube (con su API oficial) las canciones que no están en ningún otro sitio. */
+export async function searchYouTubeFor(
+  queries: string[],
+): Promise<
+  ({ id: string; title: string; artist: string | null; thumbnail: string | null } | null)[]
+> {
+  if (!queries.length) return [];
   try {
-    const found = await searchAudius(q, 5);
-    const hit = found.find((t) => similar(wanted, `${t.title} ${t.artist}`));
-    return hit ? audiusToPlayable(hit) : null;
+    const res = await fetch(`${env.supabaseUrl}/functions/v1/link-resolve`, {
+      method: 'POST',
+      headers: { apikey: env.supabaseKey, 'content-type': 'application/json' },
+      body: JSON.stringify({ search: queries }),
+    });
+    if (!res.ok) return queries.map(() => null);
+    const body = (await res.json()) as {
+      error?: string;
+      data: {
+        id: string | null;
+        title: string | null;
+        artist: string | null;
+        thumbnail: string | null;
+      }[];
+    };
+    if (body.error) return queries.map(() => null);
+    return body.data.map((d) =>
+      d.id ? { id: d.id, title: d.title ?? '', artist: d.artist, thumbnail: d.thumbnail } : null,
+    );
   } catch {
-    return null;
+    return queries.map(() => null);
   }
+}
+
+/**
+ * Cómo suena un elemento importado dentro de Aurevix: el audio de Aurevix o Audius si se ha
+ * encontrado; si no, el reproductor oficial de YouTube o de SoundCloud.
+ */
+export function itemPlayable(i: ImportedItem): PlayableTrack | null {
+  if (i.match) return i.match;
+  if (i.youtubeId)
+    return youtubeToPlayable({
+      id: i.youtubeId,
+      title: i.title,
+      artist: i.artist,
+      thumbnail: i.thumbnail,
+    });
+  if (i.source === 'soundcloud' && /^https?:\/\//.test(i.input))
+    return soundcloudToPlayable({
+      url: i.input,
+      title: i.title,
+      artist: i.artist,
+      thumbnail: i.thumbnail,
+    });
+  return null;
+}
+
+/** Vuelve a buscar en YouTube lo que se quedó sin encontrar (por ejemplo, tras activar la clave). */
+export async function retryMissing(listId: string): Promise<ImportedList | null> {
+  const lists = await getImportedLists();
+  const list = lists.find((l) => l.id === listId);
+  if (!list) return null;
+  const missing = list.items.filter((i) => !itemPlayable(i));
+  const found = await searchYouTubeFor(
+    missing.map((i) => [i.artist, i.title].filter(Boolean).join(' ')),
+  );
+  missing.forEach((i, k) => {
+    const f = found[k];
+    if (f) {
+      i.youtubeId = f.id;
+      i.thumbnail ??= f.thumbnail;
+    }
+  });
+  await saveLists(lists);
+  return list;
 }
 
 /** Resuelve, empareja y guarda una lista. `onProgress` informa de cuántas lleva. */
@@ -141,6 +226,19 @@ export async function importList(
     );
     items.push(...batch);
   }
+  // Lo que no está como audio (y no es ya de YouTube o SoundCloud) se busca en YouTube.
+  const missing = items.filter((i) => !itemPlayable(i));
+  const yt = await searchYouTubeFor(
+    missing.map((i) => [i.artist, i.title].filter(Boolean).join(' ')),
+  );
+  missing.forEach((i, k) => {
+    const f = yt[k];
+    if (f) {
+      i.youtubeId = f.id;
+      i.thumbnail ??= f.thumbnail;
+    }
+  });
+
   const list: ImportedList = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     name: name.trim() || 'Lista importada',

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getTracksByIds } from '@/api/catalog';
+import { EmbedPlayer } from '@/components/EmbedPlayer';
 import { PlayerArt } from '@/components/PlayerArt';
 import { SeekBar } from '@/components/SeekBar';
 import { Sheet, SheetItem } from '@/components/Sheet';
@@ -24,6 +25,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { usePlus } from '@/hooks/usePlus';
 import { downloadsSupported } from '@/player/downloads';
 import { PLAYBACK_RATES, rateLabel, usePlayerPrefs } from '@/player/prefs';
+import { embedOf } from '@/player/embed';
 import { startRadio } from '@/player/radio';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, fonts, spacing } from '@/theme';
@@ -55,6 +57,7 @@ export default function PlayerScreen() {
   }
 
   const art = Math.min(width - spacing.xl * 2, 420);
+  const embed = embedOf(track);
   const liked = isLiked(track.id);
   const repeatIcon = s.queue.repeat === 'one' ? 'repeat' : 'repeat';
 
@@ -91,16 +94,20 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.artWrap}>
-        <PlayerArt
-          uri={track.coverUrl}
-          seed={track.id}
-          size={art}
-          playing={s.status === 'playing' || s.status === 'loading'}
-          visualizer={isPlus}
-          onNext={() => void s.next()}
-          onPrevious={() => void s.previous()}
-          onClose={() => router.back()}
-        />
+        {embed ? (
+          <EmbedPlayer key={embed.kind} track={track} size={art} />
+        ) : (
+          <PlayerArt
+            uri={track.coverUrl}
+            seed={track.id}
+            size={art}
+            playing={s.status === 'playing' || s.status === 'loading'}
+            visualizer={isPlus}
+            onNext={() => void s.next()}
+            onPrevious={() => void s.previous()}
+            onClose={() => router.back()}
+          />
+        )}
       </View>
 
       <View style={styles.meta}>
@@ -122,14 +129,25 @@ export default function PlayerScreen() {
             {s.source === 'offline' ? <Badge label="Descargada" tone="success" /> : null}
             {s.source === 'original' ? <Badge label="Calidad original" /> : null}
             {track.isDemo ? <Badge label="Contenido de demostración" tone="warning" /> : null}
-            {track.externalUrl ? <Badge label="Desde Audius" tone="muted" /> : null}
+            {track.externalUrl ? (
+              <Badge
+                label={
+                  embed?.kind === 'youtube'
+                    ? 'YouTube'
+                    : embed?.kind === 'soundcloud'
+                      ? 'SoundCloud'
+                      : 'Desde Audius'
+                }
+                tone="muted"
+              />
+            ) : null}
           </View>
         </View>
         {track.externalUrl ? (
           // Canción de Audius: se reconoce al artista enlazando a su página original.
           <IconButton
             name="open-outline"
-            label={`Ver «${track.title}» en Audius`}
+            label={`Ver «${track.title}» en ${embed?.kind === 'youtube' ? 'YouTube' : embed?.kind === 'soundcloud' ? 'SoundCloud' : 'Audius'}`}
             onPress={() => void Linking.openURL(track.externalUrl!)}
           />
         ) : (
