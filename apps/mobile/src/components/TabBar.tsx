@@ -8,9 +8,11 @@ import { getPopularTracks } from '@/api/catalog';
 import { shufflePlay } from '@/player/play';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, fonts } from '@/theme';
+import { unlockAudioInGesture } from './HomeExtras';
 import { MiniPlayer } from './MiniPlayer';
 import { NowPlayingBars, PressableScale } from './motion';
 import { Text, type IconName } from './ui';
+import { safeBottom } from '@/lib/safe-area';
 
 const ICONS: Record<string, [IconName, IconName]> = {
   index: ['home', 'home-outline'],
@@ -63,7 +65,10 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
       <View style={{ paddingBottom: 12 }}>
         <MiniPlayer />
       </View>
-      <View style={[styles.bar, { paddingBottom: insets.bottom + 6 }]} accessibilityRole="tablist">
+      <View
+        style={[styles.bar, { paddingBottom: safeBottom(insets.bottom, 6, 14) }]}
+        accessibilityRole="tablist"
+      >
         {routes.slice(0, 2)}
         <NowButton />
         {routes.slice(2)}
@@ -80,6 +85,7 @@ function NowButton() {
   async function onPress() {
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (track) return router.push('/player');
+    unlockAudioInGesture();
     const tracks = await getPopularTracks(30).catch(() => []);
     if (tracks.length) await shufflePlay(tracks, { type: 'home' });
   }

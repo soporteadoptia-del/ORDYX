@@ -30,7 +30,7 @@ export function Hero() {
           </a>
         </div>
         <p className="mt-6 text-small text-subtle">
-          Android e iPhone · Gratis · Plus por 4,99 € al mes
+          Android e iPhone · Gratis · Premium por 4,99 € al mes
         </p>
       </div>
 

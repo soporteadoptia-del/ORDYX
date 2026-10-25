@@ -96,7 +96,7 @@ const head = `
       html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
       /* El hueco de la barra de estado y de la barra de inicio lo pone el CSS (la app no suma
          márgenes en la web). En el iPhone instalado hay un mínimo por si el sistema da 0. */
-      #root{position:fixed;inset:0;height:auto;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box}
+      #root{position:fixed;inset:0;height:auto;padding-top:env(safe-area-inset-top);box-sizing:border-box}
       .ios-standalone #root{padding-top:max(env(safe-area-inset-top),47px)}
     </style>
     <script>if(navigator.standalone===true)document.documentElement.classList.add('ios-standalone')</script>

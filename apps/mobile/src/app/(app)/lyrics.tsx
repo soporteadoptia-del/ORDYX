@@ -11,6 +11,7 @@ import { toUserMessage } from '@/lib/errors';
 import { activeLine, parseLyrics } from '@/lib/lyrics';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, fonts, spacing } from '@/theme';
+import { safeBottom } from '@/lib/safe-area';
 
 /** Letra de la canción que suena. Sincronizada si el artista la subió en formato LRC. */
 export default function LyricsScreen() {
@@ -25,7 +26,12 @@ export default function LyricsScreen() {
   });
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top, paddingBottom: safeBottom(insets.bottom, 0) },
+      ]}
+    >
       <LinearGradient
         colors={['rgba(185,140,255,0.22)', 'rgba(200,245,96,0.06)', colors.background]}
         style={StyleSheet.absoluteFill}
@@ -57,10 +63,14 @@ export default function LyricsScreen() {
       ) : !isPlus ? (
         <EmptyState
           icon="text"
-          title="Las letras son de Aurevix Plus"
-          message="Con Plus, la letra avanza con la canción y puedes tocar una línea para saltar a ella."
+          title="Las letras son de Aurevix Premium"
+          message="Con Premium, la letra avanza con la canción y puedes tocar una línea para saltar a ella."
           action={
-            <Button label="Ver Aurevix Plus" icon="sparkles" onPress={() => router.push('/plus')} />
+            <Button
+              label="Ver Aurevix Premium"
+              icon="sparkles"
+              onPress={() => router.push('/plus')}
+            />
           }
         />
       ) : lyrics.isLoading ? (

@@ -19,8 +19,28 @@ import { usePlus, usePlusOffer } from '@/hooks/usePlus';
 import { toUserMessage } from '@/lib/errors';
 import { colors, fonts, radius, spacing } from '@/theme';
 
-/** Lo que incluye Plus. Cada ventaja existe de verdad en la app; ninguna es una promesa. */
+/** Lo que incluye Premium. Cada ventaja existe de verdad en la app; ninguna es una promesa. */
 export const PLUS_PERKS: { icon: IconName; title: string; text: string }[] = [
+  {
+    icon: 'cloud-upload',
+    title: 'Sube tu música',
+    text: 'Crea tu perfil de artista y publica tus canciones en Aurevix. Pasan una revisión rápida y aparecen para todo el mundo.',
+  },
+  {
+    icon: 'bar-chart',
+    title: 'Estadísticas de artista',
+    text: 'Escuchas, oyentes, minutos y favoritos de cada una de tus canciones.',
+  },
+  {
+    icon: 'infinite',
+    title: 'Seguir sonando',
+    text: 'Cuando se acaba la cola, la música continúa con canciones parecidas a la última.',
+  },
+  {
+    icon: 'radio-button-on',
+    title: 'Modo visual',
+    text: 'En el reproductor, la portada late al ritmo de la música con aros de luz.',
+  },
   {
     icon: 'pulse',
     title: 'Sonido máximo',
@@ -48,7 +68,7 @@ export const PLUS_PERKS: { icon: IconName; title: string; text: string }[] = [
   },
   {
     icon: 'sparkles',
-    title: 'Insignia Plus',
+    title: 'Insignia Premium',
     text: 'Una marca en tu perfil para que se vea que apoyas la música independiente.',
   },
 ];
@@ -96,12 +116,17 @@ export default function PlusScreen() {
         style={styles.hero}
       >
         <Text style={styles.kicker}>Aurevix</Text>
-        <Text style={styles.title} accessibilityRole="header">
-          Plus
+        <Text
+          style={styles.title}
+          accessibilityRole="header"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          Premium
         </Text>
         {p.active && p.expires_at ? (
           <Text style={styles.lead}>
-            Tienes Plus hasta el {formatDay(p.expires_at)}.
+            Tienes Premium hasta el {formatDay(p.expires_at)}.
             {p.source === 'gift' ? ' Te lo hemos regalado nosotros.' : ''}
           </Text>
         ) : (
@@ -159,7 +184,7 @@ export default function PlusScreen() {
           {paid ? (
             <Text muted>
               Estamos comprobando el pago con el concepto {p.pending_reference}. Te avisaremos en
-              Notificaciones en cuanto se active{p.active ? ' el mes extra' : ' Plus'}.
+              Notificaciones en cuanto se active{p.active ? ' el mes extra' : ' Premium'}.
             </Text>
           ) : (
             <>
@@ -206,7 +231,7 @@ export default function PlusScreen() {
                 'Cancelar la solicitud',
                 paid
                   ? 'Si ya has enviado el Bizum, no canceles: escríbenos desde Ajustes → Ayuda y lo resolvemos.'
-                  : '¿Seguro? Podrás pedir Plus de nuevo cuando quieras.',
+                  : '¿Seguro? Podrás pedir Premium de nuevo cuando quieras.',
                 [
                   { text: 'Volver', style: 'cancel' },
                   {
@@ -222,14 +247,14 @@ export default function PlusScreen() {
       ) : (
         <View style={styles.cta}>
           <Button
-            label={p.active ? `Añadir un mes por ${price}` : `Conseguir Plus por ${price}`}
+            label={p.active ? `Añadir un mes por ${price}` : `Conseguir Premium por ${price}`}
             icon="sparkles"
             loading={busy}
             onPress={() => void run(() => requestPlus())}
           />
           <Text variant="caption" muted style={{ textAlign: 'center' }}>
-            Te daremos un código para el concepto del Bizum. Plus se activa en cuanto confirmamos el
-            pago y dura un mes desde ese momento
+            Te daremos un código para el concepto del Bizum. Premium se activa en cuanto confirmamos
+            el pago y dura un mes desde ese momento
             {p.active ? ' (o desde que acabe el que tienes)' : ''}.
           </Text>
         </View>
@@ -254,9 +279,9 @@ const styles = StyleSheet.create({
   kicker: { fontFamily: fonts.display, fontSize: 22, color: colors.text },
   title: {
     fontFamily: fonts.displayHeavy,
-    fontSize: 88,
-    lineHeight: 88,
-    letterSpacing: -4,
+    fontSize: 72,
+    lineHeight: 76,
+    letterSpacing: -3,
     color: colors.accent,
   },
   lead: {

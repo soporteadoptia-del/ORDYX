@@ -12,9 +12,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getTracksByIds } from '@/api/catalog';
-import { Artwork } from '@/components/Artwork';
+import { PlayerArt } from '@/components/PlayerArt';
 import { SeekBar } from '@/components/SeekBar';
 import { Sheet, SheetItem } from '@/components/Sheet';
+import { useToast } from '@/components/Toast';
 import { useTrackActions } from '@/components/TrackActions';
 import { PressableScale } from '@/components/motion';
 import { Badge, Button, EmptyState, IconButton, Text } from '@/components/ui';
@@ -23,8 +24,10 @@ import { useLikes } from '@/hooks/useLikes';
 import { usePlus } from '@/hooks/usePlus';
 import { downloadsSupported } from '@/player/downloads';
 import { PLAYBACK_RATES, rateLabel, usePlayerPrefs } from '@/player/prefs';
+import { startRadio } from '@/player/radio';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, fonts, spacing } from '@/theme';
+import { safeBottom } from '@/lib/safe-area';
 
 export default function PlayerScreen() {
   const insets = useSafeAreaInsets();
@@ -37,6 +40,7 @@ export default function PlayerScreen() {
   const { isPlus } = usePlus();
   const rate = usePlayerPrefs((p) => p.rate);
   const [sheet, setSheet] = useState<'speed' | 'sleep' | null>(null);
+  const toast = useToast();
 
   if (!track) {
     return (
@@ -58,7 +62,7 @@ export default function PlayerScreen() {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.lg },
+        { paddingTop: insets.top, paddingBottom: safeBottom(insets.bottom, spacing.lg) },
       ]}
     >
       <LinearGradient
@@ -87,7 +91,16 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.artWrap}>
-        <Artwork uri={track.coverUrl} size={art} seed={track.id} style={styles.artShadow} />
+        <PlayerArt
+          uri={track.coverUrl}
+          seed={track.id}
+          size={art}
+          playing={s.status === 'playing' || s.status === 'loading'}
+          visualizer={isPlus}
+          onNext={() => void s.next()}
+          onPrevious={() => void s.previous()}
+          onClose={() => router.back()}
+        />
       </View>
 
       <View style={styles.meta}>
@@ -244,6 +257,15 @@ export default function PlayerScreen() {
             onPress={() => void downloads.toggle(track)}
           />
         ) : null}
+        <Tool
+          icon="radio-outline"
+          label="Radio"
+          a11y="Radio: música parecida a esta canción"
+          onPress={() => {
+            void startRadio(track);
+            toast.show('Radio en marcha: después sonará música parecida', 'success');
+          }}
+        />
         <Tool icon="list" label="Cola" onPress={() => router.push('/queue')} />
       </View>
 
@@ -270,10 +292,10 @@ export default function PlayerScreen() {
           <View style={styles.sheetUpsell}>
             <Text muted>
               Cambiar la velocidad (de 0,75× a 2×, sin que cambie el tono de las voces) es parte de
-              Aurevix Plus.
+              Aurevix Premium.
             </Text>
             <Button
-              label="Ver Aurevix Plus"
+              label="Ver Aurevix Premium"
               icon="sparkles"
               onPress={() => (setSheet(null), router.push('/plus'))}
             />
@@ -389,13 +411,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, justifyContent: 'space-between' },
   topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md },
   artWrap: { alignItems: 'center', paddingHorizontal: spacing.xl },
-  artShadow: {
-    shadowColor: '#000',
-    shadowOpacity: 0.5,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 12,
-  },
   meta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -419,9 +434,9 @@ const styles = StyleSheet.create({
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
-  tool: { alignItems: 'center', gap: 4, minWidth: 56, paddingVertical: 4 },
+  tool: { alignItems: 'center', gap: 4, minWidth: 48, paddingVertical: 4 },
   toolText: { fontFamily: fonts.bodyStrong, fontSize: 15, lineHeight: 22 },
   badges: { flexDirection: 'row', gap: spacing.xs, marginTop: spacing.xs, flexWrap: 'wrap' },
   sheetUpsell: { paddingHorizontal: spacing.xl, gap: spacing.lg, paddingBottom: spacing.md },

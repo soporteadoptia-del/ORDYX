@@ -33,12 +33,12 @@ function describe(n: NotificationRow): { text: string; href?: string } {
     case 'system':
       if (p.kind === 'plus_activated')
         return {
-          text: `¡Ya tienes Aurevix Plus! Hemos recibido tu Bizum (${p.reference}). Activo hasta el ${formatDay(p.expires_at)}.`,
+          text: `¡Ya tienes Aurevix Premium! Hemos recibido tu Bizum (${p.reference}). Activo hasta el ${formatDay(p.expires_at)}.`,
           href: '/plus',
         };
       if (p.kind === 'plus_gift')
         return {
-          text: `Te hemos regalado Aurevix Plus hasta el ${formatDay(p.expires_at)}. ¡Disfrútalo!`,
+          text: `Te hemos regalado Aurevix Premium hasta el ${formatDay(p.expires_at)}. ¡Disfrútalo!`,
           href: '/plus',
         };
       if (p.kind === 'plus_rejected')

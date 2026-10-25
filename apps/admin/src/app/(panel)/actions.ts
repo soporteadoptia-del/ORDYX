@@ -257,7 +257,7 @@ export async function reviewPlusPayment(form: FormData) {
   await requireAdmin();
   const supabase = await serverClient();
   const approve = str(form, 'approve') === 'true';
-  await runAndReturn('/plus', approve ? 'Plus activado' : 'Pago rechazado', async () =>
+  await runAndReturn('/plus', approve ? 'Premium activado' : 'Pago rechazado', async () =>
     supabase.rpc('admin_review_plus_payment', {
       p_id: str(form, 'id'),
       p_approve: approve,
@@ -269,7 +269,7 @@ export async function reviewPlusPayment(form: FormData) {
 export async function grantPlus(form: FormData) {
   await requireAdmin();
   const supabase = await serverClient();
-  await runAndReturn('/plus', 'Plus regalado', async () => {
+  await runAndReturn('/plus', 'Premium regalado', async () => {
     const username = str(form, 'username').replace(/^@/, '');
     const { data: user, error } = await supabase
       .from('profiles')

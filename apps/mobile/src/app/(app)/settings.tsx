@@ -22,6 +22,8 @@ export default function Settings() {
   const { isPlus } = usePlus();
   const quality = usePlayerPrefs((p) => p.quality);
   const setQuality = usePlayerPrefs((p) => p.setQuality);
+  const autoplay = usePlayerPrefs((p) => p.autoplay);
+  const setAutoplay = usePlayerPrefs((p) => p.setAutoplay);
   const settings = useQuery({ queryKey: ['me', 'settings'], queryFn: getMySettings });
   const update = useMutation({
     mutationFn: updateMySettings,
@@ -86,14 +88,24 @@ export default function Settings() {
         description={
           isPlus
             ? 'Usa el archivo original del artista cuando hay una versión comprimida aparte. Gasta más datos.'
-            : 'Con Aurevix Plus suena el archivo original del artista.'
+            : 'Con Aurevix Premium suena el archivo original del artista.'
         }
         value={isPlus && quality === 'max'}
         onChange={(v) => (isPlus ? setQuality(v ? 'max' : 'standard') : router.push('/plus'))}
       />
+      <Toggle
+        label="Seguir sonando"
+        description={
+          isPlus
+            ? 'Cuando se acaba la cola, sigue con música parecida a la última canción.'
+            : 'Con Aurevix Premium la música no se para al acabar la cola.'
+        }
+        value={isPlus && autoplay}
+        onChange={(v) => (isPlus ? setAutoplay(v) : router.push('/plus'))}
+      />
       <View style={styles.group}>
         <Button
-          label={isPlus ? 'Tu plan Aurevix Plus' : 'Conseguir Aurevix Plus'}
+          label={isPlus ? 'Tu plan Aurevix Premium' : 'Conseguir Aurevix Premium'}
           variant="secondary"
           icon="sparkles"
           onPress={() => router.push('/plus')}

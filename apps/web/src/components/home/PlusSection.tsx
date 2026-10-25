@@ -1,18 +1,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-/** Lo que tiene cada plan. Todo lo de «Gratis» sigue gratis; Plus añade, no quita. */
+/** Lo que tiene cada plan. Todo lo de «Gratis» sigue gratis; Premium añade, no quita. */
 const ROWS: { label: string; free: boolean; plus: boolean }[] = [
   { label: 'Todo el catálogo, sin anuncios', free: true, plus: true },
   { label: 'Playlists, favoritos y artistas seguidos', free: true, plus: true },
   { label: 'Comentarios en el segundo exacto', free: true, plus: true },
   { label: 'Temporizador para dormir', free: true, plus: true },
+  { label: 'Radios por género y radio de cada canción', free: true, plus: true },
+  { label: 'Publicar tu propia música como artista', free: false, plus: true },
+  { label: 'Estadísticas de artista: escuchas y oyentes', free: false, plus: true },
+  { label: 'Seguir sonando cuando se acaba la cola', free: false, plus: true },
   { label: 'Archivo original del artista, sin recomprimir', free: false, plus: true },
   { label: 'Descargas para escuchar sin conexión (Android)', free: false, plus: true },
   { label: 'Letras que avanzan con la canción', free: false, plus: true },
   { label: 'Tus estadísticas: minutos, top y horas', free: false, plus: true },
   { label: 'Velocidad de 0,75× a 2×', free: false, plus: true },
-  { label: 'Insignia Plus en tu perfil', free: false, plus: true },
+  { label: 'Insignia Premium en tu perfil', free: false, plus: true },
 ];
 
 function Mark({ on }: { on: boolean }) {
@@ -30,7 +34,7 @@ function Mark({ on }: { on: boolean }) {
 }
 
 /**
- * «Plus», en un campo lima a sangre: el nombre enorme y el precio a la izquierda, dos pantallas
+ * «Premium», en un campo lima a sangre: el nombre enorme y el precio a la izquierda, dos pantallas
  * reales de la app a la derecha, y debajo la tabla de lo que trae cada plan.
  */
 export function PlusSection() {
@@ -41,24 +45,25 @@ export function PlusSection() {
       className="scroll-mt-0 overflow-clip bg-accent text-ink"
     >
       <div className="mx-auto grid max-w-[1400px] gap-12 px-[var(--gutter)] py-20 md:grid-cols-12 md:py-[14svh]">
-        <div className="md:col-span-6" data-reveal>
-          <p className="relative z-10 font-display text-[clamp(24px,3vw,36px)] font-bold leading-none">Aurevix</p>
+        <div className="min-w-0 md:col-span-6" data-reveal>
+          <p className="relative z-10 font-display text-[clamp(24px,3vw,36px)] font-bold leading-none">
+            Aurevix
+          </p>
           <h2
             id="plus-title"
-            className="mt-4 font-display text-[clamp(120px,22vw,300px)] font-extrabold leading-[0.85] tracking-[-0.06em]"
+            className="mt-4 font-display text-[clamp(64px,17vw,96px)] md:text-[clamp(96px,9.5vw,150px)] font-extrabold leading-[0.85] tracking-[-0.06em]"
           >
-            Plus
+            Premium
           </h2>
           <p className="mt-8 font-display text-[clamp(32px,4vw,56px)] font-bold leading-none">
             4,99 € <span className="text-[0.55em] font-semibold">al mes</span>
           </p>
           <p className="mt-6 max-w-[40ch] text-lead font-medium leading-[1.2]">
-            Escucha el archivo tal y como lo subió el artista, guárdalo para cuando no haya
-            cobertura y canta con la letra delante.
+            Publica tu música, escucha el archivo original y guárdalo para cuando no haya cobertura.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link href="/app/plus" className="btn-ink">
-              Hazte Plus en la app
+              Hazte Premium en la app
             </Link>
             <p className="max-w-[34ch] text-small font-medium">
               Se paga por Bizum desde la app, con un código para el concepto. Sin permanencia y sin
@@ -66,7 +71,7 @@ export function PlusSection() {
             </p>
           </div>
         </div>
-        <div className="flex items-start justify-center gap-4 md:col-span-6 md:gap-6">
+        <div className="flex min-w-0 items-start justify-center gap-4 md:col-span-6 md:gap-6">
           <figure className="relative aspect-[390/844] w-[min(42vw,260px)] -rotate-2 overflow-hidden rounded-[28px]">
             <Image
               src="/screens/app-stats.webp"
@@ -79,7 +84,7 @@ export function PlusSection() {
           <figure className="relative mt-[12%] aspect-[390/844] w-[min(42vw,260px)] rotate-2 overflow-hidden rounded-[28px]">
             <Image
               src="/screens/app-plus.webp"
-              alt="Pantalla de Aurevix Plus en la app con sus ventajas"
+              alt="Pantalla de Aurevix Premium en la app con sus ventajas"
               fill
               sizes="280px"
               className="object-cover"
@@ -87,7 +92,7 @@ export function PlusSection() {
           </figure>
         </div>
 
-        <div className="md:col-span-12">
+        <div className="min-w-0 md:col-span-12">
           <table className="w-full border-collapse text-left text-body">
             <caption className="sr-only">Qué incluye cada plan</caption>
             <thead>
@@ -100,9 +105,9 @@ export function PlusSection() {
                 </th>
                 <th
                   scope="col"
-                  className="w-16 py-3 text-center font-display text-lead font-extrabold md:w-40"
+                  className="w-24 py-3 text-center font-display text-body font-extrabold md:w-40 md:text-lead"
                 >
-                  Plus
+                  Premium
                 </th>
               </tr>
             </thead>
@@ -127,7 +132,7 @@ export function PlusSection() {
             </tbody>
           </table>
           <p className="mt-4 text-small font-medium">
-            Plus dura un mes desde que confirmamos el Bizum (o desde que acabe el mes que ya
+            Premium dura un mes desde que confirmamos el Bizum (o desde que acabe el mes que ya
             tengas). Condiciones completas en{' '}
             <Link href="/condiciones#plus" className="underline underline-offset-4">
               Condiciones de uso

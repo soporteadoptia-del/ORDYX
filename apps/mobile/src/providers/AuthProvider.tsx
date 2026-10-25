@@ -2,7 +2,7 @@ import type { AppRole } from '@ordyx/shared';
 import type { Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { getMyProfile, getMyRoles, getMySettings } from '@/api/me';
+import { getMyCanUpload, getMyProfile, getMyRoles, getMySettings } from '@/api/me';
 import type { ProfileSummary } from '@/api/types';
 import { supabase } from '@/lib/supabase';
 import { clearPersistedPlayer } from '@/player/store';
@@ -14,8 +14,10 @@ interface AuthContextValue {
   roles: AppRole[];
   /** null mientras se carga; false si la cuenta (Google/Apple) aún no ha aceptado las condiciones. */
   termsAccepted: boolean | null;
+  /** Publicar música exige Premium en vigor (o ser administración); lo decide el servidor. */
   canUpload: boolean;
   isStaff: boolean;
+  isAdmin: boolean;
   signOut: (scope?: 'local' | 'global') => Promise<void>;
   refreshProfile: () => void;
 }
@@ -51,6 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     enabled: !!userId,
   });
 
+  // Bajo la clave «plus» para que se refresque junto con el estado de Premium.
+  const uploadQuery = useQuery({
+    queryKey: ['plus', 'can-upload', userId],
+    queryFn: getMyCanUpload,
+    enabled: !!userId,
+    staleTime: 60_000,
+  });
+
   const settingsQuery = useQuery({
     queryKey: ['me', 'settings', userId],
     queryFn: getMySettings,
@@ -65,10 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile: profileQuery.data ?? null,
       roles,
       termsAccepted: settingsQuery.data ? !!settingsQuery.data.terms_accepted_at : null,
-      canUpload:
-        profileQuery.data?.status === 'active' &&
-        (roles.includes('artist') || roles.includes('admin')),
+      canUpload: profileQuery.data?.status === 'active' && !!uploadQuery.data,
       isStaff: roles.includes('admin') || roles.includes('moderator'),
+      isAdmin: roles.includes('admin'),
       async signOut(scope = 'local') {
         await clearPersistedPlayer();
         // scope 'global' revoca las sesiones de TODOS los dispositivos.
@@ -81,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         void settingsQuery.refetch();
       },
     };
-  }, [session, initializing, profileQuery, rolesQuery, settingsQuery, queryClient]);
+  }, [session, initializing, profileQuery, rolesQuery, settingsQuery, uploadQuery, queryClient]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

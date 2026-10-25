@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { safeBottom } from '@/lib/safe-area';
 
 /** Contenedor de pantalla con fondo de marca y márgenes seguros superiores. */
 export function Screen({
@@ -21,7 +22,7 @@ export function Screen({
           // El fondo de marca lo pone el layout (BrandBackground).
           backgroundColor: 'transparent',
           paddingTop: edges.includes('top') ? insets.top : 0,
-          paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
+          paddingBottom: edges.includes('bottom') ? safeBottom(insets.bottom, 0) : 0,
         },
         style,
       ]}

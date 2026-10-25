@@ -69,6 +69,7 @@ export function audiusToPlayable(t: AudiusTrack): PlayableTrack {
     durationMs: t.durationMs || null,
     isDemo: false,
     externalUrl: t.url,
+    genre: t.genre,
   };
 }
 

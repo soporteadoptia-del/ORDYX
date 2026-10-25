@@ -17,6 +17,7 @@ import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
 import { PlusStrip } from '@/components/PlusStrip';
 import { GenreGrid } from '@/components/GenreGrid';
+import { Greeting, NoticeBanner, RadioRow } from '@/components/HomeExtras';
 import { NowTrending } from '@/components/NowTrending';
 import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
@@ -189,6 +190,12 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
         }
       >
+        {filter === 'all' ? (
+          <>
+            <Greeting name={profile?.display_name?.split(' ')[0] ?? null} />
+            <NoticeBanner />
+          </>
+        ) : null}
         {filter === 'all' && !loading ? (
           <View style={styles.quickGrid}>
             {quick.map((q) => (
@@ -198,6 +205,7 @@ export default function Home() {
         ) : null}
 
         {show('music') ? <NowTrending /> : null}
+        {show('music') ? <RadioRow /> : null}
 
         {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (
           <PlusStrip price={formatEuros(offer.data?.priceCents ?? 499)} />

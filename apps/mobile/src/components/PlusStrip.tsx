@@ -11,12 +11,12 @@ export function PlusStrip({ price }: { price: string }) {
       scaleTo={0.98}
       onPress={() => router.push('/plus')}
       accessibilityRole="button"
-      accessibilityLabel={`Aurevix Plus, ${price} al mes`}
+      accessibilityLabel={`Aurevix Premium, ${price} al mes`}
       style={styles.plus}
     >
       <Ionicons name="sparkles" size={20} color={colors.accent} />
       <View style={{ flex: 1 }}>
-        <Text variant="bodyStrong">Aurevix Plus</Text>
+        <Text variant="bodyStrong">Aurevix Premium</Text>
         <Text variant="caption" muted numberOfLines={2}>
           Sonido original, descargas, letras y tus estadísticas por {price} al mes.
         </Text>

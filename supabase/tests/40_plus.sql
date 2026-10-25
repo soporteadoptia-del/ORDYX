@@ -2,6 +2,7 @@
 \set QUIET on
 set client_min_messages = notice;
 
+
 -- La letra ya no se puede leer directamente de la tabla.
 -- Una canción publicada de Alice con letra (la de 10_security acabó retirada).
 select tests.login(tests.id('alice'));
@@ -16,6 +17,9 @@ select tests.expect_true(not has_column_privilege('anon', 'public.tracks', 'lyri
 select tests.expect_true(not has_column_privilege('authenticated', 'public.tracks', 'lyrics', 'select'), 'authenticated no lee la columna lyrics');
 select tests.expect_true(has_column_privilege('anon', 'public.tracks', 'title', 'select'), 'el resto de columnas sigue siendo legible');
 select tests.expect_true(not has_function_privilege('anon', 'public.request_plus(text)', 'execute'), 'anon no puede pedir Plus');
+
+-- Alice tuvo Premium para publicar en 10_security; aquí se le hace caducar.
+update public.subscriptions set expires_at = now() - interval '1 day' where user_id = tests.id('alice');
 
 -- Sin Plus
 select tests.login(tests.id('dave'));

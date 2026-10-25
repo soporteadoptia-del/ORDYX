@@ -79,7 +79,7 @@ export default async function PlusPayments({
   return (
     <>
       <PageTitle
-        title="Aurevix Plus"
+        title="Aurevix Premium"
         subtitle={`Los pagos llegan por Bizum al ${phone}. Antes de aprobar, comprueba en tu banco que hay un Bizum con el código exacto en el concepto y el importe correcto.`}
       />
       <Flash ok={sp.ok} error={sp.error ?? payments.error?.message} />
@@ -132,7 +132,7 @@ export default async function PlusPayments({
         ))}
       </div>
 
-      <h2 className="mb-3 mt-10 font-display text-xl font-bold">Regalar Plus</h2>
+      <h2 className="mb-3 mt-10 font-display text-xl font-bold">Regalar Premium</h2>
       <Card>
         <form action={grantPlus} className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
@@ -161,7 +161,7 @@ export default async function PlusPayments({
       <h2 className="mb-3 mt-10 font-display text-xl font-bold">
         Suscripciones activas <span className="text-muted">({active.length})</span>
       </h2>
-      {active.length === 0 ? <Empty>Nadie tiene Plus ahora mismo.</Empty> : null}
+      {active.length === 0 ? <Empty>Nadie tiene Premium ahora mismo.</Empty> : null}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <tbody>

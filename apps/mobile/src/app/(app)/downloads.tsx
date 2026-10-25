@@ -51,10 +51,11 @@ export default function DownloadsScreen() {
             <View style={styles.notice}>
               <Text variant="bodyStrong">Tus descargas están en pausa</Text>
               <Text variant="caption" muted>
-                Siguen guardadas en el móvil y vuelven a sonar sin conexión en cuanto renueves Plus.
+                Siguen guardadas en el móvil y vuelven a sonar sin conexión en cuanto renueves
+                Premium.
               </Text>
               <Button
-                label="Renovar Plus"
+                label="Renovar Premium"
                 icon="sparkles"
                 compact
                 onPress={() => router.push('/plus')}
@@ -98,12 +99,12 @@ export default function DownloadsScreen() {
           message={
             isPlus
               ? 'En cualquier canción, abre el menú ⋯ y toca «Descargar». También desde el reproductor.'
-              : 'Con Aurevix Plus puedes guardar canciones y escucharlas sin conexión.'
+              : 'Con Aurevix Premium puedes guardar canciones y escucharlas sin conexión.'
           }
           action={
             isPlus ? null : (
               <Button
-                label="Ver Aurevix Plus"
+                label="Ver Aurevix Premium"
                 icon="sparkles"
                 onPress={() => router.push('/plus')}
               />

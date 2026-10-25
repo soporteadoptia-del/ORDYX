@@ -37,10 +37,10 @@ export function invalidateStreamUrl(audioPath: string) {
 }
 
 /**
- * URL remota según la calidad. Con «max» y Plus se pide el archivo original (WAV/FLAC tal y como lo
+ * URL remota según la calidad. Con «max» y Premium se pide el archivo original (WAV/FLAC tal y como lo
  * subió el artista) cuando el servidor guardó una versión comprimida aparte; si no hay original
  * aparte, la versión de streaming ya es el archivo original. Storage solo firma el original si la
- * política RLS confirma que el plan Plus está activo, así que pedirlo sin Plus simplemente falla y
+ * política RLS confirma que el plan Premium está activo, así que pedirlo sin Premium simplemente falla y
  * se usa la versión normal.
  */
 const originals = new Map<string, string | null>();

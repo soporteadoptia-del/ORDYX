@@ -26,6 +26,11 @@ export async function getMyRoles(): Promise<AppRole[]> {
   return rows.map((r) => r.role);
 }
 
+/** ¿Puede subir música? (Premium en vigor o administración; `public.my_can_upload`) */
+export async function getMyCanUpload(): Promise<boolean> {
+  return !!unwrap(await supabase.rpc('my_can_upload'));
+}
+
 export async function getMySettings(): Promise<UserSettings> {
   const me = await currentUserId();
   return unwrap(

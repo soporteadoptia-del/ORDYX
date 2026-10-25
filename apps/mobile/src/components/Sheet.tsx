@@ -3,6 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, spacing } from '@/theme';
 import { Text } from './ui';
+import { safeBottom } from '@/lib/safe-area';
 
 export function Sheet({
   visible,
@@ -30,7 +31,7 @@ export function Sheet({
         accessibilityLabel="Cerrar"
         accessibilityRole="button"
       />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
+      <View style={[styles.sheet, { paddingBottom: safeBottom(insets.bottom, spacing.lg) }]}>
         <View style={styles.handle} />
         {title ? (
           <Text variant="heading" numberOfLines={1} style={styles.title}>

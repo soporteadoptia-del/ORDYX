@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getMyPlus, getPlusOffer } from '@/api/plus';
 import { useAuth } from '@/providers/AuthProvider';
 
-/** Estado de Aurevix Plus del usuario. `isPlus` es false mientras carga. */
+/** Estado de Aurevix Premium del usuario. `isPlus` es false mientras carga. */
 export function usePlus() {
   const { session } = useAuth();
   const userId = session?.user.id ?? null;

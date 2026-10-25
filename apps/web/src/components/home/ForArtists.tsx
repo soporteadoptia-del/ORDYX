@@ -4,7 +4,7 @@ const STEPS = [
   {
     n: '1',
     verb: 'Sube',
-    text: 'Tu canción desde el estudio de la app: audio, portada, letra y licencia.',
+    text: 'Con Aurevix Premium, tu canción desde el estudio de la app: audio, portada, letra y licencia.',
   },
   {
     n: '2',
@@ -14,7 +14,7 @@ const STEPS = [
   {
     n: '3',
     verb: 'Suena',
-    text: 'En búsquedas, géneros y playlists. Cada escucha de 30 s reales cuenta para ti.',
+    text: 'En búsquedas, géneros y radios. Ves sus escuchas, oyentes y favoritos en tus estadísticas.',
   },
 ];
 
@@ -43,7 +43,7 @@ export function ForArtists() {
         <div className="relative mx-auto aspect-[390/844] w-full max-w-[min(70vw,320px)] overflow-hidden rounded-[32px] md:col-span-5">
           <Image
             src="/screens/app-studio.webp"
-            alt="Estudio de artista de la app con canciones publicadas y una pendiente de revisión"
+            alt="Estadísticas de artista en la app: escuchas, oyentes y favoritos de cada canción (datos de ejemplo)"
             fill
             sizes="320px"
             className="object-cover"

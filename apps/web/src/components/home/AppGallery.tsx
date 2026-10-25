@@ -8,12 +8,12 @@ const SCREENS = [
   {
     src: '/screens/app-home.webp',
     title: 'Inicio',
-    text: 'Tus accesos rápidos y lo que suena esta semana, por géneros.',
+    text: 'Tu saludo, accesos rápidos, lo que suena esta semana y radios que no paran.',
   },
   {
     src: '/screens/app-player.webp',
     title: 'Reproductor',
-    text: 'Letra, velocidad, temporizador para dormir y tu cola, a un toque.',
+    text: 'Desliza la portada para cambiar de canción. Letra, velocidad, dormir, radio y cola.',
   },
   {
     src: '/screens/app-search.webp',
@@ -27,8 +27,8 @@ const SCREENS = [
   },
   {
     src: '/screens/app-plus.webp',
-    title: 'Aurevix Plus',
-    text: 'Todo lo que añade Plus, y el pago por Bizum paso a paso.',
+    title: 'Aurevix Premium',
+    text: 'Todo lo que añade Premium, y el pago por Bizum paso a paso.',
   },
   {
     src: '/screens/app-stats.webp',
@@ -37,8 +37,8 @@ const SCREENS = [
   },
   {
     src: '/screens/app-studio.webp',
-    title: 'Estudio',
-    text: 'Para artistas: sube, revisa el estado y publica tu música.',
+    title: 'Estadísticas de artista',
+    text: 'Con Premium publicas tu música y ves sus escuchas, oyentes y favoritos.',
   },
 ];
 
@@ -84,7 +84,7 @@ export function AppGallery() {
     <section
       id="funciones"
       aria-labelledby="gallery-title"
-      className="mx-auto max-w-[1400px] scroll-mt-8 overflow-hidden px-[var(--gutter)] py-20 md:py-[14svh]"
+      className="mx-auto max-w-[1400px] scroll-mt-8 overflow-hidden [contain:paint] px-[var(--gutter)] py-20 md:py-[14svh]"
     >
       <div className="mb-6 grid gap-6 md:grid-cols-2 md:items-end">
         <h2 id="gallery-title" className="text-title">

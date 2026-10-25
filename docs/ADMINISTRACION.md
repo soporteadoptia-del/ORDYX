@@ -1,5 +1,27 @@
 # Guía de administración
 
+## Acceso rápido: panel del propietario en la app
+
+Entra en la app (móvil o https://ordyx.vercel.app/app) con la cuenta administradora
+(`aurevixweb@gmail.com`) → pestaña **Tú** → **Panel del propietario**. Desde ahí:
+
+- **Hoy:** escuchas y oyentes del día, usuarios, Premium activos, Bizum y canciones pendientes.
+- **Pagos:** cada solicitud de Premium con su código `AUR-XXXXXX`. «Bizum recibido» activa un mes;
+  «No ha llegado» la rechaza y avisa al usuario.
+- **Canciones:** escuchar, publicar o rechazar lo que suben los artistas.
+- **Usuarios:** buscar, regalar un mes de Premium, suspender o reactivar.
+- **Ajustes:** precio de Premium, teléfono de Bizum, correo de soporte y un aviso que aparece en el
+  inicio de la app (vacío = sin aviso).
+
+Todo pasa por las mismas funciones `admin_*` del servidor (comprueban el rol y quedan en Auditoría).
+Lo demás (denuncias, géneros, versiones, errores, auditoría) está en el panel completo `apps/admin`.
+
+## Publicar música exige Premium
+
+Desde la migración `20261025000400_aurevix_premium.sql`, crear artistas y subir canciones exige
+Aurevix Premium en vigor (o ser administración). Ya no hace falta conceder el rol «Artista». Si
+Premium caduca, sus canciones siguen publicadas, pero no puede subir más hasta renovar.
+
 ## Crear el primer administrador (una sola vez)
 
 1. Regístrate en la app con tu correo y confírmalo.

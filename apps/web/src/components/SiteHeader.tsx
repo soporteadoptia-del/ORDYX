@@ -23,7 +23,7 @@ export function SiteHeader({ name }: { name: string }) {
             Para artistas
           </Link>
           <Link href="/#plus" className="transition-colors hover:text-fg">
-            Plus
+            Premium
           </Link>
           <Link href="/#preguntas" className="transition-colors hover:text-fg">
             Preguntas
