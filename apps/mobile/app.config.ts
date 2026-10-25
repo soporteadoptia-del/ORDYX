@@ -16,10 +16,17 @@ const bundleId = (process.env.IOS_BUNDLE_ID ?? 'es.aurevixweb.music') + suffix;
 const androidPackage = (process.env.ANDROID_PACKAGE ?? 'es.aurevixweb.music') + suffix;
 const scheme = process.env.APP_SCHEME ?? 'aurevix';
 
+// Proyecto de Expo (organización «aurevix-music») para las actualizaciones por internet (EAS Update).
+// El ID no es secreto. El canal que pide la app va en una cabecera porque el APK se compila con
+// Gradle en GitHub Actions, no con EAS Build.
+const easProjectId = process.env.EAS_PROJECT_ID ?? '7215892a-9d14-4e75-9ba9-1c47179d0e38';
+const updatesChannel = process.env.UPDATES_CHANNEL ?? (variant === 'production' ? 'production' : variant);
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: appName + nameSuffix,
-  slug: process.env.APP_SLUG ?? 'aurevix-music',
+  slug: process.env.APP_SLUG ?? 's0k1',
+  owner: process.env.EXPO_OWNER ?? 'aurevix-music',
   // Versión visible del binario. Debe coincidir con la publicada en app_versions.
   version: '1.0.0',
   orientation: 'portrait',
@@ -96,11 +103,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     baseUrl: process.env.EXPO_WEB_BASE_URL,
   },
   runtimeVersion: { policy: 'appVersion' },
-  updates: process.env.EAS_PROJECT_ID
-    ? { url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID}` }
-    : undefined,
+  // Al abrir la app descarga en segundo plano la última actualización publicada para su versión
+  // (runtimeVersion = versión de la app) y la aplica la próxima vez que se abra.
+  updates: {
+    url: `https://u.expo.dev/${easProjectId}`,
+    checkAutomatically: 'ON_LOAD',
+    fallbackToCacheTimeout: 0,
+    requestHeaders: { 'expo-channel-name': updatesChannel },
+  },
   extra: {
-    eas: process.env.EAS_PROJECT_ID ? { projectId: process.env.EAS_PROJECT_ID } : undefined,
+    eas: { projectId: easProjectId },
     variant,
   },
 });
