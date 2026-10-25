@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Terms() {
   return (
-    <LegalPage title="Condiciones de uso" updated="24 de octubre de 2026">
+    <LegalPage title="Condiciones de uso" updated="25 de octubre de 2026">
       <h2>1. El servicio</h2>
       <p>
         Aurevix Music es una plataforma para escuchar música, crear playlists, seguir a artistas y,
@@ -36,9 +36,10 @@ export default function Terms() {
       <p>
         Conservas todos tus derechos. Al publicar declaras que eres titular de la grabación y de la
         obra, o que tienes autorización, y nos concedes una licencia no exclusiva para alojar,
-        reproducir en streaming y mostrar el contenido dentro del servicio mientras siga publicado.
-        Cada canción se revisa antes de publicarse y puede retirarse si recibimos una reclamación
-        fundada.
+        reproducir en streaming (incluidas las escuchas sin conexión que la app guarda en su
+        almacenamiento privado para suscriptores de Aurevix Plus) y mostrar el contenido dentro del
+        servicio mientras siga publicado. Cada canción se revisa antes de publicarse y puede
+        retirarse si recibimos una reclamación fundada.
       </p>
       <h2>5. Derechos de autor y contenido ilícito</h2>
       <p>
@@ -51,7 +52,33 @@ export default function Terms() {
         El servicio se presta «tal cual». Podemos actualizar la app o retirar versiones defectuosas;
         algunas actualizaciones requerirán instalar una nueva versión.
       </p>
-      <h2>7. Ley aplicable</h2>
+      <h2 id="plus">7. Aurevix Plus</h2>
+      <ul>
+        <li>
+          Aurevix Plus es un plan opcional de pago que cuesta 4,99 € por mes (IVA incluido). Añade
+          funciones a la cuenta gratuita, que sigue igual.
+        </li>
+        <li>
+          Se paga por Bizum desde la app: te damos un código que debes poner en el concepto. Al
+          confirmar el pago se activa un mes, contado desde la confirmación o desde el final del mes
+          que ya tengas. No hay renovación automática ni cargos recurrentes.
+        </li>
+        <li>
+          Si no podemos identificar un Bizum (sin código o con un importe distinto), te lo
+          indicaremos en la app y te lo devolveremos si nos lo pides desde Ayuda.
+        </li>
+        <li>
+          Al pedir la activación aceptas que el servicio empiece en cuanto confirmemos el pago. Por
+          eso, una vez activado, no se aplica el derecho de desistimiento de 14 días sobre el mes ya
+          iniciado. [Pendiente de revisión legal.]
+        </li>
+        <li>
+          Las descargas sin conexión solo funcionan dentro de la app mientras el plan esté activo y
+          no te dan ningún derecho sobre las obras. Si un artista retira una canción, deja de estar
+          disponible también sin conexión la próxima vez que la app se conecte.
+        </li>
+      </ul>
+      <h2>8. Ley aplicable</h2>
       <p>
         [Pendiente: legislación y fuero aplicables, respetando los derechos de consumidores y
         usuarios.]

@@ -19,6 +19,9 @@ export function SiteHeader({ name }: { name: string }) {
           <Link href="/#artistas" className="transition-colors hover:text-fg">
             Para artistas
           </Link>
+          <Link href="/#plus" className="transition-colors hover:text-fg">
+            Plus
+          </Link>
           <Link href="/#preguntas" className="transition-colors hover:text-fg">
             Preguntas
           </Link>

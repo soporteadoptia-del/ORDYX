@@ -3,7 +3,7 @@ import Link from 'next/link';
 export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
   {
     q: '¿Es gratis?',
-    a: 'Sí. Puedes escuchar, crear playlists y seguir a artistas sin pagar. Si en el futuro hay un plan de pago, será opcional y se anunciará con sus condiciones.',
+    a: 'Sí. Puedes escuchar todo el catálogo, crear playlists y seguir a artistas sin pagar ni ver anuncios. Aurevix Plus (4,99 € al mes, opcional) añade el archivo original del artista, descargas sin conexión, letras sincronizadas, estadísticas y velocidad de reproducción.',
   },
   {
     q: '¿Por qué en Android se descarga un archivo APK?',
@@ -19,7 +19,11 @@ export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: '¿Puedo escuchar sin conexión?',
-    a: 'Todavía no. Las descargas para escuchar sin conexión requieren acuerdos de licencia y protección del contenido; están en nuestra hoja de ruta.',
+    a: 'Sí, con Aurevix Plus en la app de Android: abre el menú de una canción y toca «Descargar». Las canciones se guardan dentro de la app (no como archivos sueltos) y suenan sin conexión mientras tu plan esté activo.',
+  },
+  {
+    q: '¿Cómo se paga Aurevix Plus?',
+    a: 'Por Bizum, desde la app: en Plus te damos un código, envías 4,99 € al número que aparece con ese código en el concepto y pulsas «Ya he enviado el Bizum». Lo confirmamos a mano y te avisamos en Notificaciones. No hay renovación automática: cada mes decides si lo quieres.',
   },
   {
     q: 'Soy artista, ¿cómo publico mi música?',

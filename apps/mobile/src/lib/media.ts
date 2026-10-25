@@ -1,5 +1,6 @@
 import { publicImageUrl, STORAGE_BUCKETS } from '@ordyx/shared';
 import { env } from './env';
+import { getOriginalAudioPath } from '@/api/plus';
 import { supabase } from './supabase';
 
 type ImageBucket =
@@ -32,4 +33,31 @@ export async function resolveStreamUrl(audioPath: string): Promise<string> {
 
 export function invalidateStreamUrl(audioPath: string) {
   cache.delete(audioPath);
+}
+
+/**
+ * URL remota según la calidad. Con «max» y Plus se pide el archivo original (WAV/FLAC tal y como lo
+ * subió el artista) cuando el servidor guardó una versión comprimida aparte; si no hay original
+ * aparte, la versión de streaming ya es el archivo original. Storage solo firma el original si la
+ * política RLS confirma que el plan Plus está activo, así que pedirlo sin Plus simplemente falla y
+ * se usa la versión normal.
+ */
+const originals = new Map<string, string | null>();
+export async function resolveRemoteUrl(
+  trackId: string,
+  audioPath: string,
+  quality: 'standard' | 'max',
+  plus: boolean,
+): Promise<{ url: string; original: boolean }> {
+  if (quality === 'max' && plus) {
+    try {
+      if (!originals.has(trackId)) originals.set(trackId, await getOriginalAudioPath(trackId));
+      const original = originals.get(trackId);
+      if (original && original !== audioPath)
+        return { url: await resolveStreamUrl(original), original: true };
+    } catch {
+      // sin acceso al original: se usa la versión de streaming
+    }
+  }
+  return { url: await resolveStreamUrl(audioPath), original: false };
 }

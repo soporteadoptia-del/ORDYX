@@ -4,6 +4,7 @@ import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { getNotifications, markAllNotificationsRead } from '@/api/me';
+import { formatDay } from '@/api/plus';
 import { EmptyState, ErrorState, Loading, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { colors, spacing } from '@/theme';
@@ -29,6 +30,23 @@ function describe(n: NotificationRow): { text: string; href?: string } {
       };
     case 'report_resolved':
       return { text: 'Hemos revisado tu denuncia. Gracias por ayudarnos.' };
+    case 'system':
+      if (p.kind === 'plus_activated')
+        return {
+          text: `¡Ya tienes Aurevix Plus! Hemos recibido tu Bizum (${p.reference}). Activo hasta el ${formatDay(p.expires_at)}.`,
+          href: '/plus',
+        };
+      if (p.kind === 'plus_gift')
+        return {
+          text: `Te hemos regalado Aurevix Plus hasta el ${formatDay(p.expires_at)}. ¡Disfrútalo!`,
+          href: '/plus',
+        };
+      if (p.kind === 'plus_rejected')
+        return {
+          text: `No hemos podido confirmar el Bizum ${p.reference}${p.note ? `: ${p.note}` : ''}.`,
+          href: '/plus',
+        };
+      return { text: p.message ?? 'Notificación del sistema' };
     default:
       return { text: p.message ?? 'Notificación del sistema' };
   }

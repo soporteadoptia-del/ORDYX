@@ -31,6 +31,13 @@ export default function AppLayout() {
         name="queue"
         options={{ presentation: 'modal', title: 'Cola de reproducción' }}
       />
+      <Stack.Screen
+        name="lyrics"
+        options={{ presentation: 'modal', headerShown: false, animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen name="plus" options={{ title: 'Aurevix Plus' }} />
+      <Stack.Screen name="stats" options={{ title: 'Tus estadísticas' }} />
+      <Stack.Screen name="downloads" options={{ title: 'Descargas' }} />
       <Stack.Screen name="report" options={{ presentation: 'modal', title: 'Denunciar' }} />
       <Stack.Screen
         name="playlist/new"
