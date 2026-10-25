@@ -1,7 +1,8 @@
 import { memo } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { spacing } from '@/theme';
 import { Artwork } from './Artwork';
+import { PressableScale } from './motion';
 import { Text } from './ui';
 
 export interface CardItem {
@@ -22,13 +23,12 @@ export const MediaCard = memo(function MediaCard({
   size?: number;
 }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={item.onPress}
       accessibilityRole="button"
       accessibilityLabel={[item.title, item.subtitle].filter(Boolean).join(', ')}
-      style={({ pressed }) => [
-        { width: size, opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
-      ]}
+      scaleTo={0.96}
+      style={{ width: size }}
     >
       <Artwork
         uri={item.imageUrl}
@@ -56,7 +56,7 @@ export const MediaCard = memo(function MediaCard({
           </Text>
         ) : null}
       </View>
-    </Pressable>
+    </PressableScale>
   );
 });
 

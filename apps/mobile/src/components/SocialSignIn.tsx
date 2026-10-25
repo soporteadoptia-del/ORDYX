@@ -32,7 +32,7 @@ export function SocialSignIn({ onError }: { onError: (message: string | null) =>
       <View style={styles.divider} accessibilityElementsHidden>
         <View style={styles.line} />
         <Text variant="micro" muted>
-          O CONTINÚA CON
+          o continúa con
         </Text>
         <View style={styles.line} />
       </View>

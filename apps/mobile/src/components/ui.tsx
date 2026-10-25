@@ -13,6 +13,7 @@ import {
   type TextProps,
   type ViewStyle,
 } from 'react-native';
+import { PressableScale } from '@/components/motion';
 import { colors, fonts, radius, spacing, type } from '@/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -76,24 +77,24 @@ export function Button({
     </View>
   );
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'ghost' && styles.buttonGhost,
         variant === 'danger' && styles.buttonDanger,
         variant === 'google' && styles.buttonGoogle,
-        { opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1 },
+        isDisabled && { opacity: 0.5 },
         style,
       ]}
       {...rest}
     >
       {content}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -115,20 +116,17 @@ export function IconButton({
   style?: StyleProp<ViewStyle>;
 }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={10}
+      scaleTo={0.9}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.iconButton,
-        { opacity: disabled ? 0.35 : pressed ? 0.6 : 1 },
-        style,
-      ]}
+      style={[styles.iconButton, disabled && { opacity: 0.35 }, style]}
     >
       <Ionicons name={name} size={size} color={color} />
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -168,7 +166,7 @@ export function Chip({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
@@ -180,7 +178,7 @@ export function Chip({
       >
         {label}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -278,11 +276,10 @@ export function Badge({
     danger: colors.danger,
     muted: colors.textMuted,
   }[tone];
+  // Etiqueta de estado: texto normal sobre un fondo tintado de su color, sin contorno.
   return (
-    <View style={[styles.badge, { borderColor: color }]}>
-      <Text variant="micro" style={{ color }}>
-        {label.toUpperCase()}
-      </Text>
+    <View style={[styles.badge, { backgroundColor: `${color}24` }]}>
+      <Text style={[styles.badgeText, { color }]}>{label}</Text>
     </View>
   );
 }
@@ -350,10 +347,10 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   badge: {
-    borderWidth: 1,
-    borderRadius: radius.sm,
+    borderRadius: 6,
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: 1,
     alignSelf: 'flex-start',
   },
+  badgeText: { fontFamily: fonts.bodyStrong, fontSize: 11, lineHeight: 15 },
 });

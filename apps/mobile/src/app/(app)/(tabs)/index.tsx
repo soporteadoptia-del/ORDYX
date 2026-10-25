@@ -16,9 +16,10 @@ import { getLikedTracks, getMyPlaylists, getRecentlyPlayed } from '@/api/library
 import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
 import { GenreGrid } from '@/components/GenreGrid';
+import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
-import { Badge, Chip, ErrorState, Loading, SectionHeader, Text } from '@/components/ui';
+import { Badge, Chip, ErrorState, SectionHeader, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList } from '@/player/play';
@@ -182,7 +183,7 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
         }
       >
-        {filter === 'all' ? (
+        {filter === 'all' && !loading ? (
           <View style={styles.quickGrid}>
             {quick.map((q) => (
               <QuickTile key={q.id} item={q} />
@@ -200,7 +201,7 @@ export default function Home() {
           </View>
         ) : null}
 
-        {loading ? <Loading /> : null}
+        {loading ? <HomeSkeleton /> : null}
         {fatal ? <ErrorState message={toUserMessage(popular.error)} onRetry={onRefresh} /> : null}
         {catalogEmpty ? (
           <View style={styles.emptyCard}>
@@ -316,14 +317,33 @@ export default function Home() {
   );
 }
 
+/** Esqueleto con la forma del inicio: la pantalla no salta cuando llegan los datos. */
+function HomeSkeleton() {
+  return (
+    <View accessibilityLabel="Cargando tu inicio" accessibilityRole="progressbar">
+      <View style={styles.quickGrid}>
+        {Array.from({ length: 6 }, (_, i) => (
+          <Skeleton key={i} style={[styles.tile, { backgroundColor: undefined }]} />
+        ))}
+      </View>
+      <Skeleton style={styles.skeletonTitle} />
+      <View style={styles.skeletonRow}>
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} style={styles.skeletonCover} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 /** Acceso rápido: imagen a la izquierda a toda altura y título en dos líneas, como en Spotify. */
 function QuickTile({ item }: { item: Quick }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={item.onPress}
       accessibilityRole="button"
       accessibilityLabel={item.title}
-      style={({ pressed }) => [styles.tile, pressed && { opacity: 0.8 }]}
+      style={styles.tile}
     >
       {item.heart ? (
         <View style={[styles.tileArt, styles.heart]}>
@@ -345,7 +365,7 @@ function QuickTile({ item }: { item: Quick }) {
       <Text variant="bodyStrong" numberOfLines={2} style={styles.tileText}>
         {item.title}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -395,6 +415,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileText: { flex: 1, fontSize: 13, lineHeight: 17 },
+  skeletonTitle: {
+    width: 180,
+    height: 24,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  skeletonRow: { flexDirection: 'row', gap: spacing.md, paddingHorizontal: spacing.lg },
+  skeletonCover: { width: 156, height: 156, borderRadius: radius.md },
   demo: {
     flexDirection: 'row',
     gap: spacing.sm,
