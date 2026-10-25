@@ -6,6 +6,13 @@ import { getPublicConfig } from '@/lib/data';
 import { env } from '@/lib/env';
 import './globals.css';
 
+/**
+ * Si Supabase devuelve a la web una sesión o un error de inicio de sesión (vuelta de Google,
+ * enlace de recuperación o de confirmación), se reenvía a la app web en /app, que es quien la lee.
+ * Pasa cuando la dirección pedida no está en las Redirect URLs de Supabase y usa la Site URL.
+ */
+const AUTH_FORWARD = `(function(){try{var l=location;if(l.pathname.indexOf('/app')===0)return;var h=l.hash||'';if(!/access_token=|error_description=/.test(h))return;l.replace((/type=recovery/.test(h)?'/app/reset-password':'/app/')+h);}catch(e){}})();`;
+
 const FONTS_URL =
   'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap';
 
@@ -38,6 +45,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="es">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: AUTH_FORWARD }} />
         {/* Mismas fuentes que aurevixweb.es. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
