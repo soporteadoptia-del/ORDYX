@@ -17,7 +17,7 @@ import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
 import { PlusStrip } from '@/components/PlusStrip';
 import { GenreGrid } from '@/components/GenreGrid';
-import { Greeting, NoticeBanner, RadioRow } from '@/components/HomeExtras';
+import { Greeting, MadeForYou, NoticeBanner, RadioRow } from '@/components/HomeExtras';
 import { NowTrending } from '@/components/NowTrending';
 import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
@@ -205,6 +205,7 @@ export default function Home() {
         ) : null}
 
         {show('music') ? <NowTrending /> : null}
+        {show('music') ? <MadeForYou /> : null}
         {show('music') ? <RadioRow /> : null}
 
         {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (

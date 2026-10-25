@@ -98,8 +98,25 @@ const head = `
          márgenes en la web). En el iPhone instalado hay un mínimo por si el sistema da 0. */
       #root{position:fixed;inset:0;height:auto;padding-top:env(safe-area-inset-top);box-sizing:border-box}
       .ios-standalone #root{padding-top:max(env(safe-area-inset-top),47px)}
+      .ios-standalone,.ios-standalone body{height:var(--app-h,100%)}
+      .ios-standalone body,.ios-standalone #root{bottom:auto;height:var(--app-h,100%)}
     </style>
-    <script>if(navigator.standalone===true)document.documentElement.classList.add('ios-standalone')</script>
+    <script>
+      // iPhone instalado: Safari a veces da a la página una altura más corta que la pantalla y
+      // queda un hueco negro bajo la barra de pestañas. Se fija la altura real de la pantalla.
+      if (navigator.standalone === true) {
+        var d = document.documentElement;
+        d.classList.add('ios-standalone');
+        var fit = function () {
+          var h = Math.max(window.innerHeight, screen.height);
+          if (window.matchMedia('(orientation: landscape)').matches) h = window.innerHeight;
+          d.style.setProperty('--app-h', h + 'px');
+        };
+        fit();
+        window.addEventListener('resize', fit);
+        window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
+      }
+    </script>
 `;
 html = html
   .replace(/<html lang="[^"]*"/, '<html lang="es"')

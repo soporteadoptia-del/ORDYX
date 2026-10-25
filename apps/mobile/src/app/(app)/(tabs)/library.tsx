@@ -87,6 +87,26 @@ export default function Library() {
               onPress={() => router.push('/liked')}
             />
             <Row
+              title="Actividad"
+              subtitle="Lo nuevo de artistas y gente que sigues"
+              art={
+                <View style={[styles.gradientArt, { backgroundColor: colors.accentWarm }]}>
+                  <Ionicons name="pulse" size={24} color={colors.onAccent} />
+                </View>
+              }
+              onPress={() => router.push('/feed')}
+            />
+            <Row
+              title="Listas importadas"
+              subtitle="Trae tus playlists de Spotify, YouTube o SoundCloud"
+              art={
+                <View style={[styles.gradientArt, { backgroundColor: '#B98CFF' }]}>
+                  <Ionicons name="download" size={24} color={colors.onAccent} />
+                </View>
+              }
+              onPress={() => router.push('/import')}
+            />
+            <Row
               title="Historial de escucha"
               subtitle="Tus reproducciones recientes"
               art={

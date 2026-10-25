@@ -11,6 +11,9 @@ interface PlayerPrefs {
   /** «Seguir sonando» (Premium): al acabar la cola, sigue con música parecida. */
   autoplay: boolean;
   setAutoplay: (on: boolean) => void;
+  /** Ahorro de datos: siempre la versión ligera del audio, aunque tengas Premium. */
+  dataSaver: boolean;
+  setDataSaver: (on: boolean) => void;
   setQuality: (q: AudioQuality) => void;
   setRate: (r: number) => void;
 }
@@ -21,6 +24,11 @@ export const usePlayerPrefs = create<PlayerPrefs>((set, get) => ({
   quality: 'max',
   rate: 1,
   autoplay: true,
+  dataSaver: false,
+  setDataSaver(dataSaver) {
+    set({ dataSaver });
+    save(get());
+  },
   setAutoplay(autoplay) {
     set({ autoplay });
     save(get());
@@ -35,19 +43,24 @@ export const usePlayerPrefs = create<PlayerPrefs>((set, get) => ({
   },
 }));
 
-function save({ quality, rate, autoplay }: PlayerPrefs) {
-  AsyncStorage.setItem(KEY, JSON.stringify({ quality, rate, autoplay })).catch(() => undefined);
+function save({ quality, rate, autoplay, dataSaver }: PlayerPrefs) {
+  AsyncStorage.setItem(KEY, JSON.stringify({ quality, rate, autoplay, dataSaver })).catch(
+    () => undefined,
+  );
 }
 
 export async function restorePlayerPrefs() {
   try {
     const raw = await AsyncStorage.getItem(KEY);
     if (!raw) return;
-    const p = JSON.parse(raw) as Partial<Pick<PlayerPrefs, 'quality' | 'rate' | 'autoplay'>>;
+    const p = JSON.parse(raw) as Partial<
+      Pick<PlayerPrefs, 'quality' | 'rate' | 'autoplay' | 'dataSaver'>
+    >;
     usePlayerPrefs.setState({
       quality: p.quality === 'standard' ? 'standard' : 'max',
       rate: PLAYBACK_RATES.includes(p.rate as never) ? (p.rate as number) : 1,
       autoplay: p.autoplay !== false,
+      dataSaver: p.dataSaver === true,
     });
   } catch {
     // preferencias corruptas: se usan las de por defecto

@@ -255,7 +255,7 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
       : await resolveRemoteUrl(
           track.id,
           track.audioPath,
-          usePlayerPrefs.getState().quality,
+          usePlayerPrefs.getState().dataSaver ? 'standard' : usePlayerPrefs.getState().quality,
           plusActiveNow(),
         );
     if (token !== loadToken) return; // el usuario ya cambió de canción

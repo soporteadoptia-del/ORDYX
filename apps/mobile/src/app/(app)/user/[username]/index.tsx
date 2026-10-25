@@ -1,5 +1,6 @@
 import { formatCount } from '@ordyx/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getRepostsOf } from '@/api/feed';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import {
@@ -43,6 +44,11 @@ export default function UserProfile() {
   const tracks = useQuery({
     queryKey: ['user', uid, 'tracks'],
     queryFn: () => getPublishedTracksOf(uid!),
+    enabled: !!uid,
+  });
+  const reposts = useQuery({
+    queryKey: ['user', uid, 'reposts'],
+    queryFn: () => getRepostsOf(uid!),
     enabled: !!uid,
   });
   const likes = useQuery({
@@ -185,6 +191,18 @@ export default function UserProfile() {
               key={t.id}
               track={t}
               onPress={() => void playList(trackList, i, { type: 'profile', id: p.id })}
+            />
+          ))}
+        </>
+      ) : null}
+      {(reposts.data?.length ?? 0) > 0 ? (
+        <>
+          <SectionHeader title="Reposts" />
+          {reposts.data!.slice(0, 10).map((t, i) => (
+            <TrackRow
+              key={t.id}
+              track={t}
+              onPress={() => void playList(reposts.data!, i, { type: 'profile', id: p.id })}
             />
           ))}
         </>
