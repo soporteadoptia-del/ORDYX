@@ -160,3 +160,7 @@ export async function saveOwnerSetting(key: OwnerSettingKey, raw: string) {
   if (def.kind === 'nullable-text' && !raw.trim()) value = false;
   unwrap(await supabase.rpc('admin_set_config', { p_key: key, p_value: value, p_is_public: true }));
 }
+
+export async function setExternalHidden(id: string, hidden: boolean) {
+  unwrap(await supabase.rpc('admin_set_external_hidden', { p_id: id, p_hidden: hidden }));
+}

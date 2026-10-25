@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { audiusToPlayable, searchAudius } from '@/api/audius';
 import { getTracksByIds, searchCatalog } from '@/api/catalog';
 import { env } from '@/lib/env';
+import { registerImported } from '@/api/community';
 import { soundcloudToPlayable, youtubeToPlayable } from '@/player/embed';
 import { toPlayable, type PlayableTrack } from '@/player/store';
 
@@ -195,7 +196,23 @@ export async function retryMissing(listId: string): Promise<ImportedList | null>
     }
   });
   await saveLists(lists);
+  await shareWithCommunity([list]);
   return list;
+}
+
+export async function shareWithCommunity(lists: ImportedList[]) {
+  const tracks = lists
+    .flatMap((l) => l.items.map(itemPlayable))
+    .filter((t): t is PlayableTrack => !!t);
+  await registerImported(tracks).catch(() => undefined);
+}
+
+let synced = false;
+/** Una vez por sesión, comparte también las listas importadas antes de que existiera el catálogo. */
+export async function syncOldImports() {
+  if (synced) return;
+  synced = true;
+  await shareWithCommunity(await getImportedLists());
 }
 
 /** Resuelve, empareja y guarda una lista. `onProgress` informa de cuántas lleva. */
@@ -246,5 +263,7 @@ export async function importList(
     items,
   };
   await saveLists([list, ...(await getImportedLists())]);
+  // Lo importado pasa al catálogo de la comunidad: cualquiera podrá encontrarlo y escucharlo.
+  await shareWithCommunity([list]);
   return list;
 }

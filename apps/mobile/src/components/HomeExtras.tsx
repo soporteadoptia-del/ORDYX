@@ -12,14 +12,17 @@ import {
   type AudiusGenre,
 } from '@/api/audius';
 import { getGenres, getPopularTracks, getTracksByGenre } from '@/api/catalog';
+import { externalToPlayable, getCommunityTracks } from '@/api/community';
 import { getMyTopGenres } from '@/api/feed';
 import { router } from 'expo-router';
 import { toPlayable, type PlayableTrack } from '@/player/store';
 import { supabase } from '@/lib/supabase';
+import { embedOf } from '@/player/embed';
 import { shuffle } from '@/player/radio';
 import { usePlayer } from '@/player/store';
 import { unlockWebAudio } from '@/player/webAudio';
 import { colors, fonts, radius, spacing } from '@/theme';
+import { Artwork } from './Artwork';
 import { PressableScale } from './motion';
 import { useToast } from './Toast';
 import { Text } from './ui';
@@ -165,6 +168,75 @@ export function RadioRow() {
   );
 }
 
+/**
+ * «Importado por la comunidad»: lo que la gente trae de YouTube, SoundCloud o Audius, a la vista de
+ * todo el mundo. Suena dentro de Aurevix (YouTube y SoundCloud con su reproductor oficial).
+ */
+export function CommunityRow() {
+  const q = useQuery({ queryKey: ['home', 'community'], queryFn: () => getCommunityTracks(20) });
+  const tracks = (q.data ?? []).map(externalToPlayable);
+  if (!tracks.length) return null;
+
+  function play(i: number) {
+    unlockAudioInGesture();
+    void usePlayer.getState().playTracks(tracks, i, { type: 'home' });
+    if (embedOf(tracks[i])) router.push('/player');
+  }
+
+  return (
+    <View>
+      <View style={styles.radioHead}>
+        <Text variant="heading">Importado por la comunidad</Text>
+        <Text variant="caption" muted onPress={() => router.push('/import')}>
+          Importar
+        </Text>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.radioRow}
+      >
+        {tracks.map((t, i) => {
+          const kind = embedOf(t)?.kind;
+          return (
+            <PressableScale
+              key={t.id}
+              scaleTo={0.96}
+              onPress={() => play(i)}
+              accessibilityRole="button"
+              accessibilityLabel={`${t.title}, ${t.artistName}`}
+              style={{ width: 140, gap: spacing.xs }}
+            >
+              <View>
+                <Artwork uri={t.coverUrl} size={140} seed={t.id} />
+                <View style={styles.source}>
+                  <Ionicons
+                    name={
+                      kind === 'youtube'
+                        ? 'logo-youtube'
+                        : kind === 'soundcloud'
+                          ? 'cloud'
+                          : 'radio'
+                    }
+                    size={12}
+                    color="#fff"
+                  />
+                </View>
+              </View>
+              <Text variant="bodyStrong" numberOfLines={1}>
+                {t.title}
+              </Text>
+              <Text variant="caption" muted numberOfLines={1}>
+                {t.artistName}
+              </Text>
+            </PressableScale>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
 type Mix = {
   key: string;
   kicker: string;
@@ -290,6 +362,17 @@ export function MadeForYou() {
 }
 
 const styles = StyleSheet.create({
+  source: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   mix: {
     width: 156,
     height: 156,

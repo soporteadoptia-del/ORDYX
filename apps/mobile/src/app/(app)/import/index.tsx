@@ -1,9 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { getImportedLists, importList } from '@/api/imports';
+import { getImportedLists, importList, syncOldImports } from '@/api/imports';
 import { PressableScale } from '@/components/motion';
 import { LIST_BOTTOM_PADDING } from '@/components/Screen';
 import { useToast } from '@/components/Toast';
@@ -33,6 +33,9 @@ export default function ImportScreen() {
   const qc = useQueryClient();
   const toast = useToast();
   const lists = useQuery({ queryKey: ['imports'], queryFn: getImportedLists });
+  useEffect(() => {
+    void syncOldImports();
+  }, []);
   const [name, setName] = useState('');
   const params = useLocalSearchParams<{ text?: string }>();
   const [text, setText] = useState(params.text ?? '');
@@ -69,7 +72,8 @@ export default function ImportScreen() {
         <Text style={styles.big}>Trae tu música</Text>
         <Text muted>
           Pega enlaces de Spotify, YouTube o SoundCloud, o escribe «Artista - Canción». Buscamos
-          cada una en Aurevix y en Audius.
+          cada una en Aurevix, en Audius y en YouTube, y lo que importas lo puede escuchar todo el
+          mundo en Aurevix.
         </Text>
         <TextField
           label="Nombre de la lista"

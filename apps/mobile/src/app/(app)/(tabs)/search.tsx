@@ -16,6 +16,8 @@ import { getGenres, getTracksByIds, searchCatalog } from '@/api/catalog';
 import { addSearchHistory, clearSearchHistory, getSearchHistory } from '@/api/social';
 import { GenreGrid } from '@/components/GenreGrid';
 import { audiusToPlayable, searchAudius } from '@/api/audius';
+import { externalToPlayable, searchCommunity } from '@/api/community';
+import { embedOf } from '@/player/embed';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import {
@@ -88,6 +90,15 @@ export default function Search() {
     retry: false,
   });
   const audiusItems = audius.data ?? [];
+  // Lo que la comunidad ha importado (YouTube, SoundCloud, Audius), visible para todos.
+  const community = useQuery({
+    queryKey: ['community', 'search', query],
+    queryFn: () => searchCommunity(query),
+    enabled: query.length >= 2 && (kind === null || kind === 'track'),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const communityTracks = (community.data ?? []).map(externalToPlayable);
   const saveHistory = useMutation({
     mutationFn: addSearchHistory,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['search', 'history'] }),
@@ -217,7 +228,7 @@ export default function Search() {
           }
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            audiusItems.length > 0 ? undefined : (
+            audiusItems.length > 0 || communityTracks.length > 0 ? undefined : (
               <EmptyState
                 icon="search-outline"
                 title={`Sin resultados para «${query}»`}
@@ -229,6 +240,43 @@ export default function Search() {
             <>
               {results.isFetchingNextPage ? (
                 <ActivityIndicator color={colors.text} style={{ margin: spacing.lg }} />
+              ) : null}
+              {communityTracks.length > 0 ? (
+                <>
+                  <SectionHeader title="De la comunidad" />
+                  {communityTracks.map((t, i) => (
+                    <Pressable
+                      key={t.id}
+                      onPress={() => {
+                        void usePlayer
+                          .getState()
+                          .playTracks(communityTracks, i, { type: 'search' });
+                        if (embedOf(t)) router.push('/player');
+                      }}
+                      style={({ pressed }) => [
+                        styles.result,
+                        pressed && { backgroundColor: colors.surface },
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t.title}, de ${t.artistName}`}
+                    >
+                      <Artwork uri={t.coverUrl} size={52} seed={t.id} />
+                      <View style={{ flex: 1 }}>
+                        <Text variant="bodyStrong" numberOfLines={1}>
+                          {t.title}
+                        </Text>
+                        <Text variant="caption" muted numberOfLines={1}>
+                          {embedOf(t)?.kind === 'youtube'
+                            ? 'YouTube'
+                            : embedOf(t)?.kind === 'soundcloud'
+                              ? 'SoundCloud'
+                              : 'Audius'}{' '}
+                          · {t.artistName}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </>
               ) : null}
               {audiusItems.length > 0 ? (
                 <>
