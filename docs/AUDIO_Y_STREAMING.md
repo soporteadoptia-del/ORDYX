@@ -24,18 +24,25 @@ Las URL firmadas no son DRM: quien tiene acceso legítimo puede guardar lo que e
 
 Cálculo de referencia: una canción de 3,5 min en AAC 128 kbps ≈ 3,4 MB. **1 000 oyentes × 20 canciones/día ≈ 2 TB/mes** → en Pro, unos 160 $/mes de tráfico sin caché. Un WAV original es 5–10 veces mayor: **no deben servirse originales a escala**. Estas cifras son estimaciones; comprueba la página de precios vigente antes de decidir.
 
-## Proceso de transcodificación (diseñado, no activado)
+## Transcodificación (`services/transcoder`, implementado y probado)
 
-Supabase no transcodifica audio. Diseño previsto, activable con `app_config.transcoding_enabled = true`:
+Supabase no transcodifica audio; lo hace un worker propio con `ffmpeg`, fuera de Supabase.
 
-1. `submit_track` deja la canción en `processing`.
-2. Un *worker* fuera de Supabase (contenedor con `ffmpeg`, p. ej. en Fly.io, Cloud Run o un VPS) recibe el aviso por un Database Webhook, descarga el original con service_role y:
-   - verifica el formato y la duración real con `ffprobe` (sustituye la duración que envía el cliente);
-   - normaliza el volumen (`loudnorm`, −14 LUFS);
-   - genera `stream_aac_128.m4a` (y opcionalmente 64 kbps para datos móviles);
-   - lo sube a `audio/{uid}/{track_id}/stream_aac_128.m4a`.
-3. Actualiza `tracks` (`audio_path` → versión de streaming, `duration_ms`, `audio_size_bytes`) y la pasa a `pending_review`.
-4. Si falla, vuelve a `draft` con `review_note` y notificación al artista.
+1. Con `app_config.transcoding_enabled = true` (panel → Configuración), `submit_track` deja la canción en **«En proceso»**.
+2. El worker (`node src/worker.ts`, o la imagen del `Dockerfile`) reclama trabajos con `claim_transcode_job()` (`FOR UPDATE SKIP LOCKED`: puedes ejecutar varias instancias; un trabajo abandonado más de 30 min se reofrece, hasta 3 intentos).
+3. Descarga el original **en streaming a disco** con una URL firmada de 10 min, lo valida con `ffprobe` (debe tener pista de audio y durar entre 1 s y 4 h) y genera `stream_aac_128.m4a`: AAC-LC 128 kbps, estéreo, 44,1 kHz, volumen normalizado a −14 LUFS y `faststart`.
+4. Sube la versión de streaming junto al original y llama a `complete_transcode_job()`: la canción pasa a **revisión** (o se publica si el artista está verificado y `auto_publish_verified_artists` está activo), con la **duración medida por el servidor**. El original se conserva privado en `original_audio_path` para poder reprocesar.
+5. Si el archivo no es válido, `fail_transcode_job()` devuelve la canción a borrador con una explicación y notifica al artista; los errores transitorios se reintentan.
+
+Las funciones del worker solo las puede ejecutar `service_role` (comprobado en ORDIX). Ejemplo medido: una pista WAV de 75 s y 3,15 MB queda en 1,16 MB.
+
+Puesta en marcha:
+```bash
+cd services/transcoder
+SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<clave> node src/worker.ts   # o --once
+npm test   # 5 pruebas con ffmpeg real
+```
+Despliegue: cualquier servicio de contenedores (Fly.io, Cloud Run, Railway, un VPS) con la clave service_role como **secreto del servicio**. Después, activa `transcoding_enabled` desde el panel.
 
 ## Migrar a un CDN o proveedor especializado
 

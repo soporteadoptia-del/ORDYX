@@ -30,7 +30,7 @@ pnpm build:web && pnpm build:admin
 
 ## Supabase
 
-1. **Migraciones.** Con la CLI: `supabase link --project-ref <ref>` y `supabase db push`. En ORDIX ya están aplicadas 0001–0011 (aplicadas por MCP/SQL Editor, con versiones de registro distintas a los nombres de archivo; antes de usar `db push` ejecuta `supabase migration repair` para marcarlas como aplicadas).
+1. **Migraciones.** Con la CLI: `supabase link --project-ref <ref>` y `supabase db push`. En ORDIX ya están aplicadas 0001–0012 (aplicadas por MCP/SQL Editor, con versiones de registro distintas a los nombres de archivo; antes de usar `db push` ejecuta `supabase migration repair` para marcarlas como aplicadas).
 2. **Edge Functions:** `supabase functions deploy delete-account` (ya desplegada en ORDIX).
 3. **Auth** (panel → Authentication):
    - *URL Configuration*: Site URL `https://<tu-dominio>`; Redirect URLs: `ordyx://reset-password`, `https://<tu-dominio>/cuenta-confirmada`.
@@ -40,6 +40,9 @@ pnpm build:web && pnpm build:admin
 4. **Storage:** revisa el límite global de tamaño de archivo (Free: 50 MB).
 5. **Primer administrador:** ver `ADMINISTRACION.md`.
 6. **Contenido demo (opcional):** `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… pnpm seed:demo` (y `-- --remove` para borrarlo). Ejecútalo en tu máquina: la clave service_role no debe salir de ella.
+
+## Worker de audio
+Ver `AUDIO_Y_STREAMING.md` → Transcodificación (`services/transcoder`, imagen Docker incluida).
 
 ## Web y panel (Vercel u otro hosting Node)
 

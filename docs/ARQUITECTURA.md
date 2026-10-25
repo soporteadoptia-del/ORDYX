@@ -23,7 +23,8 @@
 | Paquete | Contenido |
 |---|---|
 | `packages/shared` | Marca, constantes (límites, reglas de reproducción), tipos de dominio, esquemas zod, lógica pura de la cola, utilidades de formato, detección de dispositivo y traducción de errores. Lo usan las tres apps. |
-| `supabase/migrations` | 11 migraciones SQL versionadas: esquema, RLS, RPC, Storage, datos de referencia. |
+| `services/transcoder` | Worker Node + ffmpeg que genera la versión de streaming de cada canción. |
+| `supabase/migrations` | 12 migraciones SQL versionadas: esquema, RLS, RPC, Storage, datos de referencia. |
 | `supabase/functions/delete-account` | Edge Function (Deno) para el borrado de cuenta (necesita service_role, que solo existe en el servidor). |
 | `supabase/tests` | Pruebas de seguridad SQL (≈100 aserciones) contra un PostgreSQL real. |
 | `scripts/` | `test-db.sh`, `smoke-api.sh`, generador de marca, generador y carga de contenido demo. |

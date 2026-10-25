@@ -7,6 +7,7 @@ Plataforma para escuchar música, crear playlists y descubrir artistas independi
 | `apps/mobile` | App Android/iOS (Expo SDK 58, Expo Router, TypeScript, `expo-audio`) |
 | `apps/web` | Web pública de descarga e información (Next.js 16, Tailwind 4) |
 | `apps/admin` | Panel de administración protegido (Next.js 16) |
+| `services/transcoder` | Worker de transcodificación de audio (ffmpeg → AAC 128 kbps, −14 LUFS) |
 | `packages/shared` | Marca, tipos, validación (zod), lógica de la cola de reproducción, utilidades |
 | `supabase/` | Migraciones SQL con RLS, Edge Function, pruebas de seguridad, `config.toml` |
 | `scripts/` | Pruebas de BD, prueba de humo de la API, iconos de marca, contenido demo |

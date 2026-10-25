@@ -1,4 +1,4 @@
-# Estado del proyecto (24 de octubre de 2026)
+# Estado del proyecto (25 de octubre de 2026)
 
 Leyenda: ✅ hecho y verificado · 🟡 hecho, verificación parcial · ⛔ bloqueado por algo externo · ⬜ pendiente
 
@@ -6,14 +6,14 @@ Leyenda: ✅ hecho y verificado · 🟡 hecho, verificación parcial · ⛔ bloq
 
 | | Elemento | Verificación |
 |---|---|---|
-| ✅ | Esquema completo (29 tablas), RLS en todas, permisos por columna, 11 migraciones | `pnpm test:db`: ~100 pruebas de seguridad en PostgreSQL 16 con un *stub* de auth/storage de Supabase. Aplicado en ORDIX; comprobados en el proyecto real permisos, columnas protegidas, buckets y funciones expuestas |
+| ✅ | Esquema completo (29 tablas), RLS en todas, permisos por columna, 12 migraciones | `pnpm test:db`: ~100 pruebas de seguridad en PostgreSQL 16 con un *stub* de auth/storage de Supabase. Aplicado en ORDIX; comprobados en el proyecto real permisos, columnas protegidas, buckets y funciones expuestas |
 | ✅ | Avisos del Security/Performance Advisor | Corregidos los que dependían del código (auxiliares RLS → `private`, índices de FKs). Quedan: RPC públicas intencionadas y «leaked password protection» (ajuste del panel) |
-| ✅ | RPC: búsqueda, reproducciones válidas, publicación, playlists, exportación de datos, administración con auditoría | Pruebas SQL |
+| ✅ | RPC: búsqueda, reproducciones válidas, publicación, playlists, exportación de datos, administración con auditoría | Pruebas SQL locales **y prueba en el proyecto real ORDIX** (`supabase/tests/remote/rls_smoke_rollback.sql`, 20/20, ejecutada dentro de una transacción revertida: no deja datos) |
 | ✅ | Edge Function `delete-account` | Desplegada y activa en ORDIX. ⬜ No invocada contra el proyecto real (sin red hacia supabase.co desde este entorno) |
 | ✅ | Copia del esquema anterior de ORDIX | `backups/` (fuera de git), restauración probada |
 | ⬜ | Primer administrador | Necesita tu correo: `select public.bootstrap_first_admin('…')` |
 | ⬜ | Contenido demo cargado | Script listo (`pnpm seed:demo`); requiere ejecutarlo con tu clave service_role |
-| ⬜ | Worker de transcodificación | Diseñado en `AUDIO_Y_STREAMING.md`, no implementado |
+| ✅ | Worker de transcodificación (`services/transcoder`) + cola en BD (migración 0012) | 5 pruebas con ffmpeg real, 12 pruebas SQL de la cola; migración aplicada en ORDIX y funciones restringidas a service_role. ⬜ Falta desplegarlo (necesita la clave service_role en tu hosting de contenedores) |
 
 ## App móvil
 

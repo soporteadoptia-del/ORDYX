@@ -1,7 +1,8 @@
 # Lista de comprobación para producción
 
 ## Backend
-- [x] Migraciones aplicadas en ORDIX (0001–0011) y avisos de seguridad revisados
+- [x] Migraciones aplicadas en ORDIX (0001–0012) y avisos de seguridad revisados
+- [x] Prueba de RLS en el proyecto real (20/20, sin dejar datos)
 - [x] Edge Function `delete-account` desplegada
 - [ ] Primer administrador creado (`bootstrap_first_admin`)
 - [ ] SMTP propio y plantillas de correo en español
@@ -9,7 +10,8 @@
 - [ ] Protección de contraseñas filtradas activada
 - [ ] Plan de Supabase adecuado (límite de archivo, tráfico) y *spend cap* revisado
 - [ ] Copias de seguridad / PITR según el plan
-- [ ] Worker de transcodificación antes de abrir subidas al público (ver `AUDIO_Y_STREAMING.md`)
+- [x] Worker de transcodificación implementado y probado
+- [ ] Worker desplegado y `transcoding_enabled = true` antes de abrir subidas al público
 
 ## Apps
 - [ ] Identificadores definitivos (`IOS_BUNDLE_ID`, `ANDROID_PACKAGE`) y nombre definitivo

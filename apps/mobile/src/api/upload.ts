@@ -101,15 +101,26 @@ export async function unpublishTrack(id: string) {
   unwrap(await supabase.rpc('unpublish_own_track', { p_track_id: id }));
 }
 
-/** Borra la canción y sus archivos (el audio y la portada están en carpetas del propio usuario). */
+/**
+ * Borra la canción y sus archivos (audio de streaming, original conservado por el worker y portada;
+ * todos están en carpetas del propio usuario).
+ */
 export async function deleteTrack(track: {
   id: string;
   audio_path: string | null;
   cover_path: string | null;
 }) {
+  const { data } = await supabase
+    .from('tracks')
+    .select('original_audio_path')
+    .eq('id', track.id)
+    .maybeSingle();
   unwrap(await supabase.from('tracks').delete().eq('id', track.id));
-  if (track.audio_path)
-    await supabase.storage.from(STORAGE_BUCKETS.audio).remove([track.audio_path]);
+  const audioFiles = [
+    track.audio_path,
+    (data as { original_audio_path: string | null } | null)?.original_audio_path,
+  ].filter((p): p is string => Boolean(p));
+  if (audioFiles.length) await supabase.storage.from(STORAGE_BUCKETS.audio).remove(audioFiles);
   if (track.cover_path)
     await supabase.storage.from(STORAGE_BUCKETS.covers).remove([track.cover_path]);
 }
