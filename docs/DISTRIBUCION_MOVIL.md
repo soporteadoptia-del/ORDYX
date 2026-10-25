@@ -15,7 +15,7 @@ La web nunca muestra una versión que no esté **publicada** en `app_versions`, 
 
 1. Cuenta de **Expo** (gratuita) para EAS Build: `npx eas-cli@latest login`.
 2. Vincular el proyecto: `cd apps/mobile && npx eas-cli@latest init` → anota el `projectId` y defínelo como `EAS_PROJECT_ID` (variable de entorno en EAS).
-3. Identificadores definitivos: `IOS_BUNDLE_ID` y `ANDROID_PACKAGE` (por defecto `app.ordyx.music`). **No se pueden cambiar después de publicar.**
+3. Identificadores definitivos: `IOS_BUNDLE_ID` y `ANDROID_PACKAGE` (por defecto `es.aurevixweb.music`). **No se pueden cambiar después de publicar.**
 4. Variables públicas en EAS (`eas env:create`), ya presentes en `eas.json`: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `EXPO_PUBLIC_WEB_URL`. **Nunca** añadas la clave service_role.
 
 Perfiles en `apps/mobile/eas.json`:

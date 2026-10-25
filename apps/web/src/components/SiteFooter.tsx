@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogoMark } from './Logo';
+import { Wordmark } from './Logo';
 
 export function SiteFooter({
   name,
@@ -14,9 +14,7 @@ export function SiteFooter({
     <footer className="mt-24 border-t border-line">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold">
-            <LogoMark size={28} /> {name}
-          </div>
+          <Wordmark name={name} size={28} />
           <p className="text-sm text-muted">Música independiente y tus playlists, en tu móvil.</p>
         </div>
         <div>

@@ -5,8 +5,9 @@ import { View } from 'react-native';
 import { Button, Text, TextField } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
-import { colors } from '@/theme';
+import { colors, fonts } from '@/theme';
 import { AuthShell } from '@/components/AuthShell';
+import { SocialSignIn } from '@/components/SocialSignIn';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -53,13 +54,16 @@ export default function SignIn() {
         </Text>
       ) : null}
       <Button label="Entrar" onPress={submit} loading={loading} />
+      <SocialSignIn onError={setError} />
       <Link href="/forgot-password" style={{ alignSelf: 'center' }}>
         <Text style={{ color: colors.accentStrong }}>¿Has olvidado tu contraseña?</Text>
       </Link>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
         <Text muted>¿No tienes cuenta?</Text>
         <Link href="/sign-up">
-          <Text style={{ color: colors.accentStrong, fontWeight: '600' }}>Regístrate</Text>
+          <Text style={{ color: colors.accentStrong, fontFamily: fonts.bodyStrong }}>
+            Regístrate
+          </Text>
         </Link>
       </View>
     </AuthShell>

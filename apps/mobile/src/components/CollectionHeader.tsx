@@ -37,7 +37,7 @@ export function CollectionHeader({
   return (
     <View>
       <LinearGradient
-        colors={['rgba(139,92,246,0.35)', colors.background]}
+        colors={[colors.accentGlow, colors.background]}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.hero}>
@@ -86,9 +86,9 @@ export function CollectionHeader({
             accessibilityLabel="Reproducir"
             style={[styles.play, playDisabled && { opacity: 0.4 }]}
           >
-            <LinearGradient colors={['#8B5CF6', '#EC4899']} style={styles.playFill}>
-              <Ionicons name="play" size={28} color="#fff" style={{ marginLeft: 3 }} />
-            </LinearGradient>
+            <View style={styles.playFill}>
+              <Ionicons name="play" size={28} color={colors.onAccent} style={{ marginLeft: 3 }} />
+            </View>
           </Pressable>
         ) : null}
       </View>
@@ -120,5 +120,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceElevated,
   },
   play: { width: 56, height: 56, borderRadius: 28, overflow: 'hidden' },
-  playFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  playFill: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accent,
+  },
 });

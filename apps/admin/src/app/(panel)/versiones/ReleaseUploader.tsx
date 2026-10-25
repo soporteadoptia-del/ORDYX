@@ -18,12 +18,10 @@ export function ReleaseUploader() {
       const sha = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
       const path = `android/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
       setState('Subiendo a Storage…');
-      const { error } = await browserClient()
-        .storage.from('releases')
-        .upload(path, file, {
-          contentType: 'application/vnd.android.package-archive',
-          upsert: false,
-        });
+      const { error } = await browserClient().storage.from('releases').upload(path, file, {
+        contentType: 'application/vnd.android.package-archive',
+        upsert: false,
+      });
       if (error) throw error;
       const set = (name: string, value: string) => {
         const el = document.querySelector<HTMLInputElement>(`#new-version [name="${name}"]`);

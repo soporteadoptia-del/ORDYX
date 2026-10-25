@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 
 export const btn =
-  'inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-semibold transition disabled:opacity-50';
-export const btnPrimary = `${btn} btn-primary text-white`;
+  'inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-semibold transition disabled:opacity-50';
+export const btnPrimary = `${btn} btn-primary text-ink`;
 export const btnGhost = `${btn} border border-line hover:bg-elevated`;
 export const btnDanger = `${btn} border border-danger/50 text-danger hover:bg-danger/10`;
 export const input =
-  'w-full rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-fg placeholder:text-subtle focus:border-accent focus:outline-none';
+  'w-full rounded-lg border border-line bg-field px-3 py-2 text-sm text-fg placeholder:text-subtle focus:border-accent focus:outline-none';
 
 export function PageTitle({
   title,

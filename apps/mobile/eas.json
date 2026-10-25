@@ -9,7 +9,7 @@
       "pnpm": "10.28.0",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://tqeradkfojhojwbvryob.supabase.co",
-        "EXPO_PUBLIC_WEB_URL": "https://ordyx.app",
+        "EXPO_PUBLIC_WEB_URL": "https://ordyx.vercel.app",
         "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_Ef7Nv4kgBJstXMbyrCyqDg_AgV60yQ9"
       }
     },

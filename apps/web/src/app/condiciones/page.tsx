@@ -12,9 +12,9 @@ export default function Terms() {
     <LegalPage title="Condiciones de uso" updated="24 de octubre de 2026">
       <h2>1. El servicio</h2>
       <p>
-        Ordyx es una plataforma para escuchar música, crear playlists, seguir a artistas y, para
-        cuentas autorizadas, publicar música propia. [Pendiente: identificación del titular según la
-        LSSI-CE.]
+        Aurevix Music es una plataforma para escuchar música, crear playlists, seguir a artistas y,
+        para cuentas autorizadas, publicar música propia. [Pendiente: identificación del titular
+        según la LSSI-CE.]
       </p>
       <h2>2. Cuenta</h2>
       <p>

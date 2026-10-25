@@ -51,23 +51,21 @@ export default function Home() {
       <section className="aurora relative overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 sm:px-6 md:grid-cols-[1.1fr_0.9fr] md:pt-24">
           <div className="space-y-6">
-            <p className="inline-flex rounded-full border border-line bg-surface/60 px-3 py-1 text-xs font-semibold tracking-wide text-accent-strong">
-              GRATIS · ANDROID E IPHONE
-            </p>
-            <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
+            <p className="eyebrow">Gratis · Android e iPhone</p>
+            <h1 className="text-[44px] font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-7xl">
               Tu música. <span className="text-gradient">Artistas que aún no conoces.</span>
             </h1>
             <p className="max-w-xl text-lg text-muted">{BRAND.description}</p>
             <div className="flex flex-wrap gap-3">
               <a
                 href="#descargar"
-                className="btn-primary rounded-full px-7 py-3.5 font-bold text-white shadow-lg shadow-accent/30"
+                className="btn-primary inline-flex min-h-[50px] items-center rounded-full px-6 font-semibold text-ink"
               >
                 Descargar la app
               </a>
               <a
                 href="#funciones"
-                className="rounded-full border border-line px-7 py-3.5 font-semibold hover:bg-surface"
+                className="inline-flex min-h-[50px] items-center rounded-full border border-line bg-white/[0.03] px-6 font-semibold hover:border-line2"
               >
                 Ver funciones
               </a>
@@ -80,7 +78,7 @@ export default function Home() {
               width={390}
               height={844}
               priority
-              className="w-56 rounded-[2rem] border border-line shadow-2xl shadow-accent/20 sm:w-64"
+              className="w-56 rounded-[2rem] border border-line shadow-2xl sm:w-64"
             />
             <Image
               src="/screenshots/mobile-signup.png"

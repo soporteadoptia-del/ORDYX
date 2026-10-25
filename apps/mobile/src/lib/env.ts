@@ -8,7 +8,7 @@ const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 export const env = {
   supabaseUrl: url ?? '',
   supabaseKey: key ?? '',
-  webUrl: process.env.EXPO_PUBLIC_WEB_URL ?? 'https://ordyx.app',
+  webUrl: process.env.EXPO_PUBLIC_WEB_URL ?? 'https://ordyx.vercel.app',
   isConfigured: Boolean(url && key),
 };
 

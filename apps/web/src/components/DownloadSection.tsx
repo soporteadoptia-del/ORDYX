@@ -16,7 +16,7 @@ export async function DownloadSection() {
   const qr = await QRCode.toString(`${env.siteUrl}/#descargar`, {
     type: 'svg',
     margin: 1,
-    color: { dark: '#07070B', light: '#FFFFFF' },
+    color: { dark: '#0C0C0E', light: '#FFFFFF' },
   });
   return <PlatformPicker android={android} ios={ios} backendOk={versions.ok} qrSvg={qr} />;
 }

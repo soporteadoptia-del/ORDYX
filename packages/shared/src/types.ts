@@ -47,6 +47,9 @@ export interface UserSettings {
   show_history_public: boolean;
   allow_explicit: boolean;
   email_notifications: boolean;
+  marketing_consent: boolean;
+  terms_accepted_at: ISODate | null;
+  privacy_accepted_at: ISODate | null;
   updated_at: ISODate;
 }
 

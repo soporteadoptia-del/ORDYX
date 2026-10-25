@@ -274,8 +274,8 @@ export default function Upload() {
         />
         <Text variant="caption" style={{ flex: 1 }}>
           Confirmo que soy titular de esta grabación y de la obra musical, o que tengo autorización
-          expresa de sus titulares para publicarla en Ordyx. Entiendo que subir música de terceros
-          sin permiso conlleva su retirada y la posible suspensión de mi cuenta.
+          expresa de sus titulares para publicarla en Aurevix Music. Entiendo que subir música de
+          terceros sin permiso conlleva su retirada y la posible suspensión de mi cuenta.
         </Text>
       </View>
 

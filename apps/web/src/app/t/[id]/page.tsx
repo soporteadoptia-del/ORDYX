@@ -12,7 +12,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!track) return { title: 'Canción no disponible' };
   return {
     title: `${track.title} · ${track.artistName}`,
-    description: track.description ?? `Escucha «${track.title}» de ${track.artistName} en Ordyx.`,
+    description:
+      track.description ?? `Escucha «${track.title}» de ${track.artistName} en Aurevix Music.`,
     openGraph: {
       images: track.coverUrl ? [track.coverUrl] : ['/brand/icon-512.png'],
       type: 'music.song',
@@ -37,10 +38,10 @@ async function Content({ params }: Props) {
             className="h-64 w-64 rounded-2xl object-cover shadow-2xl"
           />
         ) : (
-          <div className="btn-primary h-64 w-64 rounded-2xl" aria-hidden />
+          <div className="aurora h-64 w-64 rounded-2xl border border-line bg-surface" aria-hidden />
         )}
         <div>
-          <h1 className="text-4xl font-black">{track.title}</h1>
+          <h1 className="text-4xl font-extrabold">{track.title}</h1>
           <p className="mt-1 text-lg text-muted">
             {track.artistName} · {formatDuration(track.durationMs)}
           </p>
@@ -49,10 +50,7 @@ async function Content({ params }: Props) {
           ) : null}
         </div>
         {track.description ? <p className="max-w-xl text-muted">{track.description}</p> : null}
-        <Link
-          href="/#descargar"
-          className="btn-primary rounded-full px-8 py-4 font-bold text-white"
-        >
+        <Link href="/#descargar" className="btn-primary rounded-full px-8 py-4 font-bold text-ink">
           Escúchala en la app
         </Link>
       </div>

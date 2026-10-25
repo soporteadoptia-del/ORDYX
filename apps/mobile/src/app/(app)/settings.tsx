@@ -32,10 +32,13 @@ export default function Settings() {
       const data = await exportMyData();
       const file = new FileSystem.File(
         FileSystem.Paths.cache,
-        `ordyx-mis-datos-${Date.now()}.json`,
+        `aurevix-mis-datos-${Date.now()}.json`,
       );
       file.write(JSON.stringify(data, null, 2));
-      await Share.share({ url: file.uri, message: 'Exportación de mis datos de Ordyx (JSON)' });
+      await Share.share({
+        url: file.uri,
+        message: 'Exportación de mis datos de Aurevix Music (JSON)',
+      });
     } catch (e) {
       toast.show(toUserMessage(e), 'error');
     }

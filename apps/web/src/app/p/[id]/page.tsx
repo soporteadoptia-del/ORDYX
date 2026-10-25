@@ -33,20 +33,17 @@ async function Content({ params }: Props) {
             className="h-64 w-64 rounded-2xl object-cover shadow-2xl"
           />
         ) : (
-          <div className="btn-primary h-64 w-64 rounded-2xl" aria-hidden />
+          <div className="aurora h-64 w-64 rounded-2xl border border-line bg-surface" aria-hidden />
         )}
         <div>
           <p className="text-xs font-semibold tracking-widest text-muted">PLAYLIST</p>
-          <h1 className="text-4xl font-black">{p.title}</h1>
+          <h1 className="text-4xl font-extrabold">{p.title}</h1>
           <p className="mt-1 text-muted">
             de @{p.owner} · {p.trackCount} canciones · {formatLongDuration(p.durationMs)}
           </p>
         </div>
         {p.description ? <p className="max-w-xl text-muted">{p.description}</p> : null}
-        <Link
-          href="/#descargar"
-          className="btn-primary rounded-full px-8 py-4 font-bold text-white"
-        >
+        <Link href="/#descargar" className="btn-primary rounded-full px-8 py-4 font-bold text-ink">
           Escúchala en la app
         </Link>
       </div>

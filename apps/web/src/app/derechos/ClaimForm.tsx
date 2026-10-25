@@ -51,7 +51,7 @@ export function ClaimForm() {
       </div>
       <label className="block space-y-1 text-sm">
         <span className="text-muted">
-          Enlace al contenido en Ordyx (p. ej. https://ordyx.app/t/…)
+          Enlace al contenido en Aurevix Music (p. ej. https://ordyx.vercel.app/t/…)
         </span>
         <input name="content_url" required maxLength={500} className={field} inputMode="url" />
       </label>
@@ -95,7 +95,7 @@ export function ClaimForm() {
       <button
         type="submit"
         disabled={pending}
-        className="btn-primary rounded-full px-8 py-3 font-bold text-white disabled:opacity-60"
+        className="btn-primary rounded-full px-8 py-3 font-bold text-ink disabled:opacity-60"
       >
         {pending ? 'Enviando…' : 'Enviar reclamación'}
       </button>

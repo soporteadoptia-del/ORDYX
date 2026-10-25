@@ -1,9 +1,8 @@
-import { BRAND } from '@ordyx/shared';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Logo } from '@/components/Logo';
+import { Wordmark } from '@/components/Logo';
 import { Text } from '@/components/ui';
 import { colors, spacing } from '@/theme';
 
@@ -22,10 +21,7 @@ export function AuthShell({
       style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <LinearGradient
-        colors={['rgba(139,92,246,0.35)', 'rgba(236,72,153,0.08)', 'transparent']}
-        style={styles.glow}
-      />
+      <LinearGradient colors={[colors.accentGlow, 'transparent']} style={styles.glow} />
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -34,8 +30,7 @@ export function AuthShell({
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.brand}>
-          <Logo size={56} />
-          <Text variant="display">{BRAND.name}</Text>
+          <Wordmark size={22} />
         </View>
         <Text variant="title" accessibilityRole="header">
           {title}
@@ -48,7 +43,7 @@ export function AuthShell({
 }
 
 const styles = StyleSheet.create({
-  glow: { position: 'absolute', top: 0, left: 0, right: 0, height: 360 },
+  glow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300 },
   content: {
     paddingHorizontal: spacing.xl,
     gap: spacing.sm,

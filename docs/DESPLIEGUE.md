@@ -30,10 +30,11 @@ pnpm build:web && pnpm build:admin
 
 ## Supabase
 
-1. **Migraciones.** Con la CLI: `supabase link --project-ref <ref>` y `supabase db push`. En ORDIX ya están aplicadas 0001–0012 (aplicadas por MCP/SQL Editor, con versiones de registro distintas a los nombres de archivo; antes de usar `db push` ejecuta `supabase migration repair` para marcarlas como aplicadas).
+1. **Migraciones.** Con la CLI: `supabase link --project-ref <ref>` y `supabase db push`. En ORDIX ya están aplicadas 0001–0013 (aplicadas por MCP/SQL Editor, con versiones de registro distintas a los nombres de archivo; antes de usar `db push` ejecuta `supabase migration repair` para marcarlas como aplicadas).
 2. **Edge Functions:** `supabase functions deploy delete-account` (ya desplegada en ORDIX).
 3. **Auth** (panel → Authentication):
-   - *URL Configuration*: Site URL `https://<tu-dominio>`; Redirect URLs: `ordyx://reset-password`, `https://<tu-dominio>/cuenta-confirmada`.
+   - *URL Configuration*: Site URL `https://<tu-dominio>`; Redirect URLs: `aurevix://reset-password`, `aurevix://auth-callback`, `https://<tu-dominio>/cuenta-confirmada` y `https://<dominio-del-panel>/auth/callback`.
+   - *Providers*: Google y Apple, paso a paso en `LOGIN_GOOGLE_APPLE.md`.
    - Confirmación de correo activada; **SMTP propio** (el SMTP por defecto de Supabase tiene límites muy bajos para producción).
    - Activar *Leaked password protection* (aviso actual del Security Advisor).
    - Plantillas de correo en español.
@@ -46,8 +47,8 @@ Ver `AUDIO_Y_STREAMING.md` → Transcodificación (`services/transcoder`, imagen
 
 ## Web y panel (Vercel u otro hosting Node)
 
-- Proyecto 1: raíz `apps/web`, variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`. Dominio público (p. ej. `ordyx.app`).
-- Proyecto 2: raíz `apps/admin`, mismas claves públicas. Dominio separado (p. ej. `admin.ordyx.app`).
+- Proyecto 1: raíz `apps/web`, variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`. Dominio público (p. ej. `music.aurevixweb.es`).
+- Proyecto 2: raíz `apps/admin`, mismas claves públicas. Dominio separado (p. ej. `admin.aurevixweb.es`).
 - Comando de instalación en monorepo: `pnpm install --frozen-lockfile`; build: `pnpm --filter web build` / `pnpm --filter admin build`.
 
 ## App móvil
