@@ -18,6 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { ToastProvider } from '@/components/Toast';
 import { TrackActionsProvider } from '@/components/TrackActions';
 import { ErrorState, Text } from '@/components/ui';
@@ -148,16 +149,30 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={navTheme}>
-          <ToastProvider>
-            <AuthProvider>
-              <TrackActionsProvider>
-                <StatusBar style="light" />
-                <RootNavigator />
-              </TrackActionsProvider>
-            </AuthProvider>
-          </ToastProvider>
+          <WebInsets>
+            <ToastProvider>
+              <AuthProvider>
+                <TrackActionsProvider>
+                  <StatusBar style="light" />
+                  <RootNavigator />
+                </TrackActionsProvider>
+              </AuthProvider>
+            </ToastProvider>
+          </WebInsets>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
+  );
+}
+
+/**
+ * En la web los márgenes de la muesca y de la barra de inicio los pone el CSS de la página (ver
+ * scripts/build-web-app.mjs), que en el iPhone es más fiable; la app no los vuelve a sumar.
+ */
+const ZERO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
+function WebInsets({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') return <>{children}</>;
+  return (
+    <SafeAreaInsetsContext.Provider value={ZERO_INSETS}>{children}</SafeAreaInsetsContext.Provider>
   );
 }

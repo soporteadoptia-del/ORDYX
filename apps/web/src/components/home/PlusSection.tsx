@@ -35,13 +35,17 @@ function Mark({ on }: { on: boolean }) {
  */
 export function PlusSection() {
   return (
-    <section id="plus" aria-labelledby="plus-title" className="scroll-mt-0 bg-accent text-ink">
+    <section
+      id="plus"
+      aria-labelledby="plus-title"
+      className="scroll-mt-0 overflow-clip bg-accent text-ink"
+    >
       <div className="mx-auto grid max-w-[1400px] gap-12 px-[var(--gutter)] py-20 md:grid-cols-12 md:py-[14svh]">
         <div className="md:col-span-6" data-reveal>
-          <p className="font-display text-[clamp(24px,3vw,36px)] font-bold leading-none">Aurevix</p>
+          <p className="relative z-10 font-display text-[clamp(24px,3vw,36px)] font-bold leading-none">Aurevix</p>
           <h2
             id="plus-title"
-            className="font-display text-[clamp(120px,22vw,300px)] font-extrabold leading-[0.8] tracking-[-0.06em]"
+            className="mt-4 font-display text-[clamp(120px,22vw,300px)] font-extrabold leading-[0.85] tracking-[-0.06em]"
           >
             Plus
           </h2>
@@ -62,8 +66,8 @@ export function PlusSection() {
             </p>
           </div>
         </div>
-        <div className="relative flex min-h-[420px] justify-center md:col-span-6 md:min-h-[640px]">
-          <figure className="absolute left-[4%] top-0 aspect-[390/844] w-[min(48vw,280px)] -rotate-3 overflow-hidden rounded-[28px] md:left-[6%]">
+        <div className="flex items-start justify-center gap-4 md:col-span-6 md:gap-6">
+          <figure className="relative aspect-[390/844] w-[min(42vw,260px)] -rotate-2 overflow-hidden rounded-[28px]">
             <Image
               src="/screens/app-stats.webp"
               alt="Pantalla de estadísticas de la app con minutos escuchados, canciones y artistas favoritos (datos de ejemplo)"
@@ -72,7 +76,7 @@ export function PlusSection() {
               className="object-cover"
             />
           </figure>
-          <figure className="absolute right-[4%] top-[14%] aspect-[390/844] w-[min(48vw,280px)] rotate-2 overflow-hidden rounded-[28px] md:right-[6%]">
+          <figure className="relative mt-[12%] aspect-[390/844] w-[min(42vw,260px)] rotate-2 overflow-hidden rounded-[28px]">
             <Image
               src="/screens/app-plus.webp"
               alt="Pantalla de Aurevix Plus en la app con sus ventajas"

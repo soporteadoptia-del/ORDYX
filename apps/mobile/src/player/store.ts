@@ -22,6 +22,7 @@ import {
   type AudioPlayer,
   type AudioStatus,
 } from 'expo-audio';
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { reportPlayProgress, startPlay } from '@/api/plays';
 import type { TrackListItem } from '@/api/types';
@@ -29,6 +30,7 @@ import { reportError, toUserMessage } from '@/lib/errors';
 import { imageUrl, invalidateStreamUrl, resolveRemoteUrl } from '@/lib/media';
 import { localUriFor, plusActiveNow } from './downloads';
 import { usePlayerPrefs } from './prefs';
+import { createWebPlayer, unlockWebAudio } from './webAudio';
 
 export interface PlayableTrack {
   id: string;
@@ -126,10 +128,31 @@ function ensureAudioMode() {
 
 function getPlayer(): AudioPlayer {
   if (!player) {
-    player = createAudioPlayer(null, { updateInterval: 500 });
+    // En la web, un único <audio> desbloqueado en el primer toque (ver webAudio.ts).
+    player =
+      Platform.OS === 'web'
+        ? (createWebPlayer() as unknown as AudioPlayer)
+        : createAudioPlayer(null, { updateInterval: 500 });
     player.addListener('playbackStatusUpdate', onStatus);
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
+      const ms = navigator.mediaSession;
+      ms.setActionHandler('play', () => void usePlayer.getState().toggle());
+      ms.setActionHandler('pause', () => void usePlayer.getState().toggle());
+      ms.setActionHandler('nexttrack', () => void usePlayer.getState().next());
+      ms.setActionHandler('previoustrack', () => void usePlayer.getState().previous());
+    }
   }
   return player;
+}
+
+/**
+ * Se llama al principio de cada acción que empieza a sonar, SIN esperar a nada antes: en la web
+ * desbloquea el audio dentro del toque del usuario (Safari en iPhone lo exige).
+ */
+function fromGesture() {
+  if (Platform.OS !== 'web') return;
+  getPlayer();
+  unlockWebAudio();
 }
 
 function clearLoadTimer() {
@@ -390,6 +413,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
 
   async playTracks(tracks, startIndex, context) {
     if (tracks.length === 0) return;
+    fromGesture();
     const { queue } = get();
     restoredPositionMs = 0;
     set({
@@ -400,6 +424,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   async toggle() {
+    fromGesture();
     const { status } = get();
     const p = player;
     if (status === 'playing') {
@@ -438,6 +463,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   async next() {
+    fromGesture();
     const { queue } = get();
     const idx = nextIndex(queue, false);
     if (idx === null) return;
@@ -446,6 +472,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   async previous() {
+    fromGesture();
     const { queue, positionMs } = get();
     const idx = previousIndex(queue, positionMs);
     if (idx === queue.index) {
@@ -477,6 +504,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   addNext(track) {
+    fromGesture();
     const wasEmpty = get().queue.entries.length === 0;
     set({ queue: playNext(get().queue, [track]) });
     if (wasEmpty) void loadCurrent(true);
@@ -484,6 +512,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   addToQueue(track) {
+    fromGesture();
     const wasEmpty = get().queue.entries.length === 0;
     set({ queue: enqueue(get().queue, [track]) });
     if (wasEmpty) void loadCurrent(true);
@@ -510,11 +539,13 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   async jumpTo(index) {
+    fromGesture();
     set({ queue: goTo(get().queue, index) });
     await loadCurrent(true);
   },
 
   async retry() {
+    fromGesture();
     const track = current(get().queue)?.item;
     if (!track) return;
     invalidateStreamUrl(track.audioPath);

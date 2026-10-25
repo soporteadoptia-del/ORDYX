@@ -40,7 +40,7 @@ export function ForArtists() {
             ))}
           </ol>
         </div>
-        <div className="relative mx-auto aspect-[390/844] w-[min(70vw,320px)] overflow-hidden rounded-[32px] md:col-span-5">
+        <div className="relative mx-auto aspect-[390/844] w-full max-w-[min(70vw,320px)] overflow-hidden rounded-[32px] md:col-span-5">
           <Image
             src="/screens/app-studio.webp"
             alt="Estudio de artista de la app con canciones publicadas y una pendiente de revisión"

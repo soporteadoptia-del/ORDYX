@@ -19,7 +19,7 @@ export function SiteFooter({
   socialLinks: Record<string, string>;
 }) {
   return (
-    <footer className="after-world px-[var(--gutter)] pb-8 pt-[16svh] text-[15px]">
+    <footer className="px-[var(--gutter)] pb-8 pt-[16svh] text-[15px]">
       <div className="mx-auto grid max-w-[1400px] gap-3 md:grid-cols-[1fr_auto_1fr] md:items-baseline md:gap-6">
         <p className="text-muted">{name} · música independiente</p>
         <nav aria-label="Legal y ayuda" className="flex flex-wrap gap-x-6 gap-y-2">

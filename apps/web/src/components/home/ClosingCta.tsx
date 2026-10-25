@@ -1,19 +1,19 @@
 import Image from 'next/image';
 
-/** «Última imagen, texto al lado»: el disco y la app a la izquierda, la invitación a la derecha. */
+/** «Última imagen, texto al lado»: la app sonando a la izquierda, la invitación a la derecha. */
 export function ClosingCta() {
   return (
     <section
       aria-labelledby="cta-title"
       className="grid bg-surface md:min-h-[90svh] md:grid-cols-2"
     >
-      <div className="relative aspect-square md:aspect-auto">
+      <div className="relative aspect-square bg-accent md:aspect-auto">
         <Image
-          src="/disco/still/finale.webp"
-          alt="El móvil con la app de Aurevix delante del vinilo y su funda"
+          src="/screens/app-player.webp"
+          alt="Reproductor de la app de Aurevix sonando"
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover"
+          className="object-contain p-10 md:p-16"
         />
       </div>
       <div className="flex flex-col justify-end gap-6 px-[var(--gutter)] py-14 md:px-16 md:pb-[14svh]">

@@ -199,61 +199,6 @@ h3 {
   outline-offset: 2px;
 }
 
-/* ---------------------------------------------------------------- mundo (scroll-world) */
-/* Tema del motor con los tokens de Aurevix. Va con !important porque el motor inyecta su CSS
-   después del nuestro. */
-.world-host,
-.sw-root {
-  --sw-bg: var(--color-ink) !important;
-  --sw-ink: var(--color-fg) !important;
-  --sw-ink-soft: var(--color-muted) !important;
-  --sw-font-display: var(--font-display) !important;
-  --sw-font-body: var(--font-sans) !important;
-}
-.sw-topbar,
-.sw-copy__num {
-  display: none !important;
-}
-.sw-copy__eyebrow {
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  font-family: var(--font-sans) !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-}
-.sw-copy__title,
-.sw-copy__body {
-  text-shadow: none !important;
-}
-.sw-copy__title {
-  font-weight: 800 !important;
-  letter-spacing: -0.035em !important;
-  line-height: 0.98 !important;
-}
-.sw-copy__tags li {
-  font-size: 15px !important;
-  color: var(--color-fg) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 0 !important;
-}
-.sw-btn--primary {
-  color: var(--color-ink) !important;
-  background: var(--color-accent) !important;
-}
-.sw-btn--ghost {
-  color: var(--color-fg) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-}
-.sw-btn:active {
-  transform: scale(0.97) !important;
-}
-/* Lo que viene después del mundo pasa por encima de sus capas fijas. */
-.after-world {
-  position: relative;
-  z-index: 70;
-  background: var(--color-ink);
-}
-
 /* ---------------------------------------------------------------- «Suena esta semana» */
 .spin {
   animation: disc-spin 6s linear infinite;
@@ -324,32 +269,20 @@ h3 {
     transition: opacity 200ms ease;
   }
 }
-.sw-hint {
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  font-size: 15px !important;
-}
-/* Al final del vuelo, el resto de la página sube por encima: el texto del mundo se desvanece
-   antes de que nada lo cubra (--world-left va de 1 a 0 en la última media pantalla). */
-.sw-copylayer {
-  opacity: var(--world-left, 1);
-}
-.sw-route__label {
-  font-size: 13px !important;
-  color: var(--color-fg) !important;
-  background: var(--color-surface) !important;
-  backdrop-filter: none !important;
-}
-@media (max-width: 860px) {
-  .sw-hint {
-    display: none !important;
+
+/* ---------------------------------------------------------------- entrada de la portada */
+/* Una sola vez al cargar (Emil: ease-out fuerte, desde 12 px y opacidad, nunca desde cero). */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-in {
+    animation: hero-in 700ms var(--ease-out) both;
+  }
+  .hero-in-late {
+    animation-delay: 120ms;
   }
 }
-.world-host.is-past .sw-sky,
-.world-host.is-past .sw-stage,
-.world-host.is-past .sw-copylayer,
-.world-host.is-past .sw-route,
-.world-host.is-past .sw-scrollbar,
-.world-host.is-past .sw-hint {
-  visibility: hidden;
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
