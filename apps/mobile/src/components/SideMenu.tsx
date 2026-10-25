@@ -1,9 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { cubicBezier, useReducedMotion } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 import { getNotifications } from '@/api/me';
@@ -17,6 +27,9 @@ import { Artwork } from './Artwork';
 import { PressableScale } from './motion';
 import { Text, type IconName } from './ui';
 
+/** Curva de los cajones de iOS (Emil Kowalski): sale rápido y se asienta suave. */
+const EASE_DRAWER = Easing.bezier(0.32, 0.72, 0, 1);
+
 interface Item {
   icon: IconName;
   label: string;
@@ -27,7 +40,7 @@ interface Item {
 
 /**
  * Menú lateral (como el de Spotify al tocar tu foto): perfil, Premium y todos los accesos de la
- * cuenta en un sitio. Entra desde la izquierda en 280 ms; con «reducir movimiento», sin desplazarse.
+ * cuenta en un sitio. Entra desde la izquierda en 300 ms y se puede arrastrar para cerrarlo.
  */
 export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const insets = useSafeAreaInsets();
@@ -75,38 +88,71 @@ export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () =
       : []),
   ];
 
-  // Deslizar el panel hacia la izquierda lo cierra; un gesto rápido basta.
+  // El panel va en el hilo de interfaz: entra con la curva de los cajones de iOS, sigue al dedo
+  // al arrastrarlo y, al soltar, se cierra o vuelve a su sitio con un muelle (velocidad incluida).
+  const { width } = useWindowDimensions();
+  const panelW = Math.min(width * 0.84, 360);
+  const x = useSharedValue(-panelW);
+  useEffect(() => {
+    if (visible) x.set(reduced ? 0 : withTiming(0, { duration: 300, easing: EASE_DRAWER }));
+  }, [visible, reduced, x]);
+
+  const close = () => {
+    x.set(
+      withTiming(-panelW, { duration: reduced ? 0 : 200, easing: EASE_DRAWER }, (done) => {
+        if (done) scheduleOnRN(onClose);
+      }),
+    );
+  };
+
   const swipeClose = Gesture.Pan()
-    .activeOffsetX(-16)
+    .activeOffsetX(-12)
     .failOffsetY([-14, 14])
+    .onUpdate((e) => {
+      // A la derecha no pasa del borde: resistencia en vez de tope seco.
+      x.set(e.translationX < 0 ? e.translationX : e.translationX * 0.15);
+    })
     .onEnd((e) => {
-      if (e.translationX < -60 || e.velocityX < -500) scheduleOnRN(onClose);
+      if (e.translationX < -panelW * 0.3 || e.velocityX < -500) {
+        x.set(
+          withTiming(-panelW, { duration: 180, easing: EASE_DRAWER }, (done) => {
+            if (done) scheduleOnRN(onClose);
+          }),
+        );
+      } else {
+        x.set(withSpring(0, { duration: 300, dampingRatio: 0.85, velocity: e.velocityX }));
+      }
     });
 
+  const panelStyle = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(x.get(), [-panelW, 0], [0, 1], Extrapolation.CLAMP),
+  }));
+
+  // Al elegir una opción el menú desaparece al instante (sin animación de salida): así no
+  // vuelve a asomar al regresar a Inicio.
   const go = (href: Href) => {
+    x.set(-panelW);
     onClose();
     router.push(href);
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={close}>
       <GestureHandlerRootView style={styles.root}>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}>
+          <Pressable style={{ flex: 1 }} onPress={close} accessibilityLabel="Cerrar menú" />
+        </Animated.View>
         <GestureDetector gesture={swipeClose}>
           <Animated.View
             style={[
               styles.panel,
               {
+                width: panelW,
                 paddingTop: safeTop(insets.top, spacing.lg),
                 paddingBottom: safeBottom(insets.bottom, spacing.lg),
               },
-              !reduced && {
-                animationName: {
-                  from: { transform: [{ translateX: -320 }] },
-                  to: { transform: [{ translateX: 0 }] },
-                },
-                animationDuration: '280ms',
-                animationTimingFunction: cubicBezier(0.32, 0.72, 0, 1),
-              },
+              panelStyle,
             ]}
           >
             <ScrollView contentContainerStyle={{ gap: spacing.xs }}>
@@ -179,17 +225,15 @@ export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () =
             </ScrollView>
           </Animated.View>
         </GestureDetector>
-        <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Cerrar menú" />
       </GestureHandlerRootView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.55)' },
+  root: { flex: 1, flexDirection: 'row' },
+  backdrop: { backgroundColor: 'rgba(0,0,0,0.55)' },
   panel: {
-    width: '84%',
-    maxWidth: 360,
     backgroundColor: '#17171B',
     paddingHorizontal: spacing.lg,
     borderTopRightRadius: radius.lg,
