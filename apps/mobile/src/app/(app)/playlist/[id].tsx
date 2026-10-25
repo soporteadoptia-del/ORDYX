@@ -10,12 +10,14 @@ import {
   removePlaylistItem,
   setPlaylistSaved,
 } from '@/api/playlists';
+import { joinPlaylist, setCollaborative } from '@/api/together';
 import { CollectionHeader } from '@/components/CollectionHeader';
 import { LIST_BOTTOM_PADDING } from '@/components/Screen';
 import { useToast } from '@/components/Toast';
 import { TrackRow } from '@/components/TrackRow';
 import { Badge, Button, EmptyState, ErrorState, IconButton, Loading, Text } from '@/components/ui';
 import { env } from '@/lib/env';
+import { supabase } from '@/lib/supabase';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList, shufflePlay } from '@/player/play';
@@ -23,12 +25,26 @@ import { useAuth } from '@/providers/AuthProvider';
 import { colors, spacing } from '@/theme';
 
 export default function PlaylistScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, join } = useLocalSearchParams<{ id: string; join?: string }>();
   const { session } = useAuth();
   const qc = useQueryClient();
   const toast = useToast();
   const q = useQuery({ queryKey: ['playlist', id], queryFn: () => getPlaylist(id) });
   const isOwner = q.data?.owner_id === session?.user.id;
+  // En una lista colaborativa privada, si la ves es que eres miembro; en una pública se comprueba.
+  const member = useQuery({
+    queryKey: ['playlist', id, 'member'],
+    queryFn: async () =>
+      (
+        await supabase
+          .from('playlist_members')
+          .select('user_id')
+          .eq('playlist_id', id)
+          .eq('user_id', session!.user.id)
+      ).data?.length === 1,
+    enabled: !!q.data?.is_collaborative && !isOwner,
+  });
+  const canEdit = isOwner || (!!q.data?.is_collaborative && !!member.data);
   const saved = useQuery({
     queryKey: ['playlist', id, 'saved'],
     queryFn: () => isPlaylistSaved(id),
@@ -67,6 +83,28 @@ export default function PlaylistScreen() {
   });
 
   if (q.isLoading) return <Loading />;
+  if ((q.error || !q.data) && join)
+    return (
+      <EmptyState
+        icon="people-outline"
+        title="Te han invitado a una lista colaborativa"
+        message="Únete para verla y añadir tus canciones."
+        action={
+          <Button
+            label="Unirme a la lista"
+            icon="add"
+            onPress={() =>
+              void joinPlaylist(id)
+                .then(() => {
+                  toast.show('Ya formas parte de la lista', 'success');
+                  invalidate();
+                })
+                .catch(onError)
+            }
+          />
+        }
+      />
+    );
   if (q.error || !q.data)
     return <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />;
   const p = q.data;
@@ -84,7 +122,13 @@ export default function PlaylistScreen() {
             image={imageUrl('playlist-images', p.cover_path)}
             seed={p.id}
             icon="list"
-            kicker={p.is_public ? 'Playlist pública' : 'Playlist privada'}
+            kicker={
+              p.is_collaborative
+                ? 'Lista colaborativa'
+                : p.is_public
+                  ? 'Playlist pública'
+                  : 'Playlist privada'
+            }
             title={p.title}
             description={p.description}
             subtitle={`@${p.owner?.username ?? 'usuario'} · ${p.items.length} canciones · ${formatLongDuration(p.duration_ms)}`}
@@ -123,6 +167,47 @@ export default function PlaylistScreen() {
                     onPress={() => toggleSave.mutate()}
                   />
                 )}
+                {isOwner ? (
+                  <IconButton
+                    name={p.is_collaborative ? 'people' : 'people-outline'}
+                    color={p.is_collaborative ? colors.accent : colors.text}
+                    label={p.is_collaborative ? 'Dejar de ser colaborativa' : 'Hacer colaborativa'}
+                    onPress={() =>
+                      void setCollaborative(p.id, !p.is_collaborative)
+                        .then(() => {
+                          toast.show(
+                            p.is_collaborative
+                              ? 'Ya no es colaborativa'
+                              : 'Ahora es colaborativa: invita a tus amigos',
+                            'success',
+                          );
+                          invalidate();
+                        })
+                        .catch(onError)
+                    }
+                  />
+                ) : null}
+                {p.is_collaborative && canEdit ? (
+                  <IconButton
+                    name="person-add-outline"
+                    label="Invitar a la lista"
+                    onPress={() =>
+                      void Share.share({
+                        message: `Únete a mi lista «${p.title}» en Aurevix y añade tus canciones: ${env.webUrl}/app/playlist/${p.id}?join=1`,
+                      })
+                    }
+                  />
+                ) : null}
+                <IconButton
+                  name="paper-plane-outline"
+                  label="Enviar a un amigo"
+                  onPress={() =>
+                    router.push({
+                      pathname: '/messages',
+                      params: { playlistId: p.id, title: p.title },
+                    })
+                  }
+                />
                 {p.is_public ? (
                   <IconButton
                     name="share-outline"
@@ -141,12 +226,12 @@ export default function PlaylistScreen() {
             icon="musical-notes-outline"
             title="Esta playlist está vacía"
             message={
-              isOwner
+              canEdit
                 ? 'Mantén pulsada cualquier canción y elige «Añadir a una playlist».'
                 : undefined
             }
             action={
-              isOwner ? (
+              canEdit ? (
                 <Button
                   label="Buscar canciones"
                   compact
@@ -162,7 +247,7 @@ export default function PlaylistScreen() {
             track={item.track}
             onPress={() => void playList(tracks, index, { type: 'playlist', id: p.id })}
             trailing={
-              isOwner ? (
+              canEdit ? (
                 <View style={{ flexDirection: 'row' }}>
                   <IconButton
                     name="chevron-up"

@@ -19,6 +19,7 @@ import { PlusStrip } from '@/components/PlusStrip';
 import { GenreGrid } from '@/components/GenreGrid';
 import { Greeting, MadeForYou, NoticeBanner, RadioRow } from '@/components/HomeExtras';
 import { NowTrending } from '@/components/NowTrending';
+import { SideMenu } from '@/components/SideMenu';
 import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
@@ -64,6 +65,7 @@ export default function Home() {
   const { profile } = useAuth();
   const [filter, setFilter] = useState<Filter>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [menu, setMenu] = useState(false);
   const { isPlus, data: plusData } = usePlus();
   const offer = usePlusOffer();
   const recent = useQuery({ queryKey: ['home', 'recent'], queryFn: () => getRecentlyPlayed(12) });
@@ -150,12 +152,13 @@ export default function Home() {
 
   return (
     <Screen>
-      {/* Cabecera fija: avatar y filtros */}
+      <SideMenu visible={menu} onClose={() => setMenu(false)} />
+      {/* Cabecera fija: avatar (abre el menú) y filtros */}
       <View style={styles.top}>
         <Pressable
-          onPress={() => router.push('/me')}
+          onPress={() => setMenu(true)}
           accessibilityRole="button"
-          accessibilityLabel="Tu perfil"
+          accessibilityLabel="Abrir menú de tu cuenta"
           hitSlop={6}
         >
           {profile?.avatar_path ? (
