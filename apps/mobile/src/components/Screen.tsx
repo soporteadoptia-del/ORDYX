@@ -31,5 +31,8 @@ export function Screen({
   );
 }
 
-/** Espacio inferior para que el mini reproductor y la barra de pestañas no tapen el final de las listas. */
-export const LIST_BOTTOM_PADDING = 160;
+/**
+ * Espacio al final de las listas. La barra de pestañas y el mini reproductor no se superponen al
+ * contenido (van debajo, fuera de la pantalla de la pestaña), así que basta con un margen.
+ */
+export const LIST_BOTTOM_PADDING = 40;
