@@ -3,6 +3,8 @@ import type { ComponentProps, ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  Switch,
+  type SwitchProps,
   StyleSheet,
   Text as RNText,
   TextInput,
@@ -281,6 +283,21 @@ export function Badge({
     <View style={[styles.badge, { backgroundColor: `${color}24` }]}>
       <Text style={[styles.badgeText, { color }]}>{label}</Text>
     </View>
+  );
+}
+
+/** Interruptor con los colores de la marca en Android, iOS y la web. */
+export function BrandSwitch({ value, ...rest }: SwitchProps) {
+  return (
+    <Switch
+      value={value}
+      trackColor={{ true: colors.accent, false: colors.borderStrong }}
+      thumbColor={value ? colors.onAccent : colors.text}
+      ios_backgroundColor={colors.borderStrong}
+      // react-native-web pinta el círculo activo con su propio color si no se indica.
+      {...({ activeThumbColor: colors.onAccent } as object)}
+      {...rest}
+    />
   );
 }
 

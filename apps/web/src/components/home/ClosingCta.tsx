@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-/** «Última imagen, texto al lado»: la playlist de demostración a la izquierda, la invitación a la derecha. */
+/** «Última imagen, texto al lado»: el disco y la app a la izquierda, la invitación a la derecha. */
 export function ClosingCta() {
   return (
     <section
@@ -9,8 +9,8 @@ export function ClosingCta() {
     >
       <div className="relative aspect-square md:aspect-auto">
         <Image
-          src="/demo/playlist.jpg"
-          alt="Portada de la playlist de demostración «Primeros pasos»"
+          src="/disco/still/finale.webp"
+          alt="El móvil con la app de Aurevix delante del vinilo y su funda"
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
           className="object-cover"

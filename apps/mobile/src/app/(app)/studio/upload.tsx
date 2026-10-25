@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { getGenres } from '@/api/catalog';
 import {
   createDraftTrack,
@@ -27,7 +27,7 @@ import {
 import { Artwork } from '@/components/Artwork';
 import { pickImage, type PickedImage } from '@/components/PlaylistForm';
 import { TrackMetaForm, type TrackMetaValues } from '@/components/TrackMetaForm';
-import { Button, Chip, Loading, Text } from '@/components/ui';
+import { Button, Chip, Loading, Text, BrandSwitch } from '@/components/ui';
 import { probeDurationMs } from '@/lib/audio-probe';
 import { reportError, toUserMessage } from '@/lib/errors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -266,10 +266,9 @@ export default function Upload() {
       {genres.data ? <TrackMetaForm values={meta} onChange={setMeta} genres={genres.data} /> : null}
 
       <View style={styles.rights}>
-        <Switch
+        <BrandSwitch
           value={rights}
           onValueChange={setRights}
-          trackColor={{ true: colors.accent, false: colors.border }}
           accessibilityLabel="Confirmo que tengo los derechos"
         />
         <Text variant="caption" style={{ flex: 1 }}>

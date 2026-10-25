@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import { colors, fonts, radius, spacing } from '@/theme';
+import { colors, radius, spacing } from '@/theme';
 import { PressableScale } from './motion';
 import { Text } from './ui';
 

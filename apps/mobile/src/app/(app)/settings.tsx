@@ -4,16 +4,16 @@ import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import { router, Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { Alert, Linking, ScrollView, Share, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Linking, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { deleteMyAccount, exportMyData, getMySettings, updateMySettings } from '@/api/me';
 import { useToast } from '@/components/Toast';
-import { Button, Loading, SectionHeader, Text } from '@/components/ui';
+import { Button, Loading, SectionHeader, Text, BrandSwitch } from '@/components/ui';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { usePlus } from '@/hooks/usePlus';
 import { usePlayerPrefs } from '@/player/prefs';
 import { useAuth } from '@/providers/AuthProvider';
-import { colors, spacing } from '@/theme';
+import { spacing } from '@/theme';
 
 export default function Settings() {
   const { signOut, session } = useAuth();
@@ -236,12 +236,7 @@ function Toggle({
           </Text>
         ) : null}
       </View>
-      <Switch
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ true: colors.accent, false: colors.border }}
-        accessibilityLabel={label}
-      />
+      <BrandSwitch value={value} onValueChange={onChange} accessibilityLabel={label} />
     </View>
   );
 }

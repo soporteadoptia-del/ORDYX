@@ -1,10 +1,10 @@
 import { firstError, playlistSchema, type PlaylistInput } from '@ordyx/shared';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { Pressable, ScrollView, Switch, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { colors, spacing } from '@/theme';
 import { Artwork } from './Artwork';
-import { Button, Text, TextField } from './ui';
+import { Button, Text, TextField, BrandSwitch } from './ui';
 
 export interface PickedImage {
   uri: string;
@@ -109,10 +109,9 @@ export function PlaylistForm({
             Cualquiera podrá verla, buscarla y abrirla con un enlace.
           </Text>
         </View>
-        <Switch
+        <BrandSwitch
           value={values.is_public}
           onValueChange={(is_public) => setValues((v) => ({ ...v, is_public }))}
-          trackColor={{ true: colors.accent, false: colors.border }}
           accessibilityLabel="Playlist pública"
         />
       </View>
