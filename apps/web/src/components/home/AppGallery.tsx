@@ -43,13 +43,11 @@ const SCREENS = [
 ];
 
 const SPACING = 210;
-const ROTATION = 38;
-const DEPTH = 170;
 const SCALE_STEP = 0.12;
 
 /**
- * Coverflow de capturas (adaptado del «Coverflow Carousel» de 21st.dev, sin dependencias: CSS
- * transforms con ease-out). Se arrastra con el dedo, con las flechas del teclado o los botones.
+ * Carrusel plano de capturas (idea del «Coverflow Carousel» de 21st.dev, sin 3D ni dependencias:
+ * desplazamiento y escala con ease-out). Se arrastra con el dedo, con las flechas del teclado o los botones.
  */
 export function AppGallery() {
   const [active, setActive] = useState(0);
@@ -106,7 +104,6 @@ export function AppGallery() {
         onPointerUp={onUp}
         onPointerCancel={() => (drag.current = null)}
         className="relative h-[min(78vw,560px)] touch-pan-y select-none rounded-[28px] outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-ink md:h-[600px]"
-        style={{ perspective: 1200 }}
       >
         {SCREENS.map((sc, i) => {
           const off = i - active;
@@ -122,7 +119,7 @@ export function AppGallery() {
               onClick={() => go(i)}
               className="coverflow-card absolute left-1/2 top-0 aspect-[390/844] h-full overflow-hidden rounded-[28px] bg-surface"
               style={{
-                transform: `translateX(calc(-50% + ${off * SPACING}px)) translateZ(${-Math.abs(off) * DEPTH}px) rotateY(${-off * ROTATION}deg) scale(${scale})`,
+                transform: `translateX(calc(-50% + ${off * SPACING}px)) scale(${scale})`,
                 zIndex: total - Math.abs(off),
                 opacity: Math.abs(off) === 3 ? 0 : 1,
               }}
