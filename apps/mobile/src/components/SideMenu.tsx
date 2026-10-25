@@ -2,12 +2,15 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { cubicBezier, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 import { getNotifications } from '@/api/me';
 import { getUnreadMessages } from '@/api/together';
 import { usePlus } from '@/hooks/usePlus';
 import { imageUrl } from '@/lib/media';
+import { safeBottom, safeTop } from '@/lib/safe-area';
 import { useAuth } from '@/providers/AuthProvider';
 import { colors, fonts, radius, spacing } from '@/theme';
 import { Artwork } from './Artwork';
@@ -72,6 +75,14 @@ export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () =
       : []),
   ];
 
+  // Deslizar el panel hacia la izquierda lo cierra; un gesto rápido basta.
+  const swipeClose = Gesture.Pan()
+    .activeOffsetX(-16)
+    .failOffsetY([-14, 14])
+    .onEnd((e) => {
+      if (e.translationX < -60 || e.velocityX < -500) scheduleOnRN(onClose);
+    });
+
   const go = (href: Href) => {
     onClose();
     router.push(href);
@@ -79,92 +90,97 @@ export function SideMenu({ visible, onClose }: { visible: boolean; onClose: () =
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.root}>
-        <Animated.View
-          style={[
-            styles.panel,
-            { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.lg },
-            !reduced && {
-              animationName: {
-                from: { transform: [{ translateX: -320 }] },
-                to: { transform: [{ translateX: 0 }] },
+      <GestureHandlerRootView style={styles.root}>
+        <GestureDetector gesture={swipeClose}>
+          <Animated.View
+            style={[
+              styles.panel,
+              {
+                paddingTop: safeTop(insets.top, spacing.lg),
+                paddingBottom: safeBottom(insets.bottom, spacing.lg),
               },
-              animationDuration: '280ms',
-              animationTimingFunction: cubicBezier(0.32, 0.72, 0, 1),
-            },
-          ]}
-        >
-          <ScrollView contentContainerStyle={{ gap: spacing.xs }}>
-            <PressableScale
-              onPress={() => go('/me')}
-              accessibilityRole="button"
-              accessibilityLabel="Ver perfil"
-              style={styles.profile}
-            >
-              <Artwork
-                uri={imageUrl('avatars', profile?.avatar_path)}
-                size={56}
-                rounded
-                icon="person"
-                seed={profile?.id}
-              />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name} numberOfLines={1}>
-                  {profile?.display_name || profile?.username}
-                </Text>
-                <Text variant="caption" muted>
-                  Ver perfil
-                </Text>
-              </View>
-            </PressableScale>
-            <PressableScale
-              onPress={() => go('/plus')}
-              accessibilityRole="button"
-              style={[styles.premium, plus.isPlus && { backgroundColor: colors.accent }]}
-            >
-              <Ionicons
-                name="sparkles"
-                size={20}
-                color={plus.isPlus ? colors.onAccent : colors.accent}
-              />
-              <Text
-                variant="bodyStrong"
-                style={{ flex: 1, color: plus.isPlus ? colors.onAccent : colors.text }}
-              >
-                {plus.isPlus ? 'Tienes Aurevix Premium' : 'Hazte Premium'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={16}
-                color={plus.isPlus ? colors.onAccent : colors.textMuted}
-              />
-            </PressableScale>
-            <View style={{ height: spacing.md }} />
-            {items.map((it) => (
+              !reduced && {
+                animationName: {
+                  from: { transform: [{ translateX: -320 }] },
+                  to: { transform: [{ translateX: 0 }] },
+                },
+                animationDuration: '280ms',
+                animationTimingFunction: cubicBezier(0.32, 0.72, 0, 1),
+              },
+            ]}
+          >
+            <ScrollView contentContainerStyle={{ gap: spacing.xs }}>
               <PressableScale
-                key={it.label}
-                onPress={() => go(it.href)}
+                onPress={() => go('/me')}
                 accessibilityRole="button"
-                accessibilityLabel={it.count ? `${it.label}, ${it.count} sin leer` : it.label}
-                style={styles.item}
+                accessibilityLabel="Ver perfil"
+                style={styles.profile}
+              >
+                <Artwork
+                  uri={imageUrl('avatars', profile?.avatar_path)}
+                  size={56}
+                  rounded
+                  icon="person"
+                  seed={profile?.id}
+                />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.name} numberOfLines={1}>
+                    {profile?.display_name || profile?.username}
+                  </Text>
+                  <Text variant="caption" muted>
+                    Ver perfil
+                  </Text>
+                </View>
+              </PressableScale>
+              <PressableScale
+                onPress={() => go('/plus')}
+                accessibilityRole="button"
+                style={[styles.premium, plus.isPlus && { backgroundColor: colors.accent }]}
               >
                 <Ionicons
-                  name={it.icon}
-                  size={24}
-                  color={it.accent ? colors.accent : colors.text}
+                  name="sparkles"
+                  size={20}
+                  color={plus.isPlus ? colors.onAccent : colors.accent}
                 />
-                <Text style={styles.label}>{it.label}</Text>
-                {it.count ? (
-                  <View style={styles.count}>
-                    <Text style={styles.countText}>{it.count > 99 ? '99+' : it.count}</Text>
-                  </View>
-                ) : null}
+                <Text
+                  variant="bodyStrong"
+                  style={{ flex: 1, color: plus.isPlus ? colors.onAccent : colors.text }}
+                >
+                  {plus.isPlus ? 'Tienes Aurevix Premium' : 'Hazte Premium'}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={plus.isPlus ? colors.onAccent : colors.textMuted}
+                />
               </PressableScale>
-            ))}
-          </ScrollView>
-        </Animated.View>
+              <View style={{ height: spacing.md }} />
+              {items.map((it) => (
+                <PressableScale
+                  key={it.label}
+                  onPress={() => go(it.href)}
+                  accessibilityRole="button"
+                  accessibilityLabel={it.count ? `${it.label}, ${it.count} sin leer` : it.label}
+                  style={styles.item}
+                >
+                  <Ionicons
+                    name={it.icon}
+                    size={24}
+                    color={it.accent ? colors.accent : colors.text}
+                  />
+                  <Text style={styles.label}>{it.label}</Text>
+                  {it.count ? (
+                    <View style={styles.count}>
+                      <Text style={styles.countText}>{it.count > 99 ? '99+' : it.count}</Text>
+                    </View>
+                  ) : null}
+                </PressableScale>
+              ))}
+            </ScrollView>
+          </Animated.View>
+        </GestureDetector>
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Cerrar menú" />
-      </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
