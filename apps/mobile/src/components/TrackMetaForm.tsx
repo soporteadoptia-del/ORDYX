@@ -1,7 +1,7 @@
 import { LICENSE_LABELS, TRACK_LICENSES, type Genre, type TrackLicense } from '@ordyx/shared';
-import { ScrollView, Switch, View } from 'react-native';
-import { colors, spacing } from '@/theme';
-import { Chip, Text, TextField } from './ui';
+import { ScrollView, View } from 'react-native';
+import { spacing } from '@/theme';
+import { Chip, Text, TextField, BrandSwitch } from './ui';
 
 export interface TrackMetaValues {
   title: string;
@@ -82,10 +82,9 @@ export function TrackMetaForm({
       />
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text variant="bodyStrong">Contenido explícito</Text>
-        <Switch
+        <BrandSwitch
           value={values.is_explicit}
           onValueChange={(v) => set('is_explicit', v)}
-          trackColor={{ true: colors.accent, false: colors.border }}
           accessibilityLabel="Contenido explícito"
         />
       </View>

@@ -2,8 +2,8 @@ import { firstError, signUpSchema } from '@ordyx/shared';
 import { Link } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { Pressable, Switch, View } from 'react-native';
-import { Button, Text, TextField } from '@/components/ui';
+import { Pressable, View } from 'react-native';
+import { Button, Text, TextField, BrandSwitch } from '@/components/ui';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
@@ -78,10 +78,9 @@ export default function SignUp() {
         textContentType="newPassword"
       />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-        <Switch
+        <BrandSwitch
           value={form.acceptTerms}
           onValueChange={set('acceptTerms')}
-          trackColor={{ true: colors.accent, false: colors.border }}
           accessibilityLabel="Acepto las condiciones de uso y la política de privacidad"
         />
         <Text variant="caption" style={{ flex: 1 }}>

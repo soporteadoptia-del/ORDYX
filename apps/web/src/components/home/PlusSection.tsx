@@ -63,18 +63,18 @@ export function PlusSection() {
           </div>
         </div>
         <div className="relative flex min-h-[420px] justify-center md:col-span-6 md:min-h-[640px]">
-          <figure className="absolute left-[4%] top-0 aspect-[390/844] w-[min(48vw,280px)] -rotate-3 overflow-hidden rounded-[28px] shadow-2xl md:left-[6%]">
+          <figure className="absolute left-[4%] top-0 aspect-[390/844] w-[min(48vw,280px)] -rotate-3 overflow-hidden rounded-[28px] md:left-[6%]">
             <Image
-              src="/screens/stats.webp"
+              src="/screens/app-stats.webp"
               alt="Pantalla de estadísticas de la app con minutos escuchados, canciones y artistas favoritos (datos de ejemplo)"
               fill
               sizes="280px"
               className="object-cover"
             />
           </figure>
-          <figure className="absolute right-[4%] top-[14%] aspect-[390/844] w-[min(48vw,280px)] rotate-2 overflow-hidden rounded-[28px] shadow-2xl md:right-[6%]">
+          <figure className="absolute right-[4%] top-[14%] aspect-[390/844] w-[min(48vw,280px)] rotate-2 overflow-hidden rounded-[28px] md:right-[6%]">
             <Image
-              src="/screens/plus.webp"
+              src="/screens/app-plus.webp"
               alt="Pantalla de Aurevix Plus en la app con sus ventajas"
               fill
               sizes="280px"

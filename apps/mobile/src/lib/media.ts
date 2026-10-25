@@ -1,5 +1,6 @@
 import { publicImageUrl, STORAGE_BUCKETS } from '@ordyx/shared';
 import { env } from './env';
+import { AUDIUS_PREFIX, audiusStreamUrl } from '@/api/audius';
 import { getOriginalAudioPath } from '@/api/plus';
 import { supabase } from './supabase';
 
@@ -49,6 +50,9 @@ export async function resolveRemoteUrl(
   quality: 'standard' | 'max',
   plus: boolean,
 ): Promise<{ url: string; original: boolean }> {
+  // Audius: el audio se pide a Audius directamente (no es un archivo de nuestro Storage).
+  if (audioPath.startsWith(AUDIUS_PREFIX))
+    return { url: audiusStreamUrl(audioPath), original: false };
   if (quality === 'max' && plus) {
     try {
       if (!originals.has(trackId)) originals.set(trackId, await getOriginalAudioPath(trackId));

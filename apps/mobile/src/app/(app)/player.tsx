@@ -2,7 +2,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getTracksByIds } from '@/api/catalog';
 import { Artwork } from '@/components/Artwork';
@@ -72,6 +79,7 @@ export default function PlayerScreen() {
           name="ellipsis-horizontal"
           label="Más opciones"
           onPress={async () => {
+            if (track.externalUrl) return void Linking.openURL(track.externalUrl);
             const [full] = await getTracksByIds([track.id]);
             if (full) openActions(full);
           }}
@@ -101,20 +109,32 @@ export default function PlayerScreen() {
             {s.source === 'offline' ? <Badge label="Descargada" tone="success" /> : null}
             {s.source === 'original' ? <Badge label="Calidad original" /> : null}
             {track.isDemo ? <Badge label="Contenido de demostración" tone="warning" /> : null}
+            {track.externalUrl ? <Badge label="Desde Audius" tone="muted" /> : null}
           </View>
         </View>
-        <IconButton
-          name="chatbubble-ellipses-outline"
-          label="Comentarios"
-          onPress={() => (router.back(), router.push(`/track/${track.id}`))}
-        />
-        <IconButton
-          name={liked ? 'heart' : 'heart-outline'}
-          color={liked ? colors.accentWarm : colors.text}
-          size={28}
-          label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-          onPress={() => toggleLike(track.id)}
-        />
+        {track.externalUrl ? (
+          // Canción de Audius: se reconoce al artista enlazando a su página original.
+          <IconButton
+            name="open-outline"
+            label={`Ver «${track.title}» en Audius`}
+            onPress={() => void Linking.openURL(track.externalUrl!)}
+          />
+        ) : (
+          <>
+            <IconButton
+              name="chatbubble-ellipses-outline"
+              label="Comentarios"
+              onPress={() => (router.back(), router.push(`/track/${track.id}`))}
+            />
+            <IconButton
+              name={liked ? 'heart' : 'heart-outline'}
+              color={liked ? colors.accentWarm : colors.text}
+              size={28}
+              label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+              onPress={() => toggleLike(track.id)}
+            />
+          </>
+        )}
       </View>
 
       <View style={{ paddingHorizontal: spacing.xl }}>
@@ -192,7 +212,9 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.bottomRow}>
-        <Tool icon="text" label="Letra" onPress={() => router.push('/lyrics')} />
+        {track.externalUrl ? null : (
+          <Tool icon="text" label="Letra" onPress={() => router.push('/lyrics')} />
+        )}
         <Tool
           text={rateLabel(rate)}
           label="Velocidad"
@@ -206,7 +228,7 @@ export default function PlayerScreen() {
           active={!!s.sleep}
           onPress={() => setSheet('sleep')}
         />
-        {downloadsSupported ? (
+        {downloadsSupported && !track.externalUrl ? (
           <Tool
             icon={
               downloads.isDownloaded(track.id) ? 'checkmark-circle' : 'arrow-down-circle-outline'

@@ -6,6 +6,10 @@ export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
     a: 'Sí. Puedes escuchar todo el catálogo, crear playlists y seguir a artistas sin pagar ni ver anuncios. Aurevix Plus (4,99 € al mes, opcional) añade el archivo original del artista, descargas sin conexión, letras sincronizadas, estadísticas y velocidad de reproducción.',
   },
   {
+    q: '¿De dónde sale la música de «Suena esta semana»?',
+    a: 'De Audius, una red abierta donde artistas independientes publican su música. Te enseñamos lo más escuchado allí cada semana; el audio llega directamente desde Audius y la escucha cuenta para el artista. Los grandes éxitos de discográficas no están: para eso hacen falta licencias que hoy no tenemos.',
+  },
+  {
     q: '¿Por qué en Android se descarga un archivo APK?',
     a: 'Mientras la app no esté en Google Play, la distribuimos directamente desde esta web. El APK está firmado por nosotros y publicamos su huella SHA-256 para que puedas verificarlo. Android te pedirá permiso para instalar apps de tu navegador: es un paso normal.',
   },

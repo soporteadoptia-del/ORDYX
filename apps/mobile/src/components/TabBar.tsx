@@ -7,8 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getPopularTracks } from '@/api/catalog';
 import { shufflePlay } from '@/player/play';
 import { useCurrentTrack, usePlayer } from '@/player/store';
-import { colors, fonts, spacing } from '@/theme';
-import { Artwork } from './Artwork';
+import { colors, fonts } from '@/theme';
 import { MiniPlayer } from './MiniPlayer';
 import { NowPlayingBars, PressableScale } from './motion';
 import { Text, type IconName } from './ui';
@@ -61,7 +60,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
   return (
     <View style={styles.wrap}>
       {/* Hueco para que el botón «Ahora», que sobresale de la barra, no tape el mini reproductor. */}
-      <View style={{ paddingBottom: 8 }}>
+      <View style={{ paddingBottom: 12 }}>
         <MiniPlayer />
       </View>
       <View style={[styles.bar, { paddingBottom: insets.bottom + 6 }]} accessibilityRole="tablist">
@@ -95,18 +94,17 @@ function NowButton() {
       }
       style={styles.now}
     >
+      {/* Disco lima: ecualizador si suena, play si hay algo en pausa, aleatorio si no hay nada. */}
       <View style={styles.nowDisc}>
-        {track ? (
-          <>
-            <Artwork uri={track.coverUrl} size={52} rounded seed={track.id} />
-            {playing ? (
-              <View style={styles.nowBars}>
-                <NowPlayingBars playing color={colors.onAccent} />
-              </View>
-            ) : null}
-          </>
+        {playing ? (
+          <NowPlayingBars playing color={colors.onAccent} size={22} />
         ) : (
-          <Ionicons name="play" size={24} color={colors.onAccent} style={{ marginLeft: 3 }} />
+          <Ionicons
+            name={track ? 'play' : 'shuffle'}
+            size={24}
+            color={colors.onAccent}
+            style={track ? { marginLeft: 3 } : undefined}
+          />
         )}
       </View>
       <Text style={[styles.label, { color: colors.accent }]}>Ahora</Text>
@@ -128,21 +126,15 @@ const styles = StyleSheet.create({
   label: { fontFamily: fonts.bodyStrong, fontSize: 11, lineHeight: 14 },
   now: { flex: 1, alignItems: 'center', gap: 3 },
   nowDisc: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    marginTop: -12,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    marginTop: -10,
     backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.accent,
-    overflow: 'hidden',
-  },
-  nowBars: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(200,245,96,0.55)',
+    // Anillo del color del fondo: separa el disco de la barra y del mini reproductor.
+    borderWidth: 4,
+    borderColor: colors.background,
   },
 });

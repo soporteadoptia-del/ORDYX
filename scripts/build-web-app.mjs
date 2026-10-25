@@ -85,11 +85,17 @@ const head = `
     <meta name="theme-color" content="#0C0C0E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Aurevix" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
     <link rel="manifest" href="${BASE}/manifest.webmanifest" />
-    <style>html,body{background:#0C0C0E}</style>
+    <style>
+      html,body{background:#0C0C0E}
+      /* iOS ignora overflow:hidden en body al deslizar: sin esto la página entera se desplazaba
+         y la app quedaba «subida» bajo la barra de estado, con una franja negra abajo. */
+      html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+      #root{position:fixed;inset:0;height:auto}
+    </style>
 `;
 html = html
   .replace(/<html lang="[^"]*"/, '<html lang="es"')

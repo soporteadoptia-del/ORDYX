@@ -59,14 +59,16 @@ export function PressableScale({
 export function NowPlayingBars({
   playing,
   color = colors.accent,
+  size = 14,
 }: {
   playing: boolean;
   color?: string;
+  size?: number;
 }) {
   const reduced = useReducedMotion();
   const animate = playing && !reduced;
   return (
-    <View style={styles.bars} accessible={false}>
+    <View style={[styles.bars, { width: size, height: size, gap: size / 7 }]} accessible={false}>
       {[0, 1, 2].map((i) => (
         <Animated.View
           key={i}

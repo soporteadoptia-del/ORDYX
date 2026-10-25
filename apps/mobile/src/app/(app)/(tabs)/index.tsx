@@ -15,8 +15,9 @@ import {
 import { getLikedTracks, getMyPlaylists, getRecentlyPlayed } from '@/api/library';
 import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
-import { ContinueCard, PlusStrip } from '@/components/ContinueCard';
+import { PlusStrip } from '@/components/PlusStrip';
 import { GenreGrid } from '@/components/GenreGrid';
+import { NowTrending } from '@/components/NowTrending';
 import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
@@ -188,7 +189,6 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
         }
       >
-        {filter === 'all' ? <ContinueCard /> : null}
         {filter === 'all' && !loading ? (
           <View style={styles.quickGrid}>
             {quick.map((q) => (
@@ -196,6 +196,8 @@ export default function Home() {
             ))}
           </View>
         ) : null}
+
+        {show('music') ? <NowTrending /> : null}
 
         {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (
           <PlusStrip price={formatEuros(offer.data?.priceCents ?? 499)} />
