@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { getGenres, getTracksByIds, searchCatalog } from '@/api/catalog';
 import { addSearchHistory, clearSearchHistory, getSearchHistory } from '@/api/social';
+import { GenreGrid } from '@/components/GenreGrid';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import {
@@ -177,26 +178,7 @@ export default function Search() {
             </>
           ) : null}
           <SectionHeader title="Explorar géneros" />
-          <View style={styles.genres}>
-            {genres.data?.map((g, i) => (
-              <Pressable
-                key={g.id}
-                onPress={() =>
-                  router.push({
-                    pathname: '/genre/[id]',
-                    params: { id: String(g.id), name: g.name },
-                  })
-                }
-                style={[
-                  styles.genre,
-                  { backgroundColor: `hsl(${(i * 47 + 260) % 360}, 55%, 32%)` },
-                ]}
-                accessibilityRole="button"
-              >
-                <Text variant="heading">{g.name}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <GenreGrid genres={genres.data ?? []} />
         </ScrollView>
       ) : results.isLoading ? (
         <Loading />
@@ -294,19 +276,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-  },
-  genres: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  genre: {
-    width: '48.5%',
-    height: 88,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    justifyContent: 'flex-end',
   },
   result: {
     flexDirection: 'row',

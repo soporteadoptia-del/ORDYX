@@ -1,11 +1,21 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/theme';
+import { View } from 'react-native';
+import { BrandBackground } from '@/components/BrandBackground';
+import { colors, fonts } from '@/theme';
 
 export default function AppLayout() {
   return (
     <Stack
+      // Cada pantalla lleva el fondo de marca (opaco, así las transiciones no se transparentan).
+      screenLayout={({ children }) => (
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <BrandBackground />
+          {children}
+        </View>
+      )}
       screenOptions={{
         headerStyle: { backgroundColor: colors.background },
+        headerTitleStyle: { fontFamily: fonts.display },
         headerTintColor: colors.text,
         headerShadowVisible: false,
         headerBackButtonDisplayMode: 'minimal',

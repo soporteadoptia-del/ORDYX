@@ -36,7 +36,7 @@ export default function AlbumScreen() {
     <>
       <Stack.Screen options={{ title: '' }} />
       <FlatList
-        style={{ backgroundColor: colors.background }}
+        style={{ backgroundColor: 'transparent' }}
         data={a.tracks}
         keyExtractor={(t) => t.id}
         ListHeaderComponent={

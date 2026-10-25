@@ -15,7 +15,7 @@ export default function Queue() {
 
   return (
     <FlatList
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       data={queue.entries}
       keyExtractor={(e) => e.key}
       ListHeaderComponent={

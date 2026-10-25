@@ -76,7 +76,7 @@ export default function PlaylistScreen() {
     <>
       <Stack.Screen options={{ title: '' }} />
       <FlatList
-        style={{ backgroundColor: colors.background }}
+        style={{ backgroundColor: 'transparent' }}
         data={p.items}
         keyExtractor={(i) => String(i.id)}
         ListHeaderComponent={

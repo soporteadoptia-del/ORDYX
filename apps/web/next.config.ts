@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
       '*.css': { loaders: ['@tailwindcss/turbopack'], as: '*.css' },
     },
   },
+  // /app es la app de Expo exportada para web (SPA): cualquier ruta que no sea un archivo va a su index.
+  async rewrites() {
+    return [
+      { source: '/app', destination: '/app/index.html' },
+      { source: '/app/:path*', destination: '/app/index.html' },
+    ];
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

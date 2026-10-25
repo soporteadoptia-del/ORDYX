@@ -26,7 +26,7 @@ export default function Liked() {
     <>
       <Stack.Screen options={{ title: '' }} />
       <FlatList
-        style={{ backgroundColor: colors.background }}
+        style={{ backgroundColor: 'transparent' }}
         data={tracks}
         keyExtractor={(t) => t.id}
         ListHeaderComponent={

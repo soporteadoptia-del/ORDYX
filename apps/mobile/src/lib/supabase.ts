@@ -11,7 +11,8 @@ export const supabase = createClient(
       storage: sessionStorage,
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false,
+      // En la app web (/app) la vuelta de Google llega a la propia página con la sesión en la URL.
+      detectSessionInUrl: Platform.OS === 'web',
     },
   },
 );

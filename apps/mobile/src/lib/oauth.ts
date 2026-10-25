@@ -26,6 +26,15 @@ export function sessionTokensFromUrl(url: string) {
  * cierra el navegador sin terminar.
  */
 export async function signInWithGoogle(): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    // App web: redirección normal; al volver, Supabase lee la sesión de la URL.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: Linking.createURL('/') },
+    });
+    if (error) throw error;
+    return false;
+  }
   const redirectTo = oauthRedirectUrl();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

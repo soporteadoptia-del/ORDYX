@@ -45,6 +45,7 @@ Google solo se pega en el panel de Supabase.
 2. **URL Configuration → Redirect URLs**: añade
    - `aurevix://auth-callback` (app)
    - `aurevix://reset-password` (app, ya estaba)
+   - `https://ordyx.vercel.app/app/**` (app web para iPhone)
    - `https://<dominio-del-panel>/auth/callback` (panel; p. ej. `https://ordyx-admin.vercel.app/auth/callback`)
    - Para el desarrollo con Expo Go añade también `exp://**`.
 3. **Apple** (solo para iPhone): **Sign In / Providers → Apple**, actívalo y en *Client IDs* pon el

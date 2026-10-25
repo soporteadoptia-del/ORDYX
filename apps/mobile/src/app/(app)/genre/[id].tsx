@@ -7,7 +7,6 @@ import { TrackRow } from '@/components/TrackRow';
 import { EmptyState, ErrorState, Loading } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { playList } from '@/player/play';
-import { colors } from '@/theme';
 
 export default function Genre() {
   const { id, name } = useLocalSearchParams<{ id: string; name?: string }>();
@@ -27,7 +26,7 @@ export default function Genre() {
         <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />
       ) : (
         <FlatList
-          style={{ backgroundColor: colors.background }}
+          style={{ backgroundColor: 'transparent' }}
           data={tracks}
           keyExtractor={(t) => t.id}
           renderItem={({ item, index }) => (

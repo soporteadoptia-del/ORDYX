@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomTabBar, Tabs } from 'expo-router/tabs';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MiniPlayer } from '@/components/MiniPlayer';
 import { colors, fonts } from '@/theme';
 
@@ -11,10 +12,11 @@ const tabIcon = (focused: IconName, idle: IconName) =>
   };
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       tabBar={(props) => (
-        <View style={{ backgroundColor: colors.background }}>
+        <View style={{ backgroundColor: 'transparent' }}>
           <MiniPlayer />
           <BottomTabBar {...props} />
         </View>
@@ -23,8 +25,17 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSubtle,
-        tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.bodyStrong },
+        // Las pestañas dejan ver el fondo de marca del layout.
+        sceneStyle: { backgroundColor: 'transparent' },
+        tabBarStyle: {
+          backgroundColor: 'transparent',
+          borderTopColor: colors.border,
+          // Algo más alta que la estándar para que quepan las etiquetas con Instrument Sans.
+          height: 60 + insets.bottom,
+          paddingTop: 6,
+          paddingBottom: insets.bottom + 6,
+        },
+        tabBarLabelStyle: { fontSize: 11, lineHeight: 14, fontFamily: fonts.bodyStrong },
       }}
     >
       <Tabs.Screen

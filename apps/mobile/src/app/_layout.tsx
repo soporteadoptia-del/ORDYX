@@ -97,7 +97,7 @@ function RootNavigator() {
     if (session) void restorePlayer();
   }, [session]);
 
-  if (!ready) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  if (!ready) return <View style={{ flex: 1, backgroundColor: 'transparent' }} />;
 
   return (
     <Stack
@@ -109,8 +109,11 @@ function RootNavigator() {
       <Stack.Protected guard={!!session && termsAccepted === false}>
         <Stack.Screen name="accept-terms" />
       </Stack.Protected>
+      {/* Sin sesión: la primera pantalla disponible es el inicio de sesión. */}
       <Stack.Protected guard={!session}>
-        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="sign-in" options={{ animation: 'fade' }} />
+        <Stack.Screen name="sign-up" options={{ animation: 'fade' }} />
+        <Stack.Screen name="forgot-password" options={{ animation: 'fade' }} />
       </Stack.Protected>
       <Stack.Screen name="reset-password" options={{ presentation: 'modal' }} />
       <Stack.Screen name="auth-callback" />
@@ -130,7 +133,7 @@ export default function RootLayout() {
     );
   }
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={navTheme}>
           <ToastProvider>

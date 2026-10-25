@@ -35,7 +35,7 @@ export default function ArtistNew() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}
     >
       <Stack.Screen options={{ title: 'Nuevo artista' }} />

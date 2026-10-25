@@ -54,7 +54,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Permisos mínimos: sin micrófono ni ubicación.
     blockedPermissions: ['android.permission.RECORD_AUDIO'],
   },
-  web: { output: 'single', favicon: './assets/brand/favicon.png' },
+  web: {
+    output: 'single',
+    favicon: './assets/brand/favicon.png',
+    name: 'Aurevix Music',
+    shortName: 'Aurevix',
+    themeColor: '#0C0C0E',
+    backgroundColor: '#0C0C0E',
+  },
   plugins: [
     'expo-router',
     [
@@ -82,7 +89,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   ],
-  experiments: { typedRoutes: true, reactCompiler: true },
+  experiments: {
+    typedRoutes: true,
+    reactCompiler: true,
+    // Solo para la exportación web servida en https://<web>/app (scripts/build-web-app.mjs).
+    baseUrl: process.env.EXPO_WEB_BASE_URL,
+  },
   runtimeVersion: { policy: 'appVersion' },
   updates: process.env.EAS_PROJECT_ID
     ? { url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID}` }
