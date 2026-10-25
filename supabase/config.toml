@@ -21,8 +21,8 @@ file_size_limit = "200MiB"
 
 [auth]
 enabled = true
-site_url = "https://ordyx.app"
-additional_redirect_urls = ["ordyx://reset-password", "https://ordyx.app/cuenta-confirmada", "http://localhost:3000"]
+site_url = "https://ordyx.vercel.app"
+additional_redirect_urls = ["ordyx://reset-password", "https://ordyx.vercel.app/cuenta-confirmada", "http://localhost:3000"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
