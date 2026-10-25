@@ -46,3 +46,7 @@ verify_jwt = true
 [functions.music-now]
 # Datos públicos de Audius; la publishable key de la web no es un JWT.
 verify_jwt = false
+
+[functions.link-resolve]
+# Solo lee los oEmbed públicos de YouTube, SoundCloud y Spotify; no toca datos de usuarios.
+verify_jwt = false

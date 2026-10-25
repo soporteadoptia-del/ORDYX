@@ -4,7 +4,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { cubicBezier, useReducedMotion } from 'react-native-reanimated';
-import { AUDIUS_GENRES, audiusToPlayable, getTrendingNow, type AudiusGenre } from '@/api/audius';
+import {
+  AUDIUS_GENRES,
+  audiusToPlayable,
+  getTrendingNow,
+  getUndergroundNow,
+  type AudiusGenre,
+} from '@/api/audius';
+import { getGenres, getPopularTracks, getTracksByGenre } from '@/api/catalog';
+import { getMyTopGenres } from '@/api/feed';
+import { router } from 'expo-router';
+import { toPlayable, type PlayableTrack } from '@/player/store';
 import { supabase } from '@/lib/supabase';
 import { shuffle } from '@/player/radio';
 import { usePlayer } from '@/player/store';
@@ -47,7 +57,7 @@ export function Greeting({ name }: { name: string | null }) {
         },
       ]}
     >
-      <Text style={styles.hello} numberOfLines={1}>
+      <Text style={styles.hello} numberOfLines={2}>
         {greeting(new Date().getHours())}
         {name ? `, ${name}` : ''}
       </Text>
@@ -155,7 +165,148 @@ export function RadioRow() {
   );
 }
 
+type Mix = {
+  key: string;
+  kicker: string;
+  title: string;
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  colors: [string, string];
+  load?: () => Promise<PlayableTrack[]>;
+  href?: '/feed';
+};
+
+const catalogPlayable = (list: Awaited<ReturnType<typeof getPopularTracks>>) =>
+  list.map(toPlayable).filter((t): t is PlayableTrack => !!t);
+
+/**
+ * «Hecho para ti» (como los Mix diarios y el Descubrimiento semanal de Spotify): tres mezclas con
+ * tus géneros más escuchados, música nueva poco conocida y tu actividad. Se actualizan solas.
+ */
+export function MadeForYou() {
+  const toast = useToast();
+  const [busy, setBusy] = useState<string | null>(null);
+  const top = useQuery({ queryKey: ['home', 'top-genres'], queryFn: getMyTopGenres });
+  const genres = useQuery({ queryKey: ['genres'], queryFn: getGenres, staleTime: 3_600_000 });
+
+  const picked = (top.data?.length ? top.data.map((g) => ({ id: g.genre_id, name: g.name })) : [])
+    .concat((genres.data ?? []).map((g) => ({ id: g.id, name: g.name })))
+    .filter((g, i, all) => all.findIndex((x) => x.id === g.id) === i)
+    .slice(0, 3);
+
+  const mixes: Mix[] = [
+    ...picked.map((g, i) => ({
+      key: `mix-${g.id}`,
+      kicker: `Mix diario ${i + 1}`,
+      title: g.name,
+      icon: 'disc' as const,
+      colors: RADIO_COLORS[(i + 2) % RADIO_COLORS.length],
+      load: async () => {
+        const [own, pop] = await Promise.all([
+          getTracksByGenre(g.id).catch(() => []),
+          getPopularTracks(30).catch(() => []),
+        ]);
+        const audius = await getTrendingNow(null, 20).catch(() => []);
+        return shuffle([...catalogPlayable(own), ...catalogPlayable(pop).slice(0, 10)])
+          .concat(shuffle(audius.map(audiusToPlayable)))
+          .filter((t, idx, all) => all.findIndex((x) => x.id === t.id) === idx);
+      },
+    })),
+    {
+      key: 'discover',
+      kicker: 'Descubrimiento',
+      title: 'Semanal',
+      icon: 'telescope',
+      colors: ['#B98CFF', '#2B2140'],
+      load: async () => shuffle((await getUndergroundNow(30)).map(audiusToPlayable)),
+    },
+    {
+      key: 'feed',
+      kicker: 'Lo nuevo de',
+      title: 'Lo que sigues',
+      icon: 'people',
+      colors: ['#C8F560', '#2B3A12'],
+      href: '/feed',
+    },
+  ];
+
+  async function open(m: Mix) {
+    if (m.href) return router.push(m.href);
+    unlockAudioInGesture();
+    setBusy(m.key);
+    try {
+      const tracks = await m.load!();
+      if (tracks.length) await usePlayer.getState().playTracks(tracks, 0, { type: 'home' });
+      else toast.show('Aún no hay canciones para esta mezcla', 'error');
+    } catch {
+      toast.show('No hemos podido preparar la mezcla. Inténtalo de nuevo.', 'error');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <View>
+      <View style={styles.radioHead}>
+        <Text variant="heading">Hecho para ti</Text>
+        <Text variant="caption" muted>
+          Se renueva cada día
+        </Text>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.radioRow}
+      >
+        {mixes.map((m) => (
+          <PressableScale
+            key={m.key}
+            scaleTo={0.95}
+            onPress={() => void open(m)}
+            accessibilityRole="button"
+            accessibilityLabel={`${m.kicker} ${m.title}`}
+          >
+            <LinearGradient
+              colors={m.colors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.mix}
+            >
+              <Ionicons name={m.icon} size={26} color="rgba(255,255,255,0.9)" />
+              <View>
+                <Text style={styles.mixKicker}>{m.kicker}</Text>
+                <Text style={styles.mixTitle} numberOfLines={2}>
+                  {m.title}
+                </Text>
+              </View>
+              {busy === m.key ? (
+                <ActivityIndicator color={colors.text} style={styles.radioSpin} />
+              ) : null}
+            </LinearGradient>
+          </PressableScale>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  mix: {
+    width: 156,
+    height: 156,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    justifyContent: 'space-between',
+  },
+  mixKicker: { fontFamily: fonts.bodyStrong, fontSize: 12, color: 'rgba(255,255,255,0.85)' },
+  mixTitle: {
+    fontFamily: fonts.displayHeavy,
+    fontSize: 22,
+    lineHeight: 24,
+    letterSpacing: -0.6,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowRadius: 6,
+  },
   greeting: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.md },
   hello: {
     fontFamily: fonts.displayHeavy,

@@ -40,6 +40,7 @@ export type PlaylistSummary = Pick<
   | 'owner_id'
   | 'updated_at'
   | 'save_count'
+  | 'is_collaborative'
 > & { owner: Pick<Profile, 'id' | 'username' | 'display_name'> | null };
 
 export type PlaylistItem = { id: number; position: number; added_at: string; track: TrackListItem };
@@ -70,7 +71,7 @@ export const TRACK_FIELDS =
 export const TRACK_DETAIL_FIELDS = `${TRACK_FIELDS},description,license,rights_holder,genre_id,review_note,release_date,genre:genres(id,name)`;
 
 export const PLAYLIST_FIELDS =
-  'id,title,description,cover_path,is_public,track_count,duration_ms,owner_id,updated_at,save_count,owner:profiles(id,username,display_name)';
+  'id,title,description,cover_path,is_public,is_collaborative,track_count,duration_ms,owner_id,updated_at,save_count,owner:profiles(id,username,display_name)';
 
 export const ALBUM_FIELDS =
   'id,title,cover_path,release_date,artist_id,status,artist:artists(id,name,slug,image_path)';

@@ -30,6 +30,10 @@ export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
     a: 'Por Bizum, desde la app: en Premium te damos un código, envías 4,99 € al número que aparece con ese código en el concepto y pulsas «Ya he enviado el Bizum». Lo confirmamos a mano y te avisamos en Notificaciones. No hay renovación automática: cada mes decides si lo quieres.',
   },
   {
+    q: '¿Puedo traer mis listas de Spotify, YouTube o SoundCloud?',
+    a: 'Sí: en Biblioteca → Listas importadas pega los enlaces (o «Artista - Canción», una por línea). Buscamos cada canción en Aurevix y en Audius, y los vídeos de YouTube se ven con su reproductor oficial. No copiamos ni descargamos audio de otros servicios.',
+  },
+  {
     q: 'Soy artista, ¿cómo publico mi música?',
     a: (
       <>

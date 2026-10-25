@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { Share, View } from 'react-native';
 import { getMyPlaylists } from '@/api/library';
+import { getCollabPlaylists } from '@/api/together';
 import { addTrackToPlaylist } from '@/api/playlists';
 import type { TrackListItem } from '@/api/types';
 import { useLikes } from '@/hooks/useLikes';
@@ -11,6 +12,7 @@ import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { toPlayable, usePlayer } from '@/player/store';
 import { startRadio } from '@/player/radio';
+import { useReposts } from '@/hooks/useReposts';
 import { useDownloadToggle } from '@/hooks/useDownloadToggle';
 import { downloadsSupported } from '@/player/downloads';
 import { colors, spacing } from '@/theme';
@@ -48,8 +50,12 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
 
   const playlists = useQuery({
-    queryKey: ['library', 'myPlaylists'],
-    queryFn: getMyPlaylists,
+    queryKey: ['library', 'addTargets'],
+    // Mis listas y las colaborativas en las que participo.
+    queryFn: async () => [
+      ...(await getMyPlaylists()),
+      ...(await getCollabPlaylists().catch(() => [])),
+    ],
     enabled: mode === 'playlists' && !!track,
   });
   const add = useMutation({
@@ -66,6 +72,7 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
 
   const playable = track ? toPlayable(track) : null;
   const downloads = useDownloadToggle();
+  const reposts = useReposts();
 
   return (
     <Ctx.Provider value={open}>
@@ -88,6 +95,19 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
                 close();
               }}
             />
+            {track.status === 'published' ? (
+              <SheetItem
+                icon={icon(
+                  'repeat',
+                  reposts.isReposted(track.id) ? colors.accentStrong : colors.text,
+                )}
+                label={reposts.isReposted(track.id) ? 'Quitar repost' : 'Repostear'}
+                onPress={() => {
+                  reposts.toggle(track.id);
+                  close();
+                }}
+              />
+            ) : null}
             <SheetItem
               icon={icon('add-circle-outline')}
               label="Añadir a una playlist"
@@ -163,6 +183,17 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
                 }}
               />
             ) : null}
+            <SheetItem
+              icon={icon('paper-plane-outline')}
+              label="Enviar a un amigo"
+              onPress={() => {
+                close();
+                router.push({
+                  pathname: '/messages',
+                  params: { trackId: track.id, title: track.title },
+                });
+              }}
+            />
             <SheetItem
               icon={icon('share-outline')}
               label="Compartir"

@@ -19,6 +19,7 @@ import { audiusToPlayable, searchAudius } from '@/api/audius';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import {
+  Button,
   Chip,
   EmptyState,
   ErrorState,
@@ -162,6 +163,16 @@ export default function Search() {
           ))}
         </ScrollView>
       </View>
+
+      {/^https?:\/\/\S*(youtu|soundcloud|spotify)/i.test(text.trim()) ? (
+        <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.md }}>
+          <Button
+            label="Importar este enlace"
+            icon="download-outline"
+            onPress={() => router.push({ pathname: '/import', params: { text: text.trim() } })}
+          />
+        </View>
+      ) : null}
 
       {query.length === 0 ? (
         <ScrollView

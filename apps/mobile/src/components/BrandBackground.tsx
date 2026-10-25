@@ -16,11 +16,16 @@ export function BrandBackground() {
         contentFit="cover"
         accessible={false}
       />
-      <LinearGradient colors={[colors.background, `${colors.background}00`]} style={styles.fade} />
+      {/* Arriba, color liso: bajo la barra de estado y la cabecera el brillo se veía borroso. */}
+      <LinearGradient
+        colors={[colors.background, colors.background, `${colors.background}00`]}
+        locations={[0, 0.5, 1]}
+        style={styles.fade}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  fade: { position: 'absolute', left: 0, right: 0, top: 0, height: 180 },
+  fade: { position: 'absolute', left: 0, right: 0, top: 0, height: 300 },
 });

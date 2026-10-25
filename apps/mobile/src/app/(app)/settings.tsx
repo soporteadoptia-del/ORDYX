@@ -1,5 +1,6 @@
 import { BRAND } from '@ordyx/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import { router, Stack } from 'expo-router';
@@ -23,6 +24,8 @@ export default function Settings() {
   const quality = usePlayerPrefs((p) => p.quality);
   const setQuality = usePlayerPrefs((p) => p.setQuality);
   const autoplay = usePlayerPrefs((p) => p.autoplay);
+  const dataSaver = usePlayerPrefs((p) => p.dataSaver);
+  const setDataSaver = usePlayerPrefs((p) => p.setDataSaver);
   const setAutoplay = usePlayerPrefs((p) => p.setAutoplay);
   const settings = useQuery({ queryKey: ['me', 'settings'], queryFn: getMySettings });
   const update = useMutation({
@@ -94,6 +97,12 @@ export default function Settings() {
         onChange={(v) => (isPlus ? setQuality(v ? 'max' : 'standard') : router.push('/plus'))}
       />
       <Toggle
+        label="Ahorro de datos"
+        description="Usa siempre la versión ligera del audio. Ideal con datos móviles."
+        value={dataSaver}
+        onChange={setDataSaver}
+      />
+      <Toggle
         label="Seguir sonando"
         description={
           isPlus
@@ -115,6 +124,23 @@ export default function Settings() {
           variant="secondary"
           icon="arrow-down-circle-outline"
           onPress={() => router.push('/downloads')}
+        />
+        <Button
+          label="Importar listas de Spotify, YouTube o SoundCloud"
+          variant="secondary"
+          icon="download-outline"
+          onPress={() => router.push('/import')}
+        />
+        <Button
+          label="Borrar caché"
+          variant="ghost"
+          icon="refresh-outline"
+          onPress={() => {
+            void Image.clearMemoryCache();
+            void Image.clearDiskCache();
+            void qc.invalidateQueries();
+            toast.show('Caché borrada: las portadas y listas se vuelven a cargar', 'success');
+          }}
         />
       </View>
 

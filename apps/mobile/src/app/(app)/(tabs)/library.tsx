@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatCount } from '@ordyx/shared';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { getCollabPlaylists } from '@/api/together';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/api/library';
 import { Artwork } from '@/components/Artwork';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
+import { CreateSheet } from '@/components/CreateSheet';
 import { Chip, EmptyState, ErrorState, IconButton, Loading, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
@@ -33,6 +35,8 @@ export default function Library() {
     queryFn: getSavedAlbums,
     enabled: tab === 'albums',
   });
+  const [creating, setCreating] = useState(false);
+  const collab = useQuery({ queryKey: ['library', 'collab'], queryFn: getCollabPlaylists });
   const active = tab === 'playlists' ? mine : tab === 'artists' ? artists : albums;
 
   return (
@@ -41,13 +45,9 @@ export default function Library() {
         <Text variant="display" accessibilityRole="header" style={{ flex: 1 }}>
           Tu biblioteca
         </Text>
-        <IconButton
-          name="add"
-          size={28}
-          label="Crear playlist"
-          onPress={() => router.push('/playlist/new')}
-        />
+        <IconButton name="add" size={28} label="Crear" onPress={() => setCreating(true)} />
       </View>
+      <CreateSheet visible={creating} onClose={() => setCreating(false)} />
       <View style={styles.tabs}>
         <Chip
           label="Playlists"
@@ -87,6 +87,26 @@ export default function Library() {
               onPress={() => router.push('/liked')}
             />
             <Row
+              title="Actividad"
+              subtitle="Lo nuevo de artistas y gente que sigues"
+              art={
+                <View style={[styles.gradientArt, { backgroundColor: colors.accentWarm }]}>
+                  <Ionicons name="pulse" size={24} color={colors.onAccent} />
+                </View>
+              }
+              onPress={() => router.push('/feed')}
+            />
+            <Row
+              title="Listas importadas"
+              subtitle="Trae tus playlists de Spotify, YouTube o SoundCloud"
+              art={
+                <View style={[styles.gradientArt, { backgroundColor: '#B98CFF' }]}>
+                  <Ionicons name="download" size={24} color={colors.onAccent} />
+                </View>
+              }
+              onPress={() => router.push('/import')}
+            />
+            <Row
               title="Historial de escucha"
               subtitle="Tus reproducciones recientes"
               art={
@@ -96,22 +116,24 @@ export default function Library() {
               }
               onPress={() => router.push('/history')}
             />
-            {[...(mine.data ?? []), ...(saved.data ?? [])].map((p) => (
-              <Row
-                key={p.id}
-                title={p.title}
-                subtitle={`Playlist · ${p.owner?.username === undefined ? '' : `@${p.owner?.username} · `}${p.track_count} canciones${p.is_public ? '' : ' · Privada'}`}
-                art={
-                  <Artwork
-                    uri={imageUrl('playlist-images', p.cover_path)}
-                    size={56}
-                    icon="list"
-                    seed={p.id}
-                  />
-                }
-                onPress={() => router.push(`/playlist/${p.id}`)}
-              />
-            ))}
+            {[...(mine.data ?? []), ...(collab.data ?? []), ...(saved.data ?? [])]
+              .filter((p, i, all) => all.findIndex((x) => x.id === p.id) === i)
+              .map((p) => (
+                <Row
+                  key={p.id}
+                  title={p.title}
+                  subtitle={`Playlist · ${p.owner?.username === undefined ? '' : `@${p.owner?.username} · `}${p.track_count} canciones${p.is_public ? '' : ' · Privada'}`}
+                  art={
+                    <Artwork
+                      uri={imageUrl('playlist-images', p.cover_path)}
+                      size={56}
+                      icon="list"
+                      seed={p.id}
+                    />
+                  }
+                  onPress={() => router.push(`/playlist/${p.id}`)}
+                />
+              ))}
           </>
         ) : null}
         {tab === 'artists'
