@@ -4,6 +4,8 @@ dist/
 build/
 .next/
 out/
+# App web exportada (scripts/build-web-app.mjs)
+apps/web/public/app/
 .expo/
 .turbo/
 coverage/

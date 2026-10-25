@@ -55,7 +55,7 @@ export default function Notifications() {
         <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} />
       ) : (
         <FlatList
-          style={{ backgroundColor: colors.background }}
+          style={{ backgroundColor: 'transparent' }}
           data={q.data}
           keyExtractor={(n) => n.id}
           ListEmptyComponent={

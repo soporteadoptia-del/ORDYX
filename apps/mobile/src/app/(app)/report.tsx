@@ -51,7 +51,7 @@ export default function Report() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{ padding: spacing.xl, gap: spacing.lg }}
     >
       <Text variant="title">¿Qué ocurre con {label ?? 'este contenido'}?</Text>

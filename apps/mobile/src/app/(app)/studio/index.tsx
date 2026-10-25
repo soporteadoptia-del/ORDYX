@@ -46,7 +46,7 @@ export default function Studio() {
     <>
       <Stack.Screen options={{ title: 'Estudio' }} />
       <FlatList
-        style={{ backgroundColor: colors.background }}
+        style={{ backgroundColor: 'transparent' }}
         data={tracks.data}
         keyExtractor={(t) => t.id}
         onRefresh={() => void tracks.refetch()}

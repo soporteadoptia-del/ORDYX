@@ -9,7 +9,6 @@ import { TrackRow } from '@/components/TrackRow';
 import { EmptyState, ErrorState, IconButton, Loading, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { playList } from '@/player/play';
-import { colors } from '@/theme';
 
 export default function History() {
   const qc = useQueryClient();
@@ -60,7 +59,7 @@ export default function History() {
       {q.error ? <ErrorState message={toUserMessage(q.error)} onRetry={() => q.refetch()} /> : null}
       {q.data ? (
         <FlatList
-          style={{ backgroundColor: colors.background }}
+          style={{ backgroundColor: 'transparent' }}
           data={rows}
           keyExtractor={(r) => String(r.id)}
           renderItem={({ item, index }) => (

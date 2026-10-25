@@ -5,7 +5,7 @@ import { getFollowList, getProfileByUsername } from '@/api/social';
 import { Artwork } from '@/components/Artwork';
 import { EmptyState, Loading, Text } from '@/components/ui';
 import { imageUrl } from '@/lib/media';
-import { colors, spacing } from '@/theme';
+import { spacing } from '@/theme';
 
 export default function Follows() {
   const { username, kind } = useLocalSearchParams<{
@@ -31,7 +31,7 @@ export default function Follows() {
         <Loading />
       ) : (
         <FlatList
-          style={{ backgroundColor: colors.background }}
+          style={{ backgroundColor: 'transparent' }}
           data={items}
           keyExtractor={(p) => p.id}
           onEndReached={() => list.hasNextPage && list.fetchNextPage()}

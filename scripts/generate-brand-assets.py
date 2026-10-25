@@ -41,6 +41,44 @@ def monochrome(size, scale):
     return white
 
 
+def background(w, h):
+    """Fondo de pantalla de la app: brillos lima/violeta, rejilla de puntos y grano (como la web)."""
+    import random
+
+    from PIL import ImageDraw, ImageFilter
+
+    img = Image.new("RGB", (w, h), BG[:3])
+    glow = Image.new("RGB", (w, h), (0, 0, 0))
+    d = ImageDraw.Draw(glow)
+    for (cx, cy, r, col) in [
+        (-0.1 * w, -0.05 * h, 0.75 * w, (200, 245, 96)),
+        (1.05 * w, 0.02 * h, 0.65 * w, (185, 140, 255)),
+        (0.5 * w, 1.05 * h, 0.7 * w, (200, 245, 96)),
+    ]:
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+    glow = glow.filter(ImageFilter.GaussianBlur(w * 0.22))
+    img = Image.blend(img, glow, 0.17)
+    dots = ImageDraw.Draw(img)
+    base = img.load()
+    step = max(18, w // 30)
+    for y in range(step // 2, h, step):
+        fade = max(0.0, 1 - y / (h * 0.55))
+        if fade <= 0:
+            break
+        for x in range(step // 2, w, step):
+            under = base[x, y]
+            c = tuple(int(under[i] + (255 - under[i]) * 0.09 * fade) for i in range(3))
+            dots.ellipse([x - 1.2, y - 1.2, x + 1.2, y + 1.2], fill=c)
+    rnd = random.Random(7)
+    px = img.load()
+    for _ in range(w * h // 6):
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        n = rnd.randint(-6, 6)
+        r, g, b = px[x, y]
+        px[x, y] = (max(0, min(255, r + n)), max(0, min(255, g + n)), max(0, min(255, b + n)))
+    return img
+
+
 def main():
     for d in (OUT_MOBILE, OUT_WEB, OUT_ADMIN):
         d.mkdir(parents=True, exist_ok=True)
@@ -52,6 +90,7 @@ def main():
     monochrome(1024, 0.5).save(OUT_MOBILE / "adaptive-monochrome.png")
     logo(512, 0.9).save(OUT_MOBILE / "splash.png")
     logo(512, 1.0).save(OUT_MOBILE / "logo.png")
+    background(828, 1792).save(OUT_MOBILE / "background.jpg", quality=86)
     on_background(48, 0.7).save(OUT_MOBILE / "favicon.png")
 
     on_background(512, 0.6).save(OUT_WEB / "icon-512.png")

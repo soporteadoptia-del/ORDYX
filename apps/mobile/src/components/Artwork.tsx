@@ -4,6 +4,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors, radius } from '@/theme';
 
+/** Degradados de respaldo con la paleta de Aurevix (lima, violeta, grafito, azul). */
+const ART_TONES: { colors: [string, string]; icon: string }[] = [
+  { colors: ['#C8F560', '#8FB83A'], icon: 'rgba(12,12,14,0.8)' },
+  { colors: ['#B98CFF', '#7B5BD6'], icon: 'rgba(12,12,14,0.8)' },
+  { colors: ['#2A2A33', '#16161B'], icon: '#C8F560' },
+  { colors: ['#60A5FA', '#3B6FD1'], icon: 'rgba(12,12,14,0.8)' },
+];
+
 /** Portada con degradado de respaldo cuando la canción/playlist no tiene imagen. */
 export function Artwork({
   uri,
@@ -21,7 +29,7 @@ export function Artwork({
   style?: StyleProp<ViewStyle>;
 }) {
   const r = rounded ? size / 2 : Math.max(6, Math.round(size * 0.08));
-  const hue = [...seed].reduce((a, c) => (a + c.charCodeAt(0)) % 360, 260);
+  const tone = ART_TONES[[...seed].reduce((a, c) => a + c.charCodeAt(0), 0) % ART_TONES.length];
   return (
     <View
       style={[
@@ -46,12 +54,12 @@ export function Artwork({
         />
       ) : (
         <LinearGradient
-          colors={[`hsl(${hue}, 70%, 42%)`, `hsl(${(hue + 60) % 360}, 75%, 30%)`]}
+          colors={tone.colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}
         >
-          <Ionicons name={icon} size={size * 0.38} color="rgba(255,255,255,0.85)" />
+          <Ionicons name={icon} size={size * 0.38} color={tone.icon} />
         </LinearGradient>
       )}
     </View>

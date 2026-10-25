@@ -191,7 +191,7 @@ export default function Upload() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{
         padding: spacing.xl,
         gap: spacing.xl,

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // App de Expo exportada (generada por scripts/build-web-app.mjs).
+    'public/app/**',
   ]),
 ]);
 

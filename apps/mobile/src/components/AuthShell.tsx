@@ -1,7 +1,7 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BrandBackground } from '@/components/BrandBackground';
 import { Wordmark } from '@/components/Logo';
 import { Text } from '@/components/ui';
 import { colors, spacing } from '@/theme';
@@ -21,7 +21,7 @@ export function AuthShell({
       style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <LinearGradient colors={[colors.accentGlow, 'transparent']} style={styles.glow} />
+      <BrandBackground />
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -43,7 +43,6 @@ export function AuthShell({
 }
 
 const styles = StyleSheet.create({
-  glow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300 },
   content: {
     paddingHorizontal: spacing.xl,
     gap: spacing.sm,

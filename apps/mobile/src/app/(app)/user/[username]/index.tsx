@@ -88,7 +88,7 @@ export default function UserProfile() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
     >
       <Stack.Screen options={{ title: `@${p.username}` }} />

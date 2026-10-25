@@ -116,8 +116,8 @@ function PlatformCard({
       aria-labelledby={`card-${platform}`}
       className={`relative rounded-[var(--radius-card)] border p-6 transition ${
         highlighted
-          ? 'border-accent bg-elevated shadow-2xl shadow-accent/20'
-          : 'border-line bg-surface'
+          ? 'border-accent bg-elevated shadow-[0_0_80px_-20px_rgba(200,245,96,0.35)]'
+          : 'border-line bg-surface/80 backdrop-blur'
       } ${dimmed ? 'opacity-80' : ''}`}
     >
       {highlighted ? (
@@ -187,18 +187,50 @@ function PlatformCard({
             </a>
           ) : null}
         </>
+      ) : platform === 'ios' ? (
+        <>
+          <a
+            href="/app"
+            className="btn-primary mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-lg font-bold text-ink"
+          >
+            Usar en iPhone
+          </a>
+          <p className="mt-3 text-sm text-muted">
+            Mientras preparamos la versión del App Store, usa la app web: es la misma app, con tu
+            cuenta y tus playlists, y se instala en la pantalla de inicio.
+          </p>
+          <details className="mt-4 rounded-xl bg-ink/60 p-3 text-sm" open>
+            <summary className="cursor-pointer font-medium">¿Cómo se instala?</summary>
+            <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
+              <li>
+                Abre esta página en <strong>Safari</strong> y pulsa «Usar en iPhone».
+              </li>
+              <li>
+                Pulsa el botón <strong>Compartir</strong> (el cuadrado con la flecha hacia arriba).
+              </li>
+              <li>
+                Elige <strong>Añadir a pantalla de inicio</strong> y después <strong>Añadir</strong>
+                .
+              </li>
+              <li>Abre Aurevix desde el icono nuevo e inicia sesión.</li>
+            </ol>
+          </details>
+        </>
       ) : (
         <>
           <button
             disabled
             className="mt-5 w-full cursor-not-allowed rounded-full border border-line px-6 py-4 text-lg font-semibold text-subtle"
           >
-            {platform === 'android' ? 'Descargar para Android' : 'Instalar en iPhone'}
+            Descargar para Android
           </button>
           <p className="mt-3 text-sm text-muted">
-            {platform === 'android'
-              ? 'Todavía no hay una versión de Android publicada. Cuando esté verificada aparecerá aquí con su número de versión y tamaño.'
-              : 'Todavía no hay una versión de iPhone disponible. Se publicará primero mediante TestFlight (beta pública de Apple) y después en el App Store.'}
+            Todavía no hay una versión de Android publicada. Cuando esté verificada aparecerá aquí
+            con su número de versión y tamaño. Mientras tanto puedes{' '}
+            <a href="/app" className="text-accent underline">
+              usarla en el navegador
+            </a>
+            .
           </p>
         </>
       )}

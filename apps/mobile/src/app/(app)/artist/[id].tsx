@@ -62,7 +62,7 @@ export default function ArtistScreen() {
     <>
       <Stack.Screen options={{ title: '' }} />
       <FlatList
-        style={{ backgroundColor: colors.background }}
+        style={{ backgroundColor: 'transparent' }}
         data={list.slice(0, 10)}
         keyExtractor={(t) => t.id}
         ListHeaderComponent={

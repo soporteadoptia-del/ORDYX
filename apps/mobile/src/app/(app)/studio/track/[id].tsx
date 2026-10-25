@@ -69,7 +69,7 @@ function EditTrack({ track }: { track: TrackDetail }) {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{
         padding: spacing.xl,
         gap: spacing.lg,

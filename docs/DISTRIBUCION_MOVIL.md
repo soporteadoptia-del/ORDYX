@@ -27,7 +27,37 @@ Perfiles en `apps/mobile/eas.json`:
 | `production-apk` | **APK firmado de producción** | Descarga directa desde la web |
 | `production` | AAB (Google Play) e IPA de App Store/TestFlight | Tiendas |
 
-## Android: APK firmado
+## Android: APK compilado en GitHub Actions (sin cuenta de Expo)
+
+El workflow `.github/workflows/android-apk.yml` compila el APK de release en los servidores de GitHub
+y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamaño.
+
+- Para lanzarlo: `git push origin HEAD:build/android` (o una etiqueta `android-v*`, o desde la pestaña
+  Actions → «APK Android» → *Run workflow* cuando el workflow esté en `main`).
+- **Firma.** Sin secretos, se firma con una clave temporal y la release se marca como *pre-release*
+  (beta): para pasar después a la versión definitiva hay que desinstalar la beta. Para la definitiva,
+  crea una clave una sola vez y guárdala a buen recaudo (si se pierde, no se puede actualizar la app):
+
+  ```bash
+  keytool -genkeypair -v -keystore aurevix.keystore -alias aurevix -keyalg RSA -keysize 4096 -validity 10000
+  base64 -w0 aurevix.keystore   # pega el resultado en el secreto ANDROID_KEYSTORE_BASE64
+  ```
+
+  y añade en GitHub → Settings → Secrets and variables → Actions: `ANDROID_KEYSTORE_BASE64`,
+  `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`aurevix`) y `ANDROID_KEY_PASSWORD`.
+- Después, registra la versión en el panel (Versiones) con la URL del APK de la release, o
+  pídeselo a Claude: la web solo muestra el botón con versiones verificadas (SHA-256 y tamaño).
+
+## iPhone: app web instalable (mientras no hay TestFlight)
+
+`scripts/build-web-app.mjs` exporta la app de Expo para web en `apps/web/public/app` durante el
+`build` de la web, y se sirve en `https://<web>/app`. En Safari: Compartir → «Añadir a pantalla de
+inicio». Es la misma app y la misma cuenta. Limitaciones: la reproducción en segundo plano y la
+pantalla de bloqueo dependen de Safari, y no se pueden subir canciones desde la app web.
+En Supabase → Authentication → URL Configuration añade `https://<web>/app/**` a *Redirect URLs*
+para que el inicio de sesión con Google vuelva a la app web.
+
+## Android: APK firmado con EAS (alternativa)
 
 ```bash
 cd apps/mobile

@@ -11,7 +11,7 @@ const ITEMS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: '¿Cómo la instalo en iPhone?',
-    a: 'Apple no permite instalar apps descargando un archivo. Usamos los métodos oficiales: TestFlight (programa de pruebas de Apple) mientras la app está en beta y, después, el App Store. El botón «Instalar en iPhone» te lleva al método disponible en cada momento.',
+    a: 'Apple no permite instalar apps descargando un archivo. Ahora mismo puedes usar la app web: abre la web en Safari, pulsa «Usar en iPhone» y después Compartir → «Añadir a pantalla de inicio». La versión nativa llegará por TestFlight (programa de pruebas de Apple) y después por el App Store.',
   },
   {
     q: '¿Mis playlists se guardan si cambio de móvil?',

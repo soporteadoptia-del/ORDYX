@@ -71,7 +71,7 @@ export default function Settings() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: 'transparent' }}
       contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
     >
       <Stack.Screen options={{ title: 'Ajustes' }} />
