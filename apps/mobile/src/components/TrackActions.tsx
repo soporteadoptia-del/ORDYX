@@ -10,6 +10,8 @@ import { useLikes } from '@/hooks/useLikes';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { toPlayable, usePlayer } from '@/player/store';
+import { useDownloadToggle } from '@/hooks/useDownloadToggle';
+import { downloadsSupported } from '@/player/downloads';
 import { colors, spacing } from '@/theme';
 import { Sheet, SheetItem } from './Sheet';
 import { useToast } from './Toast';
@@ -62,6 +64,7 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
   });
 
   const playable = track ? toPlayable(track) : null;
+  const downloads = useDownloadToggle();
 
   return (
     <Ctx.Provider value={open}>
@@ -109,6 +112,27 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
                     close();
                   }}
                 />
+                {downloadsSupported ? (
+                  <SheetItem
+                    icon={icon(
+                      downloads.isDownloaded(track.id)
+                        ? 'checkmark-circle'
+                        : 'arrow-down-circle-outline',
+                      downloads.isDownloaded(track.id) ? colors.accentStrong : colors.text,
+                    )}
+                    label={
+                      downloads.isDownloaded(track.id)
+                        ? 'Borrar la descarga'
+                        : downloads.isDownloading(track.id)
+                          ? 'Descargando…'
+                          : 'Descargar (Plus)'
+                    }
+                    onPress={() => {
+                      close();
+                      void downloads.toggle(playable);
+                    }}
+                  />
+                ) : null}
               </>
             ) : null}
             <SheetItem

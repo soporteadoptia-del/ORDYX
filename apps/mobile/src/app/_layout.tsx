@@ -24,6 +24,9 @@ import { ErrorState, Text } from '@/components/ui';
 import { env } from '@/lib/env';
 import { sessionTokensFromUrl } from '@/lib/oauth';
 import { supabase } from '@/lib/supabase';
+import { usePlus } from '@/hooks/usePlus';
+import { restoreDownloads, setPlusUntil } from '@/player/downloads';
+import { restorePlayerPrefs } from '@/player/prefs';
 import { restorePlayer } from '@/player/store';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { colors, fonts } from '@/theme';
@@ -94,8 +97,17 @@ function RootNavigator() {
   }, [ready]);
 
   useEffect(() => {
-    if (session) void restorePlayer();
+    if (!session) return;
+    void restorePlayerPrefs();
+    void restoreDownloads();
+    void restorePlayer();
   }, [session]);
+
+  // El estado de Plus se guarda en el dispositivo para que las descargas sigan sonando sin conexión.
+  const plus = usePlus();
+  useEffect(() => {
+    if (plus.data) setPlusUntil(plus.data.active ? plus.data.expires_at : null);
+  }, [plus.data]);
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: 'transparent' }} />;
 

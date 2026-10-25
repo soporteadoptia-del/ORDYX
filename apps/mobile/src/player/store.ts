@@ -26,7 +26,9 @@ import { create } from 'zustand';
 import { reportPlayProgress, startPlay } from '@/api/plays';
 import type { TrackListItem } from '@/api/types';
 import { reportError, toUserMessage } from '@/lib/errors';
-import { imageUrl, invalidateStreamUrl, resolveStreamUrl } from '@/lib/media';
+import { imageUrl, invalidateStreamUrl, resolveRemoteUrl } from '@/lib/media';
+import { localUriFor, plusActiveNow } from './downloads';
+import { usePlayerPrefs } from './prefs';
 
 export interface PlayableTrack {
   id: string;
@@ -54,6 +56,10 @@ export function toPlayable(t: TrackListItem): PlayableTrack | null {
 }
 
 export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
+/** De dónde sale el audio que suena: descargado, archivo original (Plus) o versión de streaming. */
+export type AudioSource = 'offline' | 'original' | 'stream';
+/** Temporizador para dormir: hora (ms) a la que se pausa, o «al acabar la canción». */
+export type SleepTimer = { at: number } | 'end-of-track' | null;
 export interface PlayContext {
   type:
     'playlist' | 'album' | 'artist' | 'search' | 'home' | 'library' | 'track' | 'profile' | 'queue';
@@ -68,6 +74,9 @@ interface PlayerState {
   positionMs: number;
   durationMs: number;
   isBuffering: boolean;
+  source: AudioSource | null;
+  sleep: SleepTimer;
+  setSleepTimer: (minutes: number | 'end-of-track' | null) => void;
   playTracks: (tracks: PlayableTrack[], startIndex: number, context: PlayContext) => Promise<void>;
   toggle: () => Promise<void>;
   next: () => Promise<void>;
@@ -169,6 +178,11 @@ function onStatus(status: AudioStatus) {
 
 async function handleFinished() {
   flushProgress(true);
+  if (usePlayer.getState().sleep === 'end-of-track') {
+    usePlayer.setState({ status: 'paused', sleep: null });
+    persist();
+    return;
+  }
   const { queue } = usePlayer.getState();
   const idx = nextIndex(queue, true);
   if (idx === null) {
@@ -198,10 +212,20 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
 
   try {
     await ensureAudioMode();
-    const url = await resolveStreamUrl(track.audioPath);
+    const local = localUriFor(track.id);
+    const remote = local
+      ? null
+      : await resolveRemoteUrl(
+          track.id,
+          track.audioPath,
+          usePlayerPrefs.getState().quality,
+          plusActiveNow(),
+        );
     if (token !== loadToken) return; // el usuario ya cambió de canción
     const p = getPlayer();
-    p.replace({ uri: url });
+    p.replace({ uri: local ?? remote!.url });
+    usePlayer.setState({ source: local ? 'offline' : remote!.original ? 'original' : 'stream' });
+    applyRate();
     pendingSeekMs = startAtMs;
     if (startAtMs > 0) await p.seekTo(startAtMs / 1000).catch(() => undefined);
     if (autoplay) p.play();
@@ -261,6 +285,20 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
     usePlayer.setState({ status: 'error', error: toUserMessage(e) });
   }
 }
+
+// ---------------------------------------------------------------- velocidad y temporizador
+function applyRate() {
+  try {
+    player?.setPlaybackRate(usePlayerPrefs.getState().rate, 'high');
+  } catch (e) {
+    reportError(e, { where: 'setPlaybackRate' });
+  }
+}
+usePlayerPrefs.subscribe((s, prev) => {
+  if (s.rate !== prev.rate) applyRate();
+});
+
+let sleepTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ---------------------------------------------------------------- persistencia (última cola y posición)
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
@@ -329,6 +367,24 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   positionMs: 0,
   durationMs: 0,
   isBuffering: false,
+  source: null,
+  sleep: null,
+
+  setSleepTimer(minutes) {
+    if (sleepTimer) clearTimeout(sleepTimer);
+    sleepTimer = null;
+    if (minutes === null || minutes === 'end-of-track') {
+      set({ sleep: minutes });
+      return;
+    }
+    const at = Date.now() + minutes * 60_000;
+    set({ sleep: { at } });
+    sleepTimer = setTimeout(() => {
+      sleepTimer = null;
+      get().stop();
+      set({ sleep: null });
+    }, minutes * 60_000);
+  },
 
   async playTracks(tracks, startIndex, context) {
     if (tracks.length === 0) return;

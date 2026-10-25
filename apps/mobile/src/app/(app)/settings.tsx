@@ -10,6 +10,8 @@ import { useToast } from '@/components/Toast';
 import { Button, Loading, SectionHeader, Text } from '@/components/ui';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
+import { usePlus } from '@/hooks/usePlus';
+import { usePlayerPrefs } from '@/player/prefs';
 import { useAuth } from '@/providers/AuthProvider';
 import { colors, spacing } from '@/theme';
 
@@ -17,6 +19,9 @@ export default function Settings() {
   const { signOut, session } = useAuth();
   const qc = useQueryClient();
   const toast = useToast();
+  const { isPlus } = usePlus();
+  const quality = usePlayerPrefs((p) => p.quality);
+  const setQuality = usePlayerPrefs((p) => p.setQuality);
   const settings = useQuery({ queryKey: ['me', 'settings'], queryFn: getMySettings });
   const update = useMutation({
     mutationFn: updateMySettings,
@@ -75,6 +80,32 @@ export default function Settings() {
       contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
     >
       <Stack.Screen options={{ title: 'Ajustes' }} />
+      <SectionHeader title="Reproducción" />
+      <Toggle
+        label="Calidad máxima"
+        description={
+          isPlus
+            ? 'Usa el archivo original del artista cuando hay una versión comprimida aparte. Gasta más datos.'
+            : 'Con Aurevix Plus suena el archivo original del artista.'
+        }
+        value={isPlus && quality === 'max'}
+        onChange={(v) => (isPlus ? setQuality(v ? 'max' : 'standard') : router.push('/plus'))}
+      />
+      <View style={styles.group}>
+        <Button
+          label={isPlus ? 'Tu plan Aurevix Plus' : 'Conseguir Aurevix Plus'}
+          variant="secondary"
+          icon="sparkles"
+          onPress={() => router.push('/plus')}
+        />
+        <Button
+          label="Descargas"
+          variant="secondary"
+          icon="arrow-down-circle-outline"
+          onPress={() => router.push('/downloads')}
+        />
+      </View>
+
       <SectionHeader title="Privacidad" />
       <Toggle
         label="Favoritos públicos"

@@ -15,11 +15,14 @@ import {
 import { getLikedTracks, getMyPlaylists, getRecentlyPlayed } from '@/api/library';
 import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
+import { ContinueCard, PlusStrip } from '@/components/ContinueCard';
 import { GenreGrid } from '@/components/GenreGrid';
 import { PressableScale, Skeleton } from '@/components/motion';
 import { Carousel, type CardItem } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
 import { Badge, Chip, ErrorState, SectionHeader, Text } from '@/components/ui';
+import { formatEuros } from '@/api/plus';
+import { usePlus, usePlusOffer } from '@/hooks/usePlus';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList } from '@/player/play';
@@ -59,6 +62,8 @@ export default function Home() {
   const { profile } = useAuth();
   const [filter, setFilter] = useState<Filter>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const { isPlus, data: plusData } = usePlus();
+  const offer = usePlusOffer();
   const recent = useQuery({ queryKey: ['home', 'recent'], queryFn: () => getRecentlyPlayed(12) });
   const popular = useQuery({ queryKey: ['home', 'popular'], queryFn: () => getPopularTracks(12) });
   const fresh = useQuery({ queryKey: ['home', 'new'], queryFn: () => getNewReleases(12) });
@@ -183,12 +188,17 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
         }
       >
+        {filter === 'all' ? <ContinueCard /> : null}
         {filter === 'all' && !loading ? (
           <View style={styles.quickGrid}>
             {quick.map((q) => (
               <QuickTile key={q.id} item={q} />
             ))}
           </View>
+        ) : null}
+
+        {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (
+          <PlusStrip price={formatEuros(offer.data?.priceCents ?? 499)} />
         ) : null}
 
         {hasDemo && filter === 'all' ? (

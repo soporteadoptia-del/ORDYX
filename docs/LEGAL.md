@@ -29,3 +29,11 @@
 - **Acta Europea de Accesibilidad** (Directiva 2019/882, aplicable desde junio de 2025) para servicios dirigidos a consumidores: la app y la web siguen buenas prácticas (etiquetas accesibles, contraste, tamaño táctil), pero falta una auditoría formal (WCAG 2.2 AA / EN 301 549) y una declaración de accesibilidad.
 - Fichas de las tiendas: etiquetas de privacidad de Apple y sección de seguridad de datos de Google Play coherentes con la política.
 - Futuras funciones de pago: normativa de pagos, IVA de servicios electrónicos, reglas de las tiendas y, en iOS, condiciones de la UE.
+
+## Aurevix Plus (pendiente de revisión)
+
+- Cobro por Bizum con confirmación manual (sin pasarela ni renovación automática). Revisar si hace
+  falta factura/recibo y el tratamiento fiscal (IVA incluido en 4,99 €).
+- Renuncia al desistimiento al empezar el servicio: confirmar redacción con un profesional.
+- La licencia de artistas en las condiciones (§4) se ha ampliado a escuchas sin conexión dentro de
+  la app para suscriptores. Avisar a los artistas ya registrados del cambio.

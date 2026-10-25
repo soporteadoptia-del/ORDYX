@@ -1,18 +1,23 @@
 import { formatCount } from '@ordyx/shared';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { getPublicPlaylistsOf } from '@/api/social';
+import { formatDay } from '@/api/plus';
 import { Artwork } from '@/components/Artwork';
 import { Carousel } from '@/components/MediaCard';
+import { PressableScale } from '@/components/motion';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
-import { Badge, Button, Loading, SectionHeader, Text } from '@/components/ui';
+import { Badge, Button, Loading, SectionHeader, Text, type IconName } from '@/components/ui';
+import { usePlus } from '@/hooks/usePlus';
 import { imageUrl } from '@/lib/media';
 import { useAuth } from '@/providers/AuthProvider';
-import { spacing } from '@/theme';
+import { colors, fonts, radius, spacing } from '@/theme';
 
 export default function Me() {
   const { profile, roles, canUpload } = useAuth();
+  const plus = usePlus();
   const playlists = useQuery({
     queryKey: ['user', profile?.id, 'playlists'],
     queryFn: () => getPublicPlaylistsOf(profile!.id),
@@ -34,6 +39,7 @@ export default function Me() {
           <Text variant="title">{profile.display_name || profile.username}</Text>
           <Text muted>@{profile.username}</Text>
           <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            {plus.isPlus ? <Badge label="Plus" /> : null}
             {roles.map((r) => (
               <Badge
                 key={r}
@@ -90,6 +96,38 @@ export default function Me() {
           />
         </View>
 
+        <PressableScale
+          scaleTo={0.98}
+          onPress={() => router.push('/plus')}
+          accessibilityRole="button"
+          style={[styles.plus, plus.isPlus && styles.plusOn]}
+        >
+          <Text style={[styles.plusWord, plus.isPlus && { color: colors.onAccent }]}>Plus</Text>
+          <Text style={{ color: plus.isPlus ? colors.onAccent : colors.text, flex: 1 }}>
+            {plus.isPlus && plus.data?.expires_at
+              ? `Activo hasta el ${formatDay(plus.data.expires_at)}`
+              : plus.data?.pending_id
+                ? 'Tu solicitud está en marcha'
+                : 'Sonido original, descargas, letras y estadísticas'}
+          </Text>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={plus.isPlus ? colors.onAccent : colors.textMuted}
+          />
+        </PressableScale>
+
+        <View style={styles.tiles}>
+          <Tile icon="stats-chart" label="Estadísticas" onPress={() => router.push('/stats')} />
+          <Tile
+            icon="arrow-down-circle"
+            label="Descargas"
+            onPress={() => router.push('/downloads')}
+          />
+          <Tile icon="time" label="Historial" onPress={() => router.push('/history')} />
+          <Tile icon="notifications" label="Avisos" onPress={() => router.push('/notifications')} />
+        </View>
+
         <SectionHeader title="Estudio de artista" />
         <View style={{ paddingHorizontal: spacing.lg, gap: spacing.sm }}>
           {canUpload ? (
@@ -127,7 +165,56 @@ export default function Me() {
   );
 }
 
+function Tile({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
+  return (
+    <PressableScale
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={styles.tile}
+    >
+      <Ionicons name={icon} size={22} color={colors.accent} />
+      <Text variant="caption" style={{ fontFamily: fonts.bodyStrong }}>
+        {label}
+      </Text>
+    </PressableScale>
+  );
+}
+
 const styles = StyleSheet.create({
+  plus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xl,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(200,245,96,0.35)',
+    backgroundColor: 'rgba(200,245,96,0.06)',
+  },
+  plusOn: { backgroundColor: colors.accent, borderColor: colors.accent },
+  plusWord: {
+    fontFamily: fonts.displayHeavy,
+    fontSize: 26,
+    letterSpacing: -1,
+    color: colors.accent,
+  },
+  tiles: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.md,
+  },
+  tile: {
+    flex: 1,
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+  },
   header: {
     alignItems: 'center',
     gap: spacing.sm,

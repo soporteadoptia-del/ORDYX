@@ -11,6 +11,7 @@ const mockPlayer = {
   seekTo: jest.fn(() => Promise.resolve()),
   setActiveForLockScreen: jest.fn(),
   clearLockScreenControls: jest.fn(),
+  setPlaybackRate: jest.fn(),
   addListener: jest.fn((_e: string, cb: (s: unknown) => void) => mockListeners.push(cb)),
 };
 jest.mock('expo-audio', () => ({
@@ -30,8 +31,13 @@ jest.mock('@/api/plays', () => ({
 }));
 jest.mock('@/lib/media', () => ({
   imageUrl: () => null,
-  resolveStreamUrl: (path: string) => Promise.resolve(`https://cdn.test/${path}?token=x`),
+  resolveRemoteUrl: (_id: string, path: string) =>
+    Promise.resolve({ url: `https://cdn.test/${path}?token=x`, original: false }),
   invalidateStreamUrl: jest.fn(),
+}));
+jest.mock('../downloads', () => ({
+  localUriFor: () => null,
+  plusActiveNow: () => false,
 }));
 jest.mock('@/lib/errors', () => ({
   reportError: jest.fn(),
@@ -130,11 +136,11 @@ test('siguiente / anterior y pausa', async () => {
 
 test('si la URL no se puede obtener muestra un error recuperable', async () => {
   const media = jest.requireMock('@/lib/media') as {
-    resolveStreamUrl: (p: string) => Promise<string>;
+    resolveRemoteUrl: (...a: unknown[]) => Promise<unknown>;
   };
-  const original = media.resolveStreamUrl;
-  media.resolveStreamUrl = () => Promise.reject(new Error('Network request failed'));
+  const original = media.resolveRemoteUrl;
+  media.resolveRemoteUrl = () => Promise.reject(new Error('Network request failed'));
   await usePlayer.getState().playTracks([track('9')], 0, { type: 'home' });
   expect(usePlayer.getState().status).toBe('error');
-  media.resolveStreamUrl = original;
+  media.resolveRemoteUrl = original;
 });

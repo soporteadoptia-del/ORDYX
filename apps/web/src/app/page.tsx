@@ -6,6 +6,7 @@ import { ClosingCta } from '@/components/home/ClosingCta';
 import { FaqIndex } from '@/components/home/FaqIndex';
 import { FeatureSheets } from '@/components/home/FeatureSheets';
 import { PinnedHero } from '@/components/home/PinnedHero';
+import { PlusSection } from '@/components/home/PlusSection';
 import { ShowcaseZoom } from '@/components/home/ShowcaseZoom';
 
 const jsonLd = {
@@ -15,7 +16,10 @@ const jsonLd = {
   operatingSystem: 'Android, iOS',
   applicationCategory: 'MusicApplication',
   description: BRAND.description,
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+  offers: [
+    { '@type': 'Offer', name: 'Gratis', price: '0', priceCurrency: 'EUR' },
+    { '@type': 'Offer', name: 'Aurevix Plus (1 mes)', price: '4.99', priceCurrency: 'EUR' },
+  ],
 };
 
 /**
@@ -35,6 +39,7 @@ export default function Home() {
       <ShowcaseZoom />
       <ArtistVerbs />
       <FeatureSheets />
+      <PlusSection />
 
       <section
         id="descargar"

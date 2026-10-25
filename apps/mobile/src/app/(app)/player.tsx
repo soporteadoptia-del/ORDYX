@@ -1,17 +1,23 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getTracksByIds } from '@/api/catalog';
 import { Artwork } from '@/components/Artwork';
 import { SeekBar } from '@/components/SeekBar';
-import { shareTrack, useTrackActions } from '@/components/TrackActions';
+import { Sheet, SheetItem } from '@/components/Sheet';
+import { useTrackActions } from '@/components/TrackActions';
 import { PressableScale } from '@/components/motion';
 import { Badge, Button, EmptyState, IconButton, Text } from '@/components/ui';
+import { useDownloadToggle } from '@/hooks/useDownloadToggle';
 import { useLikes } from '@/hooks/useLikes';
+import { usePlus } from '@/hooks/usePlus';
+import { downloadsSupported } from '@/player/downloads';
+import { PLAYBACK_RATES, rateLabel, usePlayerPrefs } from '@/player/prefs';
 import { useCurrentTrack, usePlayer } from '@/player/store';
-import { colors, spacing } from '@/theme';
+import { colors, fonts, spacing } from '@/theme';
 
 export default function PlayerScreen() {
   const insets = useSafeAreaInsets();
@@ -20,6 +26,10 @@ export default function PlayerScreen() {
   const s = usePlayer();
   const { isLiked, toggle: toggleLike } = useLikes();
   const openActions = useTrackActions();
+  const downloads = useDownloadToggle();
+  const { isPlus } = usePlus();
+  const rate = usePlayerPrefs((p) => p.rate);
+  const [sheet, setSheet] = useState<'speed' | 'sleep' | null>(null);
 
   if (!track) {
     return (
@@ -87,8 +97,17 @@ export default function PlayerScreen() {
               {track.artistName}
             </Text>
           </Pressable>
-          {track.isDemo ? <Badge label="Contenido de demostración" tone="warning" /> : null}
+          <View style={styles.badges}>
+            {s.source === 'offline' ? <Badge label="Descargada" tone="success" /> : null}
+            {s.source === 'original' ? <Badge label="Calidad original" /> : null}
+            {track.isDemo ? <Badge label="Contenido de demostración" tone="warning" /> : null}
+          </View>
         </View>
+        <IconButton
+          name="chatbubble-ellipses-outline"
+          label="Comentarios"
+          onPress={() => (router.back(), router.push(`/track/${track.id}`))}
+        />
         <IconButton
           name={liked ? 'heart' : 'heart-outline'}
           color={liked ? colors.accentWarm : colors.text}
@@ -173,26 +192,157 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.bottomRow}>
-        <IconButton
-          name="share-outline"
-          label="Compartir"
-          onPress={() =>
-            void shareTrack({ id: track.id, title: track.title, artistName: track.artistName })
-          }
+        <Tool icon="text" label="Letra" onPress={() => router.push('/lyrics')} />
+        <Tool
+          text={rateLabel(rate)}
+          label="Velocidad"
+          active={rate !== 1}
+          onPress={() => setSheet('speed')}
         />
-        <IconButton
-          name="chatbubble-ellipses-outline"
-          label="Comentarios"
-          onPress={() => (router.back(), router.push(`/track/${track.id}`))}
+        <Tool
+          icon={s.sleep ? 'moon' : 'moon-outline'}
+          label={s.sleep ? <SleepLeft /> : 'Dormir'}
+          a11y="Temporizador para dormir"
+          active={!!s.sleep}
+          onPress={() => setSheet('sleep')}
         />
-        <IconButton
-          name="list"
-          label="Cola de reproducción"
-          onPress={() => router.push('/queue')}
-        />
+        {downloadsSupported ? (
+          <Tool
+            icon={
+              downloads.isDownloaded(track.id) ? 'checkmark-circle' : 'arrow-down-circle-outline'
+            }
+            label={
+              downloads.isDownloaded(track.id)
+                ? 'Guardada'
+                : downloads.isDownloading(track.id)
+                  ? 'Bajando…'
+                  : 'Descargar'
+            }
+            active={downloads.isDownloaded(track.id)}
+            onPress={() => void downloads.toggle(track)}
+          />
+        ) : null}
+        <Tool icon="list" label="Cola" onPress={() => router.push('/queue')} />
       </View>
+
+      <Sheet visible={sheet === 'speed'} onClose={() => setSheet(null)} title="Velocidad">
+        {isPlus ? (
+          PLAYBACK_RATES.map((r) => (
+            <SheetItem
+              key={r}
+              icon={
+                <Ionicons
+                  name={r === rate ? 'radio-button-on' : 'radio-button-off'}
+                  size={22}
+                  color={r === rate ? colors.accent : colors.textMuted}
+                />
+              }
+              label={r === 1 ? 'Normal (1×)' : rateLabel(r)}
+              onPress={() => {
+                usePlayerPrefs.getState().setRate(r);
+                setSheet(null);
+              }}
+            />
+          ))
+        ) : (
+          <View style={styles.sheetUpsell}>
+            <Text muted>
+              Cambiar la velocidad (de 0,75× a 2×, sin que cambie el tono de las voces) es parte de
+              Aurevix Plus.
+            </Text>
+            <Button
+              label="Ver Aurevix Plus"
+              icon="sparkles"
+              onPress={() => (setSheet(null), router.push('/plus'))}
+            />
+          </View>
+        )}
+      </Sheet>
+
+      <Sheet
+        visible={sheet === 'sleep'}
+        onClose={() => setSheet(null)}
+        title="Temporizador para dormir"
+      >
+        {[15, 30, 45, 60].map((m) => (
+          <SheetItem
+            key={m}
+            icon={<Ionicons name="moon-outline" size={22} color={colors.text} />}
+            label={`Dentro de ${m} minutos`}
+            onPress={() => (s.setSleepTimer(m), setSheet(null))}
+          />
+        ))}
+        <SheetItem
+          icon={<Ionicons name="musical-note-outline" size={22} color={colors.text} />}
+          label="Al acabar esta canción"
+          onPress={() => (s.setSleepTimer('end-of-track'), setSheet(null))}
+        />
+        {s.sleep ? (
+          <SheetItem
+            icon={<Ionicons name="close-circle-outline" size={22} color={colors.danger} />}
+            label="Desactivar el temporizador"
+            danger
+            onPress={() => (s.setSleepTimer(null), setSheet(null))}
+          />
+        ) : null}
+      </Sheet>
     </View>
   );
+}
+
+/** Herramienta de la fila inferior: icono (o texto corto) con su nombre debajo. */
+function Tool({
+  icon,
+  text,
+  label,
+  a11y,
+  active,
+  onPress,
+}: {
+  icon?: React.ComponentProps<typeof Ionicons>['name'];
+  text?: string;
+  label: React.ReactNode;
+  a11y?: string;
+  active?: boolean;
+  onPress: () => void;
+}) {
+  const color = active ? colors.accent : colors.text;
+  return (
+    <PressableScale
+      onPress={onPress}
+      scaleTo={0.92}
+      hitSlop={6}
+      accessibilityRole="button"
+      accessibilityLabel={a11y ?? (typeof label === 'string' ? label : undefined)}
+      style={styles.tool}
+    >
+      {icon ? (
+        <Ionicons name={icon} size={22} color={color} />
+      ) : (
+        <Text style={[styles.toolText, { color }]}>{text}</Text>
+      )}
+      <Text
+        variant="micro"
+        style={{ color: active ? colors.accent : colors.textMuted }}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    </PressableScale>
+  );
+}
+
+/** Minutos que faltan del temporizador; se actualiza cada 15 s. */
+function SleepLeft() {
+  const sleep = usePlayer((p) => p.sleep);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(id);
+  }, []);
+  if (sleep === 'end-of-track') return <>Al acabar</>;
+  if (!sleep) return <>Dormir</>;
+  return <>{Math.max(1, Math.ceil((sleep.at - now) / 60_000))} min</>;
 }
 
 function contextLabel(type: string) {
@@ -247,8 +397,12 @@ const styles = StyleSheet.create({
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
+  tool: { alignItems: 'center', gap: 4, minWidth: 56, paddingVertical: 4 },
+  toolText: { fontFamily: fonts.bodyStrong, fontSize: 15, lineHeight: 22 },
+  badges: { flexDirection: 'row', gap: spacing.xs, marginTop: spacing.xs, flexWrap: 'wrap' },
+  sheetUpsell: { paddingHorizontal: spacing.xl, gap: spacing.lg, paddingBottom: spacing.md },
   repeatOne: { position: 'absolute', right: 0, top: 0, color: colors.accentStrong },
   error: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
 });

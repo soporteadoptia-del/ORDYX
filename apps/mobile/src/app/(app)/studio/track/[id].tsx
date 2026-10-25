@@ -12,6 +12,7 @@ import { getGenres } from '@/api/catalog';
 import type { TrackDetail } from '@/api/types';
 import { deleteTrack, getMyTracks, submitTrack, unpublishTrack, updateTrack } from '@/api/upload';
 import { useToast } from '@/components/Toast';
+import { LyricsEditor } from '@/components/LyricsEditor';
 import { TrackMetaForm, type TrackMetaValues } from '@/components/TrackMetaForm';
 import { Badge, Button, ErrorState, Loading, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
@@ -108,6 +109,7 @@ function EditTrack({ track }: { track: TrackDetail }) {
             <TrackMetaForm values={meta} onChange={setMeta} genres={genres.data} />
           ) : null}
           <Button label="Guardar cambios" onPress={save} loading={busy} />
+          <LyricsEditor trackId={track.id} />
           {canSubmit ? (
             <Button
               label="Enviar a revisión"

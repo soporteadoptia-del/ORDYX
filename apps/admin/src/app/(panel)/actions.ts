@@ -252,3 +252,36 @@ export async function withdrawVersion(form: FormData) {
     }),
   );
 }
+
+export async function reviewPlusPayment(form: FormData) {
+  await requireAdmin();
+  const supabase = await serverClient();
+  const approve = str(form, 'approve') === 'true';
+  await runAndReturn('/plus', approve ? 'Plus activado' : 'Pago rechazado', async () =>
+    supabase.rpc('admin_review_plus_payment', {
+      p_id: str(form, 'id'),
+      p_approve: approve,
+      p_note: str(form, 'note') || null,
+    }),
+  );
+}
+
+export async function grantPlus(form: FormData) {
+  await requireAdmin();
+  const supabase = await serverClient();
+  await runAndReturn('/plus', 'Plus regalado', async () => {
+    const username = str(form, 'username').replace(/^@/, '');
+    const { data: user, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('username', username.replace(/[%_\\]/g, '\\$&'))
+      .maybeSingle();
+    if (error) return { error };
+    if (!user) return { error: new Error('ordyx:not_found') };
+    return supabase.rpc('admin_grant_plus', {
+      p_user: user.id,
+      p_months: Number(str(form, 'months')) || 1,
+      p_note: str(form, 'note') || null,
+    });
+  });
+}
