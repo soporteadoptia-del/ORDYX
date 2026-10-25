@@ -30,6 +30,7 @@ import { reportError, toUserMessage } from '@/lib/errors';
 import { imageUrl, invalidateStreamUrl, resolveRemoteUrl } from '@/lib/media';
 import { localUriFor, plusActiveNow } from './downloads';
 import { usePlayerPrefs } from './prefs';
+import { embedEngine, embedOf, loadEmbed, requestPlayerScreen } from './embed';
 import { radioFor } from './radio';
 import { createWebPlayer, unlockWebAudio } from './webAudio';
 
@@ -247,6 +248,21 @@ async function loadCurrent(autoplay: boolean, startAtMs = 0, isRetry = false) {
     durationMs: track.durationMs ?? 0,
   });
 
+  // YouTube / SoundCloud: suenan con su reproductor oficial (ver embed.ts), no con el <audio>.
+  const embed = embedOf(track);
+  if (embed) {
+    player?.pause();
+    session = null;
+    usePlayer.setState({
+      source: null,
+      status: autoplay && embedEngine() ? 'loading' : 'paused',
+      durationMs: track.durationMs ?? 0,
+    });
+    loadEmbed(embed.ref, autoplay);
+    persist();
+    return;
+  }
+
   try {
     await ensureAudioMode();
     const local = localUriFor(track.id);
@@ -438,6 +454,13 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   async toggle() {
     fromGesture();
     const { status } = get();
+    if (embedOf(current(get().queue)?.item)) {
+      const e = embedEngine();
+      if (!e) return requestPlayerScreen();
+      if (status === 'playing') e.pause();
+      else e.play();
+      return;
+    }
     const p = player;
     if (status === 'playing') {
       p?.pause();
@@ -488,7 +511,8 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     const { queue, positionMs } = get();
     const idx = previousIndex(queue, positionMs);
     if (idx === queue.index) {
-      await player?.seekTo(0).catch(() => undefined);
+      if (embedOf(current(queue)?.item)) embedEngine()?.seek(0);
+      else await player?.seekTo(0).catch(() => undefined);
       set({ positionMs: 0 });
       return;
     }
@@ -499,6 +523,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   async seek(ms) {
     const clamped = Math.max(0, Math.min(ms, get().durationMs || ms));
     set({ positionMs: clamped });
+    if (embedOf(current(get().queue)?.item)) return void embedEngine()?.seek(clamped);
     if (player?.isLoaded)
       await player.seekTo(clamped / 1000).catch((e) => reportError(e, { where: 'seek' }));
     else restoredPositionMs = clamped;
@@ -566,6 +591,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
 
   stop() {
     player?.pause();
+    embedEngine()?.pause();
     tickListening(false);
     flushProgress(false);
     persist();
@@ -574,4 +600,9 @@ export const usePlayer = create<PlayerState>((set, get) => ({
 
 export function useCurrentTrack(): PlayableTrack | null {
   return usePlayer((s) => current(s.queue)?.item ?? null);
+}
+
+/** El reproductor oficial (YouTube/SoundCloud) avisa de que la canción ha terminado. */
+export function onEmbedEnded() {
+  void handleFinished();
 }

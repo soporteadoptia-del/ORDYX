@@ -117,6 +117,43 @@ async function resolve(raw: string): Promise<Resolved> {
   }
 }
 
+// Búsqueda en YouTube (API oficial YouTube Data v3) para las canciones que no están en otro
+// sitio. Necesita el secreto YOUTUBE_API_KEY; sin él responde `no_key` y la app lo omite.
+async function searchYouTube(queries: string[]) {
+  const key = Deno.env.get('YOUTUBE_API_KEY');
+  if (!key) return { error: 'no_key' as const, data: [] };
+  const data = await Promise.all(
+    queries.slice(0, 50).map(async (q) => {
+      try {
+        const u = new URL('https://www.googleapis.com/youtube/v3/search');
+        u.search = new URLSearchParams({
+          part: 'snippet',
+          type: 'video',
+          videoEmbeddable: 'true',
+          videoCategoryId: '10',
+          maxResults: '1',
+          q,
+          key,
+        }).toString();
+        const res = await fetch(u);
+        if (!res.ok) return { q, id: null, title: null, artist: null, thumbnail: null };
+        const j = await res.json();
+        const it = j.items?.[0];
+        return {
+          q,
+          id: it?.id?.videoId ?? null,
+          title: it ? clean(it.snippet.title) : null,
+          artist: it?.snippet?.channelTitle?.replace(/\s*-\s*Topic$/i, '').replace(/VEVO$/i, '') ?? null,
+          thumbnail: it?.snippet?.thumbnails?.high?.url ?? null,
+        };
+      } catch {
+        return { q, id: null, title: null, artist: null, thumbnail: null };
+      }
+    }),
+  );
+  return { data };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST')
@@ -124,6 +161,14 @@ Deno.serve(async (req) => {
   let items: string[] = [];
   try {
     const body = await req.json();
+    if (Array.isArray(body?.search)) {
+      const queries = body.search.filter(
+        (x: unknown) => typeof x === 'string' && x.trim().length > 1 && x.length < 200,
+      );
+      return new Response(JSON.stringify(await searchYouTube(queries)), {
+        headers: { ...cors, 'content-type': 'application/json' },
+      });
+    }
     items = (Array.isArray(body?.items) ? body.items : [])
       .filter((x: unknown) => typeof x === 'string' && x.trim().length > 1 && x.length < 400)
       .slice(0, 100);

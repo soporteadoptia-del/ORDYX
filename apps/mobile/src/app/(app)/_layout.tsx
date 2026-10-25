@@ -1,9 +1,15 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import { BrandBackground } from '@/components/BrandBackground';
+import { setShowPlayerHandler } from '@/player/embed';
 import { colors, fonts } from '@/theme';
 
 export default function AppLayout() {
+  useEffect(() => {
+    setShowPlayerHandler(() => router.push('/player'));
+    return () => setShowPlayerHandler(null);
+  }, []);
   return (
     <Stack
       // Cada pantalla lleva el fondo de marca (opaco, así las transiciones no se transparentan).
