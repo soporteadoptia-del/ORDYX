@@ -1,0 +1,76 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "node": "22.20.0",
+      "pnpm": "10.28.0",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://tqeradkfojhojwbvryob.supabase.co",
+        "EXPO_PUBLIC_WEB_URL": "https://ordyx.app",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_Ef7Nv4kgBJstXMbyrCyqDg_AgV60yQ9"
+      }
+    },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "APP_VARIANT": "development"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_VARIANT": "preview"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production-apk": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_VARIANT": "production"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_VARIANT": "production"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "resourceClass": "default"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {},
+      "android": {
+        "track": "internal"
+      }
+    }
+  }
+}

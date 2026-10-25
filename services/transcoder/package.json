@@ -1,0 +1,23 @@
+{
+  "name": "transcoder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Worker de transcodificación de audio de Ordyx (ffmpeg + Supabase service_role).",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node src/worker.ts",
+    "once": "node src/worker.ts --once",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "~6.0.3"
+  }
+}

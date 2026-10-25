@@ -1,0 +1,33 @@
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+out/
+.expo/
+.turbo/
+coverage/
+*.log
+.DS_Store
+
+# Expo / nativo (Continuous Native Generation)
+apps/mobile/ios/
+apps/mobile/android/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+*.apk
+*.aab
+*.ipa
+
+# Secretos
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+
+# Copias de seguridad con datos (no versionar)
+backups/

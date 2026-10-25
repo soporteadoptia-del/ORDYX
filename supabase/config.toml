@@ -1,0 +1,44 @@
+# Configuración de la CLI de Supabase (desarrollo local con `supabase start`).
+project_id = "ordyx"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = false
+
+[storage]
+enabled = true
+file_size_limit = "200MiB"
+
+[auth]
+enabled = true
+site_url = "https://ordyx.app"
+additional_redirect_urls = ["ordyx://reset-password", "https://ordyx.app/cuenta-confirmada", "http://localhost:3000"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+minimum_password_length = 8
+password_requirements = "letters_digits"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+secure_password_change = true
+
+[auth.rate_limit]
+email_sent = 4
+sign_in_sign_ups = 30
+token_verifications = 30
+
+[functions.delete-account]
+verify_jwt = true
