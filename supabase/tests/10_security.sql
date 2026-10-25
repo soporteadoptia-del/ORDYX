@@ -118,11 +118,13 @@ select tests.logout();
 
 -- ---------------------------------------------------------------- artistas y subida de música
 select tests.login(tests.id('alice'));
-select tests.expect_error($$insert into public.artists (slug, name, created_by) values ('alice-band', 'Alice Band', tests.id('alice'))$$, 'sin rol de artista no se puede crear un artista');
+select tests.expect_error($$insert into public.artists (slug, name, created_by) values ('alice-band', 'Alice Band', tests.id('alice'))$$, 'sin Premium no se puede crear un artista');
 select tests.logout();
 
 select tests.login(tests.id('root'));
 select public.admin_set_role(tests.id('alice'), 'artist', true);
+-- Publicar exige Premium (ver 20261025000400_aurevix_premium.sql).
+select public.admin_grant_plus(tests.id('alice'), 12, 'Pruebas');
 select tests.logout();
 select tests.expect_count($$select 1 from public.admin_audit_logs where action = 'role.grant'$$, 1, 'la concesión de rol queda auditada');
 
@@ -273,7 +275,7 @@ select tests.expect_true((select comment_count = 5 from public.tracks where id =
 select tests.expect_count($$select 1 from public.notifications where user_id = tests.id('alice') and type in ('new_follower', 'new_comment')$$, 6, 'notificaciones de seguidor y comentarios');
 
 select tests.login(tests.id('alice'));
-select tests.expect_count($$select 1 from public.notifications$$, 7, 'el usuario ve solo sus notificaciones');
+select tests.expect_count($$select 1 from public.notifications$$, 8, 'el usuario ve solo sus notificaciones (incluido el aviso de Premium regalado)');
 update public.comments set body = 'editado' where user_id = tests.id('bob');
 select tests.expect_count($$select 1 from public.comments where body = 'editado'$$, 0, 'nadie edita comentarios ajenos');
 delete from public.comments where body = 'cinco';

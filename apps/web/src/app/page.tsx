@@ -18,13 +18,13 @@ const jsonLd = {
   description: BRAND.description,
   offers: [
     { '@type': 'Offer', name: 'Gratis', price: '0', priceCurrency: 'EUR' },
-    { '@type': 'Offer', name: 'Aurevix Plus (1 mes)', price: '4.99', priceCurrency: 'EUR' },
+    { '@type': 'Offer', name: 'Aurevix Premium (1 mes)', price: '4.99', priceCurrency: 'EUR' },
   ],
 };
 
 /**
  * Portada de Aurevix Music: titular con la app real, lo que suena esta semana (Audius, se escucha
- * aquí mismo), la app por dentro, la invitación a artistas, Plus, la descarga, preguntas y cierre.
+ * aquí mismo), la app por dentro, la invitación a artistas, Premium, la descarga, preguntas y cierre.
  */
 export default function Home() {
   return (

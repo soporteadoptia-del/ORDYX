@@ -8,7 +8,7 @@ import { resolveRemoteUrl } from '@/lib/media';
 import type { PlayableTrack } from './store';
 
 /**
- * Descargas sin conexión (Aurevix Plus). El audio se guarda en la carpeta privada de la app, nunca
+ * Descargas sin conexión (Aurevix Premium). El audio se guarda en la carpeta privada de la app, nunca
  * en la galería ni en una carpeta compartida, y solo se reproduce mientras el plan sigue activo.
  */
 export interface Download {
@@ -23,7 +23,7 @@ interface DownloadsState {
   /** Progreso 0–1 de las descargas en curso. */
   active: Record<string, number>;
   /**
-   * Hasta cuándo dura el plan Plus (ms), según la última consulta al servidor. Se guarda para que
+   * Hasta cuándo dura el plan Premium (ms), según la última consulta al servidor. Se guarda para que
    * las descargas funcionen sin conexión; al caducar dejan de usarse.
    */
   plusUntil: number;
@@ -99,7 +99,7 @@ async function pruneWithdrawn() {
   }
 }
 
-/** Ruta local para reproducir sin conexión, o null si no está descargada (o no hay Plus). */
+/** Ruta local para reproducir sin conexión, o null si no está descargada (o no hay Premium). */
 export function localUriFor(trackId: string): string | null {
   if (!plusActiveNow()) return null;
   return useDownloads.getState().items[trackId]?.uri ?? null;

@@ -47,7 +47,7 @@ function Editor({ trackId, initial }: { trackId: string; initial: string }) {
       <Text variant="heading">Letra</Text>
       <Text variant="caption" muted>
         Pega la letra tal cual o en formato LRC para que avance con la canción, por ejemplo
-        «[00:12.50] Primera línea». La ven quienes tienen Aurevix Plus.
+        «[00:12.50] Primera línea». La ven quienes tienen Aurevix Premium.
       </Text>
       <TextField
         label={

@@ -39,10 +39,14 @@ export default function StatsScreen() {
     return (
       <EmptyState
         icon="stats-chart"
-        title="Tus estadísticas son de Aurevix Plus"
+        title="Tus estadísticas son de Aurevix Premium"
         message="Descubre cuántos minutos escuchas, tus canciones y artistas del mes y a qué hora escuchas más."
         action={
-          <Button label="Ver Aurevix Plus" icon="sparkles" onPress={() => router.push('/plus')} />
+          <Button
+            label="Ver Aurevix Premium"
+            icon="sparkles"
+            onPress={() => router.push('/plus')}
+          />
         }
       />
     );

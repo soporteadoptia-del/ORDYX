@@ -13,7 +13,7 @@ export default function Terms() {
       <h2>1. El servicio</h2>
       <p>
         Aurevix Music es una plataforma para escuchar música, crear playlists, seguir a artistas y,
-        para cuentas autorizadas, publicar música propia. [Pendiente: identificación del titular
+        con Aurevix Premium en vigor, publicar música propia. [Pendiente: identificación del titular
         según la LSSI-CE.]
       </p>
       <h2>2. Cuenta</h2>
@@ -37,8 +37,8 @@ export default function Terms() {
         Conservas todos tus derechos. Al publicar declaras que eres titular de la grabación y de la
         obra, o que tienes autorización, y nos concedes una licencia no exclusiva para alojar,
         reproducir en streaming (incluidas las escuchas sin conexión que la app guarda en su
-        almacenamiento privado para suscriptores de Aurevix Plus) y mostrar el contenido dentro del
-        servicio mientras siga publicado. Cada canción se revisa antes de publicarse y puede
+        almacenamiento privado para suscriptores de Aurevix Premium) y mostrar el contenido dentro
+        del servicio mientras siga publicado. Cada canción se revisa antes de publicarse y puede
         retirarse si recibimos una reclamación fundada.
       </p>
       <h2>5. Derechos de autor y contenido ilícito</h2>
@@ -52,11 +52,15 @@ export default function Terms() {
         El servicio se presta «tal cual». Podemos actualizar la app o retirar versiones defectuosas;
         algunas actualizaciones requerirán instalar una nueva versión.
       </p>
-      <h2 id="plus">7. Aurevix Plus</h2>
+      <h2 id="plus">7. Aurevix Premium</h2>
       <ul>
         <li>
-          Aurevix Plus es un plan opcional de pago que cuesta 4,99 € por mes (IVA incluido). Añade
-          funciones a la cuenta gratuita, que sigue igual.
+          Aurevix Premium es un plan opcional de pago que cuesta 4,99 € por mes (IVA incluido).
+          Añade funciones a la cuenta gratuita, que sigue igual.
+        </li>
+        <li>
+          Publicar canciones como artista exige Premium en vigor. Si Premium caduca, las canciones
+          ya publicadas siguen disponibles, pero no se pueden subir otras nuevas hasta renovarlo.
         </li>
         <li>
           Se paga por Bizum desde la app: te damos un código que debes poner en el concepto. Al

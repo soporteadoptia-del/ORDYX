@@ -6,7 +6,7 @@ import { downloadTrack, removeDownload, useDownloads } from '@/player/downloads'
 import type { PlayableTrack } from '@/player/store';
 import { usePlus } from './usePlus';
 
-/** Descarga o borra una canción. Sin Plus lleva a la pantalla de Plus. */
+/** Descarga o borra una canción. Sin Premium lleva a la pantalla de Premium. */
 export function useDownloadToggle() {
   const { isPlus } = usePlus();
   const toast = useToast();

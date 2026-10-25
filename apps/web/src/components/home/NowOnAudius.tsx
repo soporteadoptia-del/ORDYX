@@ -74,7 +74,9 @@ export function NowOnAudius() {
         const a = new Audio();
         a.preload = 'none';
         a.addEventListener('timeupdate', () => setTime(a.currentTime));
-        a.addEventListener('loadedmetadata', () => setDuration(a.duration));
+        a.addEventListener('loadedmetadata', () => {
+          if (Number.isFinite(a.duration) && a.duration > 0) setDuration(a.duration);
+        });
         a.addEventListener('play', () => setPlaying(true));
         a.addEventListener('pause', () => setPlaying(false));
         a.addEventListener('ended', () =>
@@ -110,7 +112,9 @@ export function NowOnAudius() {
 
   if (failed) return null;
   const t = tracks?.[current] ?? null;
-  const progress = duration > 0 ? Math.min(1, time / duration) : 0;
+  // Antes de darle al play ya se conoce la duración (viene con la lista).
+  const total = duration > 0 ? duration : (t?.durationMs ?? 0) / 1000;
+  const progress = total > 0 ? Math.min(1, time / total) : 0;
 
   return (
     <section
@@ -151,9 +155,9 @@ export function NowOnAudius() {
         ))}
       </div>
 
-      <div className="grid gap-8 md:grid-cols-12">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         {/* Lo que suena: disco que gira, visualizador y controles. */}
-        <div className="relative overflow-hidden rounded-[28px] bg-surface p-6 md:col-span-5 md:p-8">
+        <div className="relative min-w-0 overflow-hidden rounded-[28px] bg-surface p-6 md:col-span-5 md:p-8">
           <div className="flex items-center gap-6">
             <div
               className={`relative aspect-square w-[42%] shrink-0 overflow-hidden rounded-full bg-elevated ${playing ? 'spin' : ''}`}
@@ -187,7 +191,7 @@ export function NowOnAudius() {
             </div>
             <div className="mt-2 flex justify-between text-small text-subtle">
               <span>{fmt(time)}</span>
-              <span>{fmt(duration)}</span>
+              <span>{fmt(total)}</span>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-3">
@@ -233,7 +237,7 @@ export function NowOnAudius() {
         </div>
 
         {/* La lista: número grande, portada, título y artista. */}
-        <ol className="md:col-span-7">
+        <ol className="min-w-0 md:col-span-7">
           {(tracks ?? Array.from({ length: 6 }, () => null)).map((tr, i) => (
             <li key={tr?.id ?? i}>
               <button
@@ -287,7 +291,7 @@ export function NowOnAudius() {
 /** Rejilla de puntos que ondula mientras suena (y se queda quieta en pausa o con «reducir movimiento»). */
 function DotGrid({ playing }: { playing: boolean }) {
   return (
-    <div className={`dotgrid flex-1 ${playing ? 'is-playing' : ''}`} aria-hidden>
+    <div className={`dotgrid min-w-0 flex-1 ${playing ? 'is-playing' : ''}`} aria-hidden>
       {Array.from({ length: 8 }, (_, c) => (
         <span key={c} style={{ animationDelay: `${c * -0.13}s` }}>
           {Array.from({ length: 6 }, (_, r) => (

@@ -27,9 +27,16 @@ export default function Studio() {
   if (!canUpload) {
     return (
       <EmptyState
-        icon="lock-closed-outline"
-        title="Necesitas una cuenta de artista"
-        message="Un administrador debe concederte permisos para publicar música."
+        icon="sparkles-outline"
+        title="Publicar música es de Premium"
+        message="Con Aurevix Premium creas tu perfil de artista, subes tus canciones y ves sus estadísticas."
+        action={
+          <Button
+            label="Ver Aurevix Premium"
+            icon="sparkles"
+            onPress={() => router.push('/plus')}
+          />
+        }
       />
     );
   }

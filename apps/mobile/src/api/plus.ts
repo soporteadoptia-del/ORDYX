@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { unwrap } from './client';
 
-/** Estado de Aurevix Plus del usuario actual (`public.my_plus`). */
+/** Estado de Aurevix Premium del usuario actual (`public.my_plus`). */
 export interface PlusStatus {
   active: boolean;
   expires_at: string | null;
@@ -130,3 +130,26 @@ export function formatDay(iso: string) {
 
 /** 602708111 → 602 708 111 */
 export const formatPhone = (p: string) => p.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+
+export interface ArtistStats {
+  since: string;
+  plays: number;
+  listeners: number;
+  minutes: number;
+  likes: number;
+  tracks: {
+    id: string;
+    title: string;
+    artist: string;
+    cover_path: string | null;
+    status: string;
+    plays: number;
+    listeners: number;
+    minutes: number;
+  }[];
+}
+
+/** Escuchas de las canciones de mis artistas (Premium; `public.my_artist_stats`). */
+export async function getArtistStats(days: number): Promise<ArtistStats> {
+  return unwrap(await supabase.rpc('my_artist_stats', { p_days: days })) as ArtistStats;
+}

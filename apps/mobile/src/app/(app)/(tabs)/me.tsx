@@ -16,7 +16,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { colors, fonts, radius, spacing } from '@/theme';
 
 export default function Me() {
-  const { profile, roles, canUpload } = useAuth();
+  const { profile, roles, canUpload, isStaff } = useAuth();
   const plus = usePlus();
   const playlists = useQuery({
     queryKey: ['user', profile?.id, 'playlists'],
@@ -39,7 +39,7 @@ export default function Me() {
           <Text variant="title">{profile.display_name || profile.username}</Text>
           <Text muted>@{profile.username}</Text>
           <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-            {plus.isPlus ? <Badge label="Plus" /> : null}
+            {plus.isPlus ? <Badge label="Premium" /> : null}
             {roles.map((r) => (
               <Badge
                 key={r}
@@ -102,7 +102,7 @@ export default function Me() {
           accessibilityRole="button"
           style={[styles.plus, plus.isPlus && styles.plusOn]}
         >
-          <Text style={[styles.plusWord, plus.isPlus && { color: colors.onAccent }]}>Plus</Text>
+          <Text style={[styles.plusWord, plus.isPlus && { color: colors.onAccent }]}>Premium</Text>
           <Text style={{ color: plus.isPlus ? colors.onAccent : colors.text, flex: 1 }}>
             {plus.isPlus && plus.data?.expires_at
               ? `Activo hasta el ${formatDay(plus.data.expires_at)}`
@@ -128,19 +128,60 @@ export default function Me() {
           <Tile icon="notifications" label="Avisos" onPress={() => router.push('/notifications')} />
         </View>
 
+        {isStaff ? (
+          <PressableScale
+            scaleTo={0.98}
+            onPress={() => router.push('/owner')}
+            accessibilityRole="button"
+            accessibilityLabel="Panel del propietario"
+            style={styles.owner}
+          >
+            <View style={styles.ownerIcon}>
+              <Ionicons name="shield-checkmark" size={22} color={colors.onAccent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong">Panel del propietario</Text>
+              <Text variant="caption" muted>
+                Pagos de Premium, canciones por revisar, usuarios y configuración
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </PressableScale>
+        ) : null}
+
         <SectionHeader title="Estudio de artista" />
         <View style={{ paddingHorizontal: spacing.lg, gap: spacing.sm }}>
           {canUpload ? (
-            <Button
-              label="Mis canciones y subidas"
-              icon="cloud-upload-outline"
-              onPress={() => router.push('/studio')}
-            />
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <View style={{ flex: 1 }}>
+                <Button
+                  label="Mis canciones"
+                  icon="cloud-upload-outline"
+                  onPress={() => router.push('/studio')}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  label="Estadísticas"
+                  icon="bar-chart-outline"
+                  variant="secondary"
+                  onPress={() => router.push('/studio/stats')}
+                />
+              </View>
+            </View>
           ) : (
-            <Text muted>
-              Para publicar tu música necesitas una cuenta de artista. Escríbenos desde Ajustes →
-              Ayuda y un administrador revisará tu solicitud.
-            </Text>
+            <>
+              <Text muted>
+                Publicar tu música es parte de Aurevix Premium: creas tu perfil de artista, subes
+                tus canciones y ves cuánta gente las escucha.
+              </Text>
+              <Button
+                label="Subir mi música con Premium"
+                icon="sparkles"
+                variant="secondary"
+                onPress={() => router.push('/plus')}
+              />
+            </>
           )}
         </View>
 
@@ -200,6 +241,26 @@ const styles = StyleSheet.create({
     fontSize: 26,
     letterSpacing: -1,
     color: colors.accent,
+  },
+  owner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  ownerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tiles: {
     flexDirection: 'row',

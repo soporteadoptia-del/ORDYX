@@ -10,6 +10,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { toPlayable, usePlayer } from '@/player/store';
+import { startRadio } from '@/player/radio';
 import { useDownloadToggle } from '@/hooks/useDownloadToggle';
 import { downloadsSupported } from '@/player/downloads';
 import { colors, spacing } from '@/theme';
@@ -104,6 +105,15 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
                   }}
                 />
                 <SheetItem
+                  icon={icon('radio-outline')}
+                  label="Radio de esta canción"
+                  onPress={() => {
+                    void startRadio(playable);
+                    toast.show('Radio en marcha: después sonará música parecida', 'success');
+                    close();
+                  }}
+                />
+                <SheetItem
                   icon={icon('list-outline')}
                   label="Añadir a la cola"
                   onPress={() => {
@@ -125,7 +135,7 @@ export function TrackActionsProvider({ children }: { children: ReactNode }) {
                         ? 'Borrar la descarga'
                         : downloads.isDownloading(track.id)
                           ? 'Descargando…'
-                          : 'Descargar (Plus)'
+                          : 'Descargar (Premium)'
                     }
                     onPress={() => {
                       close();

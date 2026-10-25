@@ -104,7 +104,7 @@ function RootNavigator() {
     void restorePlayer();
   }, [session]);
 
-  // El estado de Plus se guarda en el dispositivo para que las descargas sigan sonando sin conexión.
+  // El estado de Premium se guarda en el dispositivo para que las descargas sigan sonando sin conexión.
   const plus = usePlus();
   useEffect(() => {
     if (plus.data) setPlusUntil(plus.data.active ? plus.data.expires_at : null);

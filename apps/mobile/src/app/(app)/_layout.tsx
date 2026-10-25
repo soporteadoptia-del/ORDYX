@@ -35,8 +35,10 @@ export default function AppLayout() {
         name="lyrics"
         options={{ presentation: 'modal', headerShown: false, animation: 'slide_from_bottom' }}
       />
-      <Stack.Screen name="plus" options={{ title: 'Aurevix Plus' }} />
+      <Stack.Screen name="plus" options={{ title: 'Aurevix Premium' }} />
       <Stack.Screen name="stats" options={{ title: 'Tus estadísticas' }} />
+      <Stack.Screen name="owner" options={{ title: 'Panel del propietario' }} />
+      <Stack.Screen name="studio/stats" options={{ title: 'Estadísticas de artista' }} />
       <Stack.Screen name="downloads" options={{ title: 'Descargas' }} />
       <Stack.Screen name="report" options={{ presentation: 'modal', title: 'Denunciar' }} />
       <Stack.Screen

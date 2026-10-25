@@ -43,6 +43,23 @@
   --gutter: clamp(16px, 3vw, 40px);
 }
 
+/* Nada puede ensanchar la página en el móvil (Safari en iPhone cuenta los elementos
+   transformados que asoman, aunque su sección los recorte). */
+html {
+  overflow-x: hidden;
+}
+@supports (overflow-x: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+/* Un hijo de grid no puede ensanchar su columna más allá de la pantalla. */
+:where(.grid) > * {
+  min-width: 0;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;

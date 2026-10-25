@@ -5,6 +5,7 @@ import { BrandBackground } from '@/components/BrandBackground';
 import { Wordmark } from '@/components/Logo';
 import { Text } from '@/components/ui';
 import { colors, spacing } from '@/theme';
+import { safeBottom } from '@/lib/safe-area';
 
 export function AuthShell({
   title,
@@ -25,7 +26,10 @@ export function AuthShell({
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + spacing.xxl, paddingBottom: insets.bottom + spacing.xxl },
+          {
+            paddingTop: insets.top + spacing.xxl,
+            paddingBottom: safeBottom(insets.bottom, spacing.xxl),
+          },
         ]}
         keyboardShouldPersistTaps="handled"
       >

@@ -30,6 +30,7 @@ import { reportError, toUserMessage } from '@/lib/errors';
 import { imageUrl, invalidateStreamUrl, resolveRemoteUrl } from '@/lib/media';
 import { localUriFor, plusActiveNow } from './downloads';
 import { usePlayerPrefs } from './prefs';
+import { radioFor } from './radio';
 import { createWebPlayer, unlockWebAudio } from './webAudio';
 
 export interface PlayableTrack {
@@ -43,6 +44,8 @@ export interface PlayableTrack {
   isDemo: boolean;
   /** Canciones de fuera (Audius): enlace a su página original. Sin favoritos ni comentarios. */
   externalUrl?: string;
+  /** Género (solo Audius, en su nomenclatura): sirve para la radio. */
+  genre?: string | null;
 }
 
 export function toPlayable(t: TrackListItem): PlayableTrack | null {
@@ -60,7 +63,7 @@ export function toPlayable(t: TrackListItem): PlayableTrack | null {
 }
 
 export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
-/** De dónde sale el audio que suena: descargado, archivo original (Plus) o versión de streaming. */
+/** De dónde sale el audio que suena: descargado, archivo original (Premium) o versión de streaming. */
 export type AudioSource = 'offline' | 'original' | 'stream';
 /** Temporizador para dormir: hora (ms) a la que se pausa, o «al acabar la canción». */
 export type SleepTimer = { at: number } | 'end-of-track' | null;
@@ -209,14 +212,23 @@ async function handleFinished() {
     return;
   }
   const { queue } = usePlayer.getState();
-  const idx = nextIndex(queue, true);
+  let idx = nextIndex(queue, true);
+  // «Seguir sonando» (Premium): al acabar la cola se añade una radio de la última canción.
+  if (idx === null && usePlayerPrefs.getState().autoplay && plusActiveNow()) {
+    const seed = current(queue)?.item;
+    const more = seed ? await radioFor(seed).catch(() => []) : [];
+    if (more.length) {
+      usePlayer.setState({ queue: enqueue(usePlayer.getState().queue, more) });
+      idx = nextIndex(usePlayer.getState().queue, true);
+    }
+  }
   if (idx === null) {
     usePlayer.setState({ status: 'paused', positionMs: 0 });
     await player?.seekTo(0).catch(() => undefined);
     persist();
     return;
   }
-  usePlayer.setState({ queue: goTo(queue, idx) });
+  usePlayer.setState({ queue: goTo(usePlayer.getState().queue, idx) });
   await loadCurrent(true);
 }
 

@@ -3,7 +3,7 @@ import Link from 'next/link';
 export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
   {
     q: '¿Es gratis?',
-    a: 'Sí. Puedes escuchar todo el catálogo, crear playlists y seguir a artistas sin pagar ni ver anuncios. Aurevix Plus (4,99 € al mes, opcional) añade el archivo original del artista, descargas sin conexión, letras sincronizadas, estadísticas y velocidad de reproducción.',
+    a: 'Sí. Puedes escuchar todo el catálogo, crear playlists y seguir a artistas sin pagar ni ver anuncios. Aurevix Premium (4,99 € al mes, opcional) añade publicar tu propia música, estadísticas de artista, el archivo original del artista, descargas sin conexión, letras sincronizadas, tus estadísticas, «Seguir sonando» y velocidad de reproducción.',
   },
   {
     q: '¿De dónde sale la música de «Suena esta semana»?',
@@ -23,19 +23,20 @@ export const FAQ_ITEMS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: '¿Puedo escuchar sin conexión?',
-    a: 'Sí, con Aurevix Plus en la app de Android: abre el menú de una canción y toca «Descargar». Las canciones se guardan dentro de la app (no como archivos sueltos) y suenan sin conexión mientras tu plan esté activo.',
+    a: 'Sí, con Aurevix Premium en la app de Android: abre el menú de una canción y toca «Descargar». Las canciones se guardan dentro de la app (no como archivos sueltos) y suenan sin conexión mientras tu plan esté activo.',
   },
   {
-    q: '¿Cómo se paga Aurevix Plus?',
-    a: 'Por Bizum, desde la app: en Plus te damos un código, envías 4,99 € al número que aparece con ese código en el concepto y pulsas «Ya he enviado el Bizum». Lo confirmamos a mano y te avisamos en Notificaciones. No hay renovación automática: cada mes decides si lo quieres.',
+    q: '¿Cómo se paga Aurevix Premium?',
+    a: 'Por Bizum, desde la app: en Premium te damos un código, envías 4,99 € al número que aparece con ese código en el concepto y pulsas «Ya he enviado el Bizum». Lo confirmamos a mano y te avisamos en Notificaciones. No hay renovación automática: cada mes decides si lo quieres.',
   },
   {
     q: 'Soy artista, ¿cómo publico mi música?',
     a: (
       <>
-        Crea tu cuenta y escríbenos desde <Link href="/ayuda">Ayuda</Link> para activar tu perfil de
-        artista. Solo puedes subir música propia o con autorización de sus titulares; cada canción
-        se revisa antes de publicarse.
+        Publicar es parte de Aurevix Premium: hazte Premium en la app, crea tu perfil de artista
+        desde «Tú → Estudio de artista» y sube tus canciones. Solo puedes subir música propia o con
+        autorización de sus titulares; cada canción se revisa antes de publicarse. ¿Dudas?
+        Escríbenos desde <Link href="/ayuda">Ayuda</Link>.
       </>
     ),
   },

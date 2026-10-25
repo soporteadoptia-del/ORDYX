@@ -30,7 +30,7 @@
 - Fichas de las tiendas: etiquetas de privacidad de Apple y sección de seguridad de datos de Google Play coherentes con la política.
 - Futuras funciones de pago: normativa de pagos, IVA de servicios electrónicos, reglas de las tiendas y, en iOS, condiciones de la UE.
 
-## Aurevix Plus (pendiente de revisión)
+## Aurevix Premium (pendiente de revisión)
 
 - Cobro por Bizum con confirmación manual (sin pasarela ni renovación automática). Revisar si hace
   falta factura/recibo y el tratamiento fiscal (IVA incluido en 4,99 €).

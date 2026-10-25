@@ -8,7 +8,7 @@ const NAV: { href: string; label: string; adminOnly?: boolean }[] = [
   { href: '/canciones', label: 'Canciones' },
   { href: '/denuncias', label: 'Denuncias y derechos' },
   { href: '/usuarios', label: 'Usuarios' },
-  { href: '/plus', label: 'Aurevix Plus', adminOnly: true },
+  { href: '/plus', label: 'Aurevix Premium', adminOnly: true },
   { href: '/artistas', label: 'Artistas y álbumes', adminOnly: true },
   { href: '/generos', label: 'Géneros', adminOnly: true },
   { href: '/versiones', label: 'Versiones de la app', adminOnly: true },
