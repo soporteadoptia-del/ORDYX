@@ -1,4 +1,4 @@
-# Ordyx — plataforma musical (nombre provisional)
+# Aurevix Music — plataforma musical
 
 Plataforma para escuchar música, crear playlists y descubrir artistas independientes que publican su propia música. Monorepo con:
 
@@ -30,6 +30,7 @@ Compilaciones: `pnpm build:web`, `pnpm build:admin`; app: `cd apps/mobile && npx
 - [Arquitectura y modelo de seguridad](docs/ARQUITECTURA.md)
 - [Instalación y despliegue](docs/DESPLIEGUE.md)
 - [Distribución Android e iOS (investigación de Apple incluida)](docs/DISTRIBUCION_MOVIL.md)
+- [Inicio de sesión con Google y Apple](docs/LOGIN_GOOGLE_APPLE.md)
 - [Guía de administración](docs/ADMINISTRACION.md)
 - [Audio, almacenamiento, costes y CDN](docs/AUDIO_Y_STREAMING.md)
 - [Requisitos legales a revisar](docs/LEGAL.md)

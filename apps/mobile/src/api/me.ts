@@ -45,6 +45,11 @@ export async function updateMySettings(
   unwrap(await supabase.from('user_settings').update(patch).eq('user_id', me));
 }
 
+/** Para cuentas creadas con Google o Apple, que no pasan por el formulario de registro. */
+export async function acceptTerms() {
+  unwrap(await supabase.rpc('accept_terms'));
+}
+
 export async function getNotifications(): Promise<NotificationRow[]> {
   const me = await currentUserId();
   return unwrap(

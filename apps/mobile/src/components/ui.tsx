@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { ComponentProps, ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -14,7 +13,7 @@ import {
   type TextProps,
   type ViewStyle,
 } from 'react-native';
-import { colors, gradient, radius, spacing, type } from '@/theme';
+import { colors, fonts, radius, spacing, type } from '@/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -36,7 +35,7 @@ export function Text({
 type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
   icon?: IconName;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'google';
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   compact?: boolean;
@@ -53,23 +52,23 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  // Como en aurevixweb.es: primario lima con texto tinta, Google blanco con texto oscuro.
+  const fg =
+    variant === 'primary'
+      ? colors.onAccent
+      : variant === 'google'
+        ? '#1F1F1F'
+        : variant === 'danger'
+          ? colors.danger
+          : colors.text;
   const content = (
     <View style={[styles.buttonInner, compact && styles.buttonCompact]}>
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : colors.text} />
+        <ActivityIndicator color={fg} />
       ) : (
         <>
-          {icon ? (
-            <Ionicons
-              name={icon}
-              size={18}
-              color={variant === 'danger' ? colors.danger : colors.text}
-            />
-          ) : null}
-          <Text
-            variant="bodyStrong"
-            style={variant === 'danger' ? { color: colors.danger } : undefined}
-          >
+          {icon ? <Ionicons name={icon} size={18} color={fg} /> : null}
+          <Text variant="bodyStrong" style={{ color: fg }}>
             {label}
           </Text>
         </>
@@ -87,23 +86,13 @@ export function Button({
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'ghost' && styles.buttonGhost,
         variant === 'danger' && styles.buttonDanger,
+        variant === 'google' && styles.buttonGoogle,
         { opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1 },
         style,
       ]}
       {...rest}
     >
-      {variant === 'primary' ? (
-        <LinearGradient
-          colors={gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientFill}
-        >
-          {content}
-        </LinearGradient>
-      ) : (
-        content
-      )}
+      {content}
     </Pressable>
   );
 }
@@ -185,7 +174,10 @@ export function Chip({
       onPress={onPress}
       style={[styles.chip, selected && styles.chipSelected]}
     >
-      <Text variant="caption" style={{ color: selected ? '#fff' : colors.text, fontWeight: '600' }}>
+      <Text
+        variant="caption"
+        style={{ color: selected ? colors.onAccent : colors.text, fontFamily: fonts.bodyStrong }}
+      >
         {label}
       </Text>
     </Pressable>
@@ -260,7 +252,10 @@ export function SectionHeader({
       </Text>
       {action && onAction ? (
         <Pressable onPress={onAction} hitSlop={8} accessibilityRole="button">
-          <Text variant="caption" style={{ color: colors.accentStrong, fontWeight: '600' }}>
+          <Text
+            variant="caption"
+            style={{ color: colors.accentStrong, fontFamily: fonts.bodyStrong }}
+          >
             {action}
           </Text>
         </Pressable>
@@ -297,19 +292,19 @@ export const styles = StyleSheet.create({
     borderRadius: radius.pill,
     overflow: 'hidden',
     backgroundColor: colors.accent,
-    minHeight: 48,
+    minHeight: 50,
   },
   buttonSecondary: {
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
   },
+  buttonGoogle: { backgroundColor: '#FFFFFF' },
   buttonGhost: { backgroundColor: 'transparent' },
   buttonDanger: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.danger },
-  gradientFill: { flex: 1, borderRadius: radius.pill },
   buttonInner: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 50,
     paddingHorizontal: spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
@@ -319,7 +314,7 @@ export const styles = StyleSheet.create({
   buttonCompact: { minHeight: 40, paddingHorizontal: spacing.lg },
   iconButton: { padding: spacing.xs, alignItems: 'center', justifyContent: 'center' },
   input: {
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: colors.field,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -327,12 +322,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: 14,
     fontSize: 16,
+    fontFamily: fonts.body,
   },
   chip: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },

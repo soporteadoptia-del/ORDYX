@@ -7,8 +7,9 @@ import { Button, Text, TextField } from '@/components/ui';
 import { env } from '@/lib/env';
 import { toUserMessage } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
-import { colors, spacing } from '@/theme';
+import { colors, fonts, spacing } from '@/theme';
 import { AuthShell } from '@/components/AuthShell';
+import { SocialSignIn } from '@/components/SocialSignIn';
 
 export default function SignUp() {
   const [form, setForm] = useState({ email: '', password: '', username: '', acceptTerms: false });
@@ -109,11 +110,14 @@ export default function SignUp() {
         </Text>
       ) : null}
       <Button label="Crear cuenta" onPress={submit} loading={loading} />
+      <SocialSignIn onError={setError} />
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
         <Text muted>¿Ya tienes cuenta?</Text>
         <Link href="/sign-in" asChild>
           <Pressable>
-            <Text style={{ color: colors.accentStrong, fontWeight: '600' }}>Inicia sesión</Text>
+            <Text style={{ color: colors.accentStrong, fontFamily: fonts.bodyStrong }}>
+              Inicia sesión
+            </Text>
           </Pressable>
         </Link>
       </View>

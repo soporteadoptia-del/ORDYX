@@ -1,3 +1,10 @@
+import { BricolageGrotesque_700Bold } from '@expo-google-fonts/bricolage-grotesque/700Bold';
+import { BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque/800ExtraBold';
+import { InstrumentSans_400Regular } from '@expo-google-fonts/instrument-sans/400Regular';
+import { InstrumentSans_500Medium } from '@expo-google-fonts/instrument-sans/500Medium';
+import { InstrumentSans_600SemiBold } from '@expo-google-fonts/instrument-sans/600SemiBold';
+import { JetBrainsMono_500Medium } from '@expo-google-fonts/jetbrains-mono/500Medium';
+import { useFonts } from 'expo-font';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import {
   QueryClient,
@@ -15,10 +22,11 @@ import { ToastProvider } from '@/components/Toast';
 import { TrackActionsProvider } from '@/components/TrackActions';
 import { ErrorState, Text } from '@/components/ui';
 import { env } from '@/lib/env';
+import { sessionTokensFromUrl } from '@/lib/oauth';
 import { supabase } from '@/lib/supabase';
 import { restorePlayer } from '@/player/store';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
-import { colors } from '@/theme';
+import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -54,46 +62,58 @@ const navTheme = {
   },
 };
 
-/** Procesa los enlaces de recuperación de contraseña: ordyx://reset-password#access_token=…&refresh_token=… */
+/**
+ * Procesa los enlaces con sesión: recuperación de contraseña (aurevix://reset-password#access_token=…)
+ * y la vuelta de Google (aurevix://auth-callback#access_token=…) cuando el sistema abre la app con ella.
+ */
 function useAuthDeepLinks() {
   const url = Linking.useLinkingURL();
   useEffect(() => {
     if (!url || !url.includes('access_token')) return;
-    const fragment = url.split('#')[1] ?? url.split('?')[1] ?? '';
-    const params = new URLSearchParams(fragment);
-    const access_token = params.get('access_token');
-    const refresh_token = params.get('refresh_token');
-    if (access_token && refresh_token) {
-      void supabase.auth.setSession({ access_token, refresh_token });
-    }
+    const { tokens } = sessionTokensFromUrl(url);
+    if (tokens) void supabase.auth.setSession(tokens);
   }, [url]);
 }
 
 function RootNavigator() {
-  const { session, initializing } = useAuth();
+  const { session, initializing, termsAccepted } = useAuth();
+  // Fuentes de aurevixweb.es. Si fallan, la app sigue con la fuente del sistema.
+  const [fontsLoaded, fontError] = useFonts({
+    [fonts.display]: BricolageGrotesque_700Bold,
+    [fonts.displayHeavy]: BricolageGrotesque_800ExtraBold,
+    [fonts.body]: InstrumentSans_400Regular,
+    [fonts.bodyMedium]: InstrumentSans_500Medium,
+    [fonts.bodyStrong]: InstrumentSans_600SemiBold,
+    [fonts.mono]: JetBrainsMono_500Medium,
+  });
+  const ready = !initializing && (fontsLoaded || !!fontError);
   useAuthDeepLinks();
 
   useEffect(() => {
-    if (!initializing) SplashScreen.hideAsync().catch(() => undefined);
-  }, [initializing]);
+    if (ready) SplashScreen.hideAsync().catch(() => undefined);
+  }, [ready]);
 
   useEffect(() => {
     if (session) void restorePlayer();
   }, [session]);
 
-  if (initializing) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  if (!ready) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
 
   return (
     <Stack
       screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
     >
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session && termsAccepted !== false}>
         <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session && termsAccepted === false}>
+        <Stack.Screen name="accept-terms" />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
       <Stack.Screen name="reset-password" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="auth-callback" />
     </Stack>
   );
 }

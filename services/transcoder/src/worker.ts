@@ -1,5 +1,5 @@
 /**
- * Worker de transcodificación de Ordyx.
+ * Worker de transcodificación de Aurevix Music.
  *
  * Bucle: reclama un trabajo (`claim_transcode_job`, con bloqueo SKIP LOCKED) → descarga el original
  * a disco → ffprobe (validación y duración real) → ffmpeg (AAC 128 kbps, −14 LUFS) → sube la versión
@@ -50,7 +50,7 @@ async function downloadTo(path: string, file: string) {
 }
 
 export async function processJob(job: Job) {
-  const dir = await mkdtemp(join(tmpdir(), 'ordyx-'));
+  const dir = await mkdtemp(join(tmpdir(), 'aurevix-'));
   const input = join(dir, 'original');
   const output = join(dir, 'stream.m4a');
   try {

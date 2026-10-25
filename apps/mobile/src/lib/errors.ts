@@ -11,7 +11,7 @@ export function reportError(
   context: Record<string, string | number | boolean | null> = {},
 ) {
   const message = error instanceof Error ? error.message : String(error);
-  if (__DEV__) console.warn('[ordyx]', message, context);
+  if (__DEV__) console.warn('[aurevix]', message, context);
   supabase
     .rpc('log_client_error', {
       p_app: 'mobile',

@@ -2,7 +2,7 @@ import type { AppRole } from '@ordyx/shared';
 import type { Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { getMyProfile, getMyRoles } from '@/api/me';
+import { getMyProfile, getMyRoles, getMySettings } from '@/api/me';
 import type { ProfileSummary } from '@/api/types';
 import { supabase } from '@/lib/supabase';
 import { clearPersistedPlayer } from '@/player/store';
@@ -12,6 +12,8 @@ interface AuthContextValue {
   initializing: boolean;
   profile: ProfileSummary | null;
   roles: AppRole[];
+  /** null mientras se carga; false si la cuenta (Google/Apple) aún no ha aceptado las condiciones. */
+  termsAccepted: boolean | null;
   canUpload: boolean;
   isStaff: boolean;
   signOut: (scope?: 'local' | 'global') => Promise<void>;
@@ -49,6 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     enabled: !!userId,
   });
 
+  const settingsQuery = useQuery({
+    queryKey: ['me', 'settings', userId],
+    queryFn: getMySettings,
+    enabled: !!userId,
+  });
+
   const value = useMemo<AuthContextValue>(() => {
     const roles = rolesQuery.data ?? [];
     return {
@@ -56,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       initializing,
       profile: profileQuery.data ?? null,
       roles,
+      termsAccepted: settingsQuery.data ? !!settingsQuery.data.terms_accepted_at : null,
       canUpload:
         profileQuery.data?.status === 'active' &&
         (roles.includes('artist') || roles.includes('admin')),
@@ -69,9 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshProfile() {
         void profileQuery.refetch();
         void rolesQuery.refetch();
+        void settingsQuery.refetch();
       },
     };
-  }, [session, initializing, profileQuery, rolesQuery, queryClient]);
+  }, [session, initializing, profileQuery, rolesQuery, settingsQuery, queryClient]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

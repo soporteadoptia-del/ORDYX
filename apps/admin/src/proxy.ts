@@ -22,7 +22,9 @@ export async function proxy(request: NextRequest) {
     },
   );
   const { data } = await supabase.auth.getUser();
-  const isLogin = request.nextUrl.pathname.startsWith('/login');
+  const { pathname } = request.nextUrl;
+  // /auth/callback recibe la vuelta de Google antes de que exista la sesión.
+  const isLogin = pathname.startsWith('/login') || pathname.startsWith('/auth/');
   if (!data.user && !isLogin) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -33,5 +35,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.png).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.png|logo-a.png).*)'],
 };

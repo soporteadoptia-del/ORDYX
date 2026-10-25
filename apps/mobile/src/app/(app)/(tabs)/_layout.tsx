@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomTabBar, Tabs } from 'expo-router/tabs';
 import { View } from 'react-native';
 import { MiniPlayer } from '@/components/MiniPlayer';
-import { colors } from '@/theme';
+import { colors, fonts } from '@/theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 const tabIcon = (focused: IconName, idle: IconName) =>
@@ -21,10 +21,10 @@ export default function TabsLayout() {
       )}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.text,
+        tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSubtle,
         tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.bodyStrong },
       }}
     >
       <Tabs.Screen

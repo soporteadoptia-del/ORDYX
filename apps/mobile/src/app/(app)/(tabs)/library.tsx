@@ -2,7 +2,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatCount } from '@ordyx/shared';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
@@ -81,9 +80,9 @@ export default function Library() {
               title="Tus favoritos"
               subtitle="Canciones que te gustan"
               art={
-                <LinearGradient colors={['#6D28D9', '#EC4899']} style={styles.gradientArt}>
-                  <Ionicons name="heart" size={24} color="#fff" />
-                </LinearGradient>
+                <View style={[styles.gradientArt, { backgroundColor: colors.accent }]}>
+                  <Ionicons name="heart" size={24} color={colors.onAccent} />
+                </View>
               }
               onPress={() => router.push('/liked')}
             />

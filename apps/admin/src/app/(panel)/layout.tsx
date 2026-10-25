@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { requireStaff } from '@/lib/auth';
 import { signOut } from '../login/actions';
@@ -21,7 +22,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen flex-col md:flex-row">
       <aside className="border-b border-line bg-surface md:w-64 md:border-b-0 md:border-r">
         <div className="p-5">
-          <p className="font-extrabold">Ordyx · Admin</p>
+          <p className="flex items-center gap-2 font-display font-extrabold uppercase">
+            <Image src="/logo-a.png" width={26} height={26} alt="" />
+            Aurevix<span className="text-accent">Admin</span>
+          </p>
           <p className="truncate text-xs text-muted">{session.email}</p>
           <p className="text-xs text-accent-strong">
             {session.isAdmin ? 'Administración' : 'Moderación'}

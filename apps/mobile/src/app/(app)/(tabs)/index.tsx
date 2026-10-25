@@ -96,7 +96,7 @@ export default function Home() {
         }
       >
         <LinearGradient
-          colors={['rgba(139,92,246,0.28)', 'transparent']}
+          colors={[colors.accentGlow, 'transparent']}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
@@ -261,9 +261,9 @@ function QuickTile({
       style={({ pressed }) => [styles.tile, pressed && { opacity: 0.8 }]}
     >
       {icon ? (
-        <LinearGradient colors={['#6D28D9', '#EC4899']} style={styles.tileArt}>
-          <Ionicons name={icon} size={22} color="#fff" />
-        </LinearGradient>
+        <View style={[styles.tileArt, { backgroundColor: colors.accent }]}>
+          <Ionicons name={icon} size={22} color={colors.onAccent} />
+        </View>
       ) : (
         <Artwork
           uri={image ?? null}

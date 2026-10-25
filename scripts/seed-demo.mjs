@@ -27,7 +27,7 @@ async function demoUser() {
     email: DEMO_EMAIL,
     email_confirm: true,
     password: crypto.randomUUID() + 'Aa1', // cuenta sin acceso real: contraseña aleatoria no guardada
-    user_metadata: { username: 'ordyx_demo', display_name: 'Ordyx Demo' },
+    user_metadata: { username: 'ordyx_demo', display_name: 'Aurevix Demo' },
   });
   if (error) throw error;
   return data.user.id;
@@ -63,7 +63,7 @@ async function seed() {
       .from('artists')
       .insert({
         slug: 'ordyx-demo',
-        name: 'Ordyx Demo',
+        name: 'Aurevix Demo',
         bio: 'Artista de demostración: música original generada por síntesis para probar la plataforma.',
         created_by: uid,
       })
@@ -108,7 +108,7 @@ async function seed() {
       duration_ms: durationMs,
       status: 'published',
       license: 'cc0',
-      rights_holder: 'Proyecto Ordyx',
+      rights_holder: 'Proyecto Aurevix Music',
       rights_confirmed_at: now,
       published_at: now,
       is_demo: true,

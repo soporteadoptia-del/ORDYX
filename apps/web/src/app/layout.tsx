@@ -6,6 +6,9 @@ import { getPublicConfig } from '@/lib/data';
 import { env } from '@/lib/env';
 import './globals.css';
 
+const FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap';
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
@@ -28,12 +31,18 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
-export const viewport: Viewport = { themeColor: '#07070B', colorScheme: 'dark' };
+export const viewport: Viewport = { themeColor: '#0C0C0E', colorScheme: 'dark' };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const config = await getPublicConfig();
   return (
     <html lang="es">
+      <head>
+        {/* Mismas fuentes que aurevixweb.es. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href={FONTS_URL} />
+      </head>
       <body className="min-h-screen">
         <a
           href="#contenido"

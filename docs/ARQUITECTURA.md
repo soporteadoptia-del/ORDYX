@@ -1,6 +1,6 @@
-# Arquitectura de Ordyx
+# Arquitectura de Aurevix Music
 
-> Nombre de marca **provisional**: se cambia en `packages/shared/src/brand.ts`, `apps/mobile/app.config.ts` (variable `APP_NAME`) y en `app_config.platform_name` desde el panel.
+> Marca: **Aurevix Music** (paleta y tipografías de aurevixweb.es). El nombre se cambia en `packages/shared/src/brand.ts`, `apps/mobile/app.config.ts` (variable `APP_NAME`) y en `app_config.platform_name` desde el panel.
 
 ## Visión general
 

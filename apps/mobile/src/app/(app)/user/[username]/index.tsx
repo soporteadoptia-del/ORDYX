@@ -102,7 +102,7 @@ export default function UserProfile() {
         />
         <Text variant="title">{p.display_name || p.username}</Text>
         <Text muted>
-          @{p.username} · en Ordyx desde{' '}
+          @{p.username} · en Aurevix desde{' '}
           {new Date(p.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
         </Text>
         <View style={{ flexDirection: 'row', gap: spacing.xl }}>

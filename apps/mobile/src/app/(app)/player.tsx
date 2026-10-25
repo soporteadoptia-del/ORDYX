@@ -44,7 +44,7 @@ export default function PlayerScreen() {
       ]}
     >
       <LinearGradient
-        colors={['rgba(139,92,246,0.45)', 'rgba(236,72,153,0.12)', colors.background]}
+        colors={['rgba(200,245,96,0.20)', 'rgba(185,140,255,0.08)', colors.background]}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.topBar}>

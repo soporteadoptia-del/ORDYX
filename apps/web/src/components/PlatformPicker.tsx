@@ -121,7 +121,7 @@ function PlatformCard({
       } ${dimmed ? 'opacity-80' : ''}`}
     >
       {highlighted ? (
-        <span className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-0.5 text-xs font-semibold text-white">
+        <span className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-0.5 text-xs font-semibold text-ink">
           Recomendado para ti
         </span>
       ) : null}
@@ -134,7 +134,7 @@ function PlatformCard({
           <a
             href={offer.href}
             rel={offer.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            className="btn-primary mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-lg font-bold text-white shadow-lg shadow-accent/30"
+            className="btn-primary mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-lg font-bold text-ink"
           >
             {offer.label}
           </a>

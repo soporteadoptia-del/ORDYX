@@ -33,5 +33,5 @@ Todo se valida en el servidor: las páginas comprueban la sesión con Supabase A
 ## Seguridad operativa
 
 - Usa contraseñas largas y activa en Supabase la protección de contraseñas filtradas y, si es posible, MFA para cuentas de staff.
-- Despliega el panel en un dominio distinto de la web (p. ej. `admin.ordyx.app`), sin enlazarlo desde la web.
+- Despliega el panel en un dominio distinto de la web (p. ej. `admin.aurevixweb.es`), sin enlazarlo desde la web.
 - Revisa periódicamente **Auditoría** y **Errores**.

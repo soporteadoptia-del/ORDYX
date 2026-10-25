@@ -5,7 +5,7 @@
 ## Contenido musical y derechos
 
 - **Licencias de la música publicada.** Solo se aceptan canciones que el artista declara como propias o autorizadas (casilla obligatoria, `rights_confirmed_at`, titular y licencia guardados). Revisar con un abogado si la plataforma, al comunicar públicamente obras de autores gestionados por entidades (SGAE, AIE, AGEDI, etc.), necesita licencias propias además de la declaración del artista.
-- **Directiva (UE) 2019/790, art. 17** (transpuesta en España por el RDL 24/2021): un «prestador de servicios para compartir contenidos en línea» puede tener que hacer «los mayores esfuerzos» por obtener autorización de los titulares y responder ante infracciones. Evaluar si Ordyx entra en esa categoría según su tamaño y antigüedad.
+- **Directiva (UE) 2019/790, art. 17** (transpuesta en España por el RDL 24/2021): un «prestador de servicios para compartir contenidos en línea» puede tener que hacer «los mayores esfuerzos» por obtener autorización de los titulares y responder ante infracciones. Evaluar si Aurevix Music entra en esa categoría según su tamaño y antigüedad.
 - **Procedimiento de notificación y retirada:** implementado (formulario público `/derechos`, denuncias en la app, retirada desde el panel con notificación). Falta definir plazos, contranotificación formal y conservación de pruebas.
 - No se extrae música de Spotify, SoundCloud, YouTube ni otros servicios. El contenido de demostración es audio sintetizado propio (CC0) marcado como demo.
 

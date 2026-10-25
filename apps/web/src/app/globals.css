@@ -1,23 +1,30 @@
 @import 'tailwindcss';
 
-/* Identidad de Ordyx: base negra/grafito con acento aurora (violeta → magenta). */
+/* Identidad de Aurevix Music: la misma paleta y tipografía que aurevixweb.es (style.css). */
 @theme {
-  --color-ink: #07070b;
-  --color-surface: #111118;
-  --color-elevated: #1a1a24;
-  --color-line: #262634;
-  --color-fg: #f4f3f8;
-  --color-muted: #a09fb2;
-  --color-subtle: #6e6d82;
-  --color-accent: #8b5cf6;
-  --color-accent-strong: #a78bfa;
-  --color-warm: #ec4899;
-  --color-success: #34d399;
+  --color-ink: #0c0c0e;
+  --color-bg2: #111115;
+  --color-surface: #16161b;
+  --color-elevated: #1d1d24;
+  --color-field: #0f0f12;
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-line2: rgba(255, 255, 255, 0.16);
+  --color-fg: #f3f1ea;
+  --color-muted: #a19f96;
+  --color-subtle: #86837c;
+  --color-accent: #c8f560;
+  --color-accent-strong: #c8f560;
+  --color-accent-hover: #d8ff80;
+  --color-warm: #b98cff;
+  --color-success: #4ade80;
   --color-warning: #fbbf24;
+  --color-info: #60a5fa;
   --color-danger: #f87171;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --radius-card: 1.25rem;
+    'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-card: 18px;
 }
 
 :root {
@@ -32,28 +39,79 @@ body {
   background: var(--color-ink);
   color: var(--color-fg);
   font-family: var(--font-sans);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Grano sutil, como en aurevixweb.es. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+}
+
+/* Etiqueta en mono con rombo lima (`.eyebrow` de aurevixweb.es). */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transform: rotate(45deg);
 }
 
 .aurora {
   background:
-    radial-gradient(60% 50% at 20% 0%, rgba(139, 92, 246, 0.35), transparent 70%),
-    radial-gradient(50% 40% at 85% 10%, rgba(236, 72, 153, 0.22), transparent 70%);
+    radial-gradient(60% 50% at 20% 0%, rgba(200, 245, 96, 0.13), transparent 70%),
+    radial-gradient(50% 40% at 85% 10%, rgba(185, 140, 255, 0.1), transparent 70%);
 }
 
+/* Palabra destacada en lima (como `.hero h1 em`). */
 .text-gradient {
-  background: linear-gradient(90deg, #a78bfa, #ec4899);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-accent);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  background: var(--color-accent);
+  color: var(--color-ink);
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-google {
+  background: #fff;
+  color: #1f1f1f;
 }
 
 .glass {
-  background: rgba(26, 26, 36, 0.7);
+  background: rgba(22, 22, 27, 0.72);
   backdrop-filter: blur(12px);
   border: 1px solid var(--color-line);
 }
