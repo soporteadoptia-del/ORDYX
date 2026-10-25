@@ -31,7 +31,7 @@ export default function TabsLayout() {
           backgroundColor: 'transparent',
           borderTopColor: colors.border,
           // Algo más alta que la estándar para que quepan las etiquetas con Instrument Sans.
-          height: 60 + insets.bottom,
+          height: 70 + insets.bottom,
           paddingTop: 6,
           paddingBottom: insets.bottom + 6,
         },

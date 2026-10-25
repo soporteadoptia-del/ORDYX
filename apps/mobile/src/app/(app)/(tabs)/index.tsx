@@ -1,8 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
   getFeaturedArtists,
@@ -17,26 +16,22 @@ import { getLikedTracks, getMyPlaylists, getRecentlyPlayed } from '@/api/library
 import type { TrackListItem } from '@/api/types';
 import { Artwork } from '@/components/Artwork';
 import { GenreGrid } from '@/components/GenreGrid';
-import { Logo } from '@/components/Logo';
 import { Carousel, type CardItem } from '@/components/MediaCard';
 import { LIST_BOTTOM_PADDING, Screen } from '@/components/Screen';
-import { Badge, ErrorState, IconButton, Loading, SectionHeader, Text } from '@/components/ui';
+import { Badge, Chip, ErrorState, Loading, SectionHeader, Text } from '@/components/ui';
 import { toUserMessage } from '@/lib/errors';
 import { imageUrl } from '@/lib/media';
 import { playList } from '@/player/play';
 import { useAuth } from '@/providers/AuthProvider';
 import { colors, fonts, radius, spacing } from '@/theme';
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 6
-    ? 'Buenas noches'
-    : h < 13
-      ? 'Buenos días'
-      : h < 21
-        ? 'Buenas tardes'
-        : 'Buenas noches';
-}
+type Filter = 'all' | 'music' | 'playlists' | 'artists';
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: 'all', label: 'Todo' },
+  { key: 'music', label: 'Música' },
+  { key: 'playlists', label: 'Playlists' },
+  { key: 'artists', label: 'Artistas' },
+];
 
 const trackCards = (
   tracks: TrackListItem[] | undefined,
@@ -50,8 +45,18 @@ const trackCards = (
     onPress: () => void playList(tracks!, i, ctx),
   }));
 
+interface Quick {
+  id: string;
+  title: string;
+  image?: string | null;
+  round?: boolean;
+  heart?: boolean;
+  onPress: () => void;
+}
+
 export default function Home() {
   const { profile } = useAuth();
+  const [filter, setFilter] = useState<Filter>('all');
   const [refreshing, setRefreshing] = useState(false);
   const recent = useQuery({ queryKey: ['home', 'recent'], queryFn: () => getRecentlyPlayed(12) });
   const popular = useQuery({ queryKey: ['home', 'popular'], queryFn: () => getPopularTracks(12) });
@@ -70,7 +75,7 @@ export default function Home() {
   const mine = useQuery({ queryKey: ['library', 'myPlaylists'], queryFn: getMyPlaylists });
   const genres = useQuery({ queryKey: ['genres'], queryFn: getGenres, staleTime: 3_600_000 });
 
-  const all = [recent, popular, fresh, artists, albums, playlists, indie, liked, mine];
+  const all = [recent, popular, fresh, artists, albums, playlists, indie, liked, mine, genres];
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all(all.map((q) => q.refetch()));
@@ -78,98 +83,122 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Accesos rápidos (cuadrícula de 2 columnas): favoritos, tus playlists, lo último que has
+  // escuchado y lo destacado, sin repetir y hasta 8.
+  const quick = useMemo<Quick[]>(() => {
+    const items: Quick[] = [
+      { id: 'liked', title: 'Tus favoritos', heart: true, onPress: () => router.push('/liked') },
+    ];
+    const seen = new Set<string>();
+    const add = (q: Quick) => {
+      if (items.length < 8 && !seen.has(q.id)) {
+        seen.add(q.id);
+        items.push(q);
+      }
+    };
+    for (const p of [...(mine.data ?? []), ...(playlists.data ?? [])])
+      add({
+        id: `p-${p.id}`,
+        title: p.title,
+        image: imageUrl('playlist-images', p.cover_path),
+        onPress: () => router.push(`/playlist/${p.id}`),
+      });
+    for (const a of artists.data ?? [])
+      add({
+        id: `a-${a.id}`,
+        title: a.name,
+        image: imageUrl('covers', a.image_path),
+        round: true,
+        onPress: () => router.push(`/artist/${a.id}`),
+      });
+    const tracks = [...(recent.data ?? []), ...(popular.data ?? [])];
+    tracks.forEach((t, i) =>
+      add({
+        id: `t-${t.id}`,
+        title: t.title,
+        image: imageUrl('covers', t.cover_path) ?? imageUrl('covers', t.artist?.image_path),
+        onPress: () => void playList(tracks, i, { type: 'home' }),
+      }),
+    );
+    return items;
+  }, [mine.data, playlists.data, artists.data, recent.data, popular.data]);
+
   const loading = popular.isLoading && fresh.isLoading;
   const fatal = popular.error && fresh.error;
   const catalogEmpty = !loading && !fatal && (popular.data?.length ?? 0) === 0;
   const hasDemo = [...(popular.data ?? []), ...(fresh.data ?? [])].some((t) => t.is_demo);
+  const show = (...f: Filter[]) => filter === 'all' || f.includes(filter);
+  const has = (q: { data?: unknown[] }) => (q.data?.length ?? 0) > 0;
+
+  const playlistCards = (list: typeof playlists.data): CardItem[] =>
+    (list ?? []).map((p) => ({
+      id: p.id,
+      title: p.title,
+      subtitle: p.description || `de @${p.owner?.username ?? 'usuario'}`,
+      imageUrl: imageUrl('playlist-images', p.cover_path),
+      icon: 'list',
+      onPress: () => router.push(`/playlist/${p.id}`),
+    }));
 
   return (
     <Screen>
+      {/* Cabecera fija: avatar y filtros */}
+      <View style={styles.top}>
+        <Pressable
+          onPress={() => router.push('/me')}
+          accessibilityRole="button"
+          accessibilityLabel="Tu perfil"
+          hitSlop={6}
+        >
+          {profile?.avatar_path ? (
+            <Artwork uri={imageUrl('avatars', profile.avatar_path)} size={36} rounded />
+          ) : (
+            <View style={styles.initial}>
+              <Text style={styles.initialText}>
+                {(profile?.display_name ?? profile?.username ?? 'A').charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+        </Pressable>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chips}
+        >
+          {FILTERS.map((f) => (
+            <Chip
+              key={f.key}
+              label={f.label}
+              selected={filter === f.key}
+              onPress={() => setFilter(f.key)}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
       <ScrollView
         contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
         }
       >
-        <View style={styles.header}>
-          <Logo size={30} />
-          <View style={{ flex: 1 }} />
-          <IconButton
-            name="notifications-outline"
-            label="Notificaciones"
-            onPress={() => router.push('/notifications')}
-          />
-          <IconButton
-            name="settings-outline"
-            label="Ajustes"
-            onPress={() => router.push('/settings')}
-          />
-        </View>
-        <View style={styles.hello}>
-          <Text variant="micro" muted>
-            {new Date()
-              .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
-              .toUpperCase()}
-          </Text>
-          <Text variant="display" accessibilityRole="header">
-            {greeting()}
-            {profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}
-          </Text>
-        </View>
-
-        {/* Tarjeta destacada en lima, como los bloques de aurevixweb.es */}
-        <Pressable
-          onPress={() => router.push('/search')}
-          style={({ pressed }) => [styles.hero, pressed && { opacity: 0.92 }]}
-          accessibilityRole="button"
-          accessibilityLabel="Descubrir música"
-        >
-          <LinearGradient
-            colors={['#C8F560', '#A9E040']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.heroWave} pointerEvents="none">
-            {[30, 55, 80, 45, 95, 65, 35, 75, 50, 90, 40, 70, 25, 60].map((h, i) => (
-              <View key={i} style={[styles.heroBar, { height: `${h}%` }]} />
+        {filter === 'all' ? (
+          <View style={styles.quickGrid}>
+            {quick.map((q) => (
+              <QuickTile key={q.id} item={q} />
             ))}
-          </View>
-          <Text variant="micro" style={{ color: colors.onAccent, opacity: 0.7 }}>
-            DESCUBRE
-          </Text>
-          <Text style={styles.heroTitle}>Artistas que aún no conoces</Text>
-          <View style={styles.heroCta}>
-            <Ionicons name="search" size={16} color={colors.text} />
-            <Text variant="bodyStrong" style={{ color: colors.text, fontSize: 14 }}>
-              Explorar
-            </Text>
-          </View>
-        </Pressable>
-
-        {hasDemo ? (
-          <View style={styles.demo}>
-            <Badge label="Demo" tone="warning" />
-            <Text variant="caption" muted style={{ flex: 1 }}>
-              Parte del catálogo es contenido de demostración generado para pruebas, no música real
-              de artistas.
-            </Text>
           </View>
         ) : null}
 
-        {/* Accesos rápidos: favoritos y playlists propias */}
-        <View style={styles.quickGrid}>
-          <QuickTile title="Tus favoritos" icon="heart" onPress={() => router.push('/liked')} />
-          {(mine.data ?? []).slice(0, 5).map((p) => (
-            <QuickTile
-              key={p.id}
-              title={p.title}
-              image={imageUrl('playlist-images', p.cover_path)}
-              seed={p.id}
-              onPress={() => router.push(`/playlist/${p.id}`)}
-            />
-          ))}
-        </View>
+        {hasDemo && filter === 'all' ? (
+          <View style={styles.demo}>
+            <Badge label="Demo" tone="warning" />
+            <Text variant="caption" muted style={{ flex: 1 }}>
+              Parte del catálogo es contenido de demostración sintetizado, no música real de
+              artistas.
+            </Text>
+          </View>
+        ) : null}
 
         {loading ? <Loading /> : null}
         {fatal ? <ErrorState message={toUserMessage(popular.error)} onRetry={onRefresh} /> : null}
@@ -186,40 +215,35 @@ export default function Home() {
           </View>
         ) : null}
 
-        {(genres.data?.length ?? 0) > 0 ? (
-          <>
-            <SectionHeader
-              title="Explora por género"
-              action="Ver todos"
-              onAction={() => router.push('/search')}
-            />
-            <GenreGrid genres={genres.data!} limit={6} />
-          </>
-        ) : null}
-
-        {(recent.data?.length ?? 0) > 0 ? (
+        {show('music') && has(recent) ? (
           <>
             <SectionHeader
               title="Escuchado recientemente"
               action="Historial"
               onAction={() => router.push('/history')}
             />
-            <Carousel items={trackCards(recent.data, { type: 'home' })} size={132} />
+            <Carousel items={trackCards(recent.data, { type: 'home' })} size={136} />
           </>
         ) : null}
-        {(popular.data?.length ?? 0) > 0 ? (
+        {show('playlists') && has(playlists) ? (
           <>
-            <SectionHeader title="Populares ahora" />
+            <SectionHeader title="Playlists para ti" />
+            <Carousel items={playlistCards(playlists.data)} />
+          </>
+        ) : null}
+        {show('music') && has(popular) ? (
+          <>
+            <SectionHeader title="Lo más escuchado" />
             <Carousel items={trackCards(popular.data, { type: 'home' })} />
           </>
         ) : null}
-        {(fresh.data?.length ?? 0) > 0 ? (
+        {show('music') && has(fresh) ? (
           <>
             <SectionHeader title="Nuevos lanzamientos" />
             <Carousel items={trackCards(fresh.data, { type: 'home' })} />
           </>
         ) : null}
-        {(artists.data?.length ?? 0) > 0 ? (
+        {show('artists') && has(artists) ? (
           <>
             <SectionHeader title="Artistas destacados" />
             <Carousel
@@ -232,11 +256,11 @@ export default function Home() {
                 icon: 'person',
                 onPress: () => router.push(`/artist/${a.id}`),
               }))}
-              size={124}
+              size={136}
             />
           </>
         ) : null}
-        {(albums.data?.length ?? 0) > 0 ? (
+        {show('artists', 'music') && has(albums) ? (
           <>
             <SectionHeader title="Álbumes populares" />
             <Carousel
@@ -251,35 +275,40 @@ export default function Home() {
             />
           </>
         ) : null}
-        {(playlists.data?.length ?? 0) > 0 ? (
+        {show('playlists') && has(mine) ? (
           <>
-            <SectionHeader title="Playlists recomendadas" />
-            <Carousel
-              items={playlists.data!.map((p) => ({
-                id: p.id,
-                title: p.title,
-                subtitle: `de @${p.owner?.username ?? 'usuario'}`,
-                imageUrl: imageUrl('playlist-images', p.cover_path),
-                icon: 'list',
-                onPress: () => router.push(`/playlist/${p.id}`),
-              }))}
+            <SectionHeader
+              title="Tus playlists"
+              action="Biblioteca"
+              onAction={() => router.push('/library')}
             />
+            <Carousel items={playlistCards(mine.data)} size={136} />
           </>
         ) : null}
-        {(indie.data?.length ?? 0) > 0 ? (
+        {show('music') && has(indie) ? (
           <>
             <SectionHeader title="Música independiente" />
             <Carousel items={trackCards(indie.data, { type: 'home' })} />
           </>
         ) : null}
-        {(liked.data?.length ?? 0) > 0 ? (
+        {show('music') && has(liked) ? (
           <>
             <SectionHeader
               title="Tus canciones favoritas"
               action="Ver todas"
               onAction={() => router.push('/liked')}
             />
-            <Carousel items={trackCards(liked.data, { type: 'library' })} size={132} />
+            <Carousel items={trackCards(liked.data, { type: 'library' })} size={136} />
+          </>
+        ) : null}
+        {filter === 'all' && has(genres) ? (
+          <>
+            <SectionHeader
+              title="Explora por género"
+              action="Ver todos"
+              onAction={() => router.push('/search')}
+            />
+            <GenreGrid genres={genres.data!} limit={6} />
           </>
         ) : null}
       </ScrollView>
@@ -287,95 +316,94 @@ export default function Home() {
   );
 }
 
-function QuickTile({
-  title,
-  image,
-  icon,
-  seed,
-  onPress,
-}: {
-  title: string;
-  image?: string | null;
-  icon?: 'heart';
-  seed?: string;
-  onPress: () => void;
-}) {
+/** Acceso rápido: imagen a la izquierda a toda altura y título en dos líneas, como en Spotify. */
+function QuickTile({ item }: { item: Quick }) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={item.onPress}
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={item.title}
       style={({ pressed }) => [styles.tile, pressed && { opacity: 0.8 }]}
     >
-      {icon ? (
-        <View style={[styles.tileArt, { backgroundColor: colors.accent }]}>
-          <Ionicons name={icon} size={22} color={colors.onAccent} />
+      {item.heart ? (
+        <View style={[styles.tileArt, styles.heart]}>
+          <Ionicons name="heart" size={24} color={colors.onAccent} />
+        </View>
+      ) : item.round ? (
+        <View style={[styles.tileArt, { alignItems: 'center', justifyContent: 'center' }]}>
+          <Artwork uri={item.image ?? null} size={46} rounded icon="person" seed={item.id} />
         </View>
       ) : (
         <Artwork
-          uri={image ?? null}
-          size={52}
-          seed={seed}
+          uri={item.image ?? null}
+          size={TILE}
+          seed={item.id}
           icon="list"
           style={{ borderRadius: 0 }}
         />
       )}
-      <Text variant="bodyStrong" numberOfLines={2} style={{ flex: 1, fontSize: 13 }}>
-        {title}
+      <Text variant="bodyStrong" numberOfLines={2} style={styles.tileText}>
+        {item.title}
       </Text>
     </Pressable>
   );
 }
 
+const TILE = 56;
+
 const styles = StyleSheet.create({
-  header: {
+  top: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    gap: spacing.xs,
+    gap: spacing.sm,
+    paddingLeft: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
-  hello: { paddingHorizontal: spacing.lg, marginTop: spacing.lg, gap: spacing.xs },
-  hero: {
+  chips: { gap: spacing.sm, paddingRight: spacing.lg },
+  initial: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.accentWarm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialText: { fontFamily: fonts.displayHeavy, fontSize: 16, color: colors.onAccent },
+  quickGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  tile: {
+    width: '48.6%',
+    height: TILE,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    paddingRight: spacing.sm,
+  },
+  tileArt: { width: TILE, height: TILE },
+  heart: {
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tileText: { flex: 1, fontSize: 13, lineHeight: 17 },
+  demo: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignItems: 'center',
     marginHorizontal: spacing.lg,
     marginTop: spacing.lg,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    overflow: 'hidden',
-    gap: spacing.sm,
-    minHeight: 168,
-    justifyContent: 'flex-end',
-  },
-  heroWave: {
-    position: 'absolute',
-    right: spacing.xl,
-    bottom: spacing.xl,
-    width: 120,
-    height: 44,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 4,
-    opacity: 0.25,
-  },
-  heroBar: { flex: 1, borderRadius: 3, backgroundColor: '#0C0C0E' },
-  heroTitle: {
-    fontFamily: fonts.displayHeavy,
-    fontSize: 28,
-    lineHeight: 30,
-    letterSpacing: -0.8,
-    color: '#0C0C0E',
-    maxWidth: 260,
-  },
-  heroCta: {
-    marginTop: spacing.sm,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#0C0C0E',
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 10,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(251,191,36,0.08)',
   },
   emptyCard: {
     marginHorizontal: spacing.lg,
@@ -397,34 +425,4 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-6deg' }],
     marginBottom: spacing.xs,
   },
-  demo: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    alignItems: 'center',
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(251,191,36,0.08)',
-  },
-  quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-  },
-  tile: {
-    width: '48.5%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.glass,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    paddingRight: spacing.sm,
-  },
-  tileArt: { width: 52, height: 52, alignItems: 'center', justifyContent: 'center' },
 });

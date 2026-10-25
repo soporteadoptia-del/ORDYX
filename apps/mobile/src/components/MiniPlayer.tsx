@@ -64,11 +64,13 @@ const styles = StyleSheet.create({
   wrap: {
     height: MINI_PLAYER_HEIGHT,
     marginHorizontal: spacing.sm,
+    marginTop: spacing.xs,
     marginBottom: spacing.xs,
     borderRadius: radius.md,
-    backgroundColor: colors.glass,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    // Tono lima muy oscuro: se distingue del fondo sin restar protagonismo a la portada.
+    backgroundColor: '#222917',
+    borderWidth: 1,
+    borderColor: 'rgba(200,245,96,0.14)',
     overflow: 'hidden',
   },
   inner: {
@@ -78,6 +80,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
-  progressTrack: { height: 2, backgroundColor: colors.border },
+  progressTrack: { height: 2, marginHorizontal: spacing.sm, backgroundColor: colors.border },
   progressFill: { height: 2, backgroundColor: colors.accentStrong },
 });

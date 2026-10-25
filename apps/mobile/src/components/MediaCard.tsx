@@ -16,7 +16,7 @@ export interface CardItem {
 
 export const MediaCard = memo(function MediaCard({
   item,
-  size = 148,
+  size = 156,
 }: {
   item: CardItem;
   size?: number;
@@ -49,7 +49,7 @@ export const MediaCard = memo(function MediaCard({
           <Text
             muted
             variant="caption"
-            numberOfLines={1}
+            numberOfLines={2}
             style={item.round ? { textAlign: 'center' } : undefined}
           >
             {item.subtitle}
