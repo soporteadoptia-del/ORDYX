@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import {
   getFeaturedArtists,
@@ -150,194 +152,206 @@ export default function Home() {
       onPress: () => router.push(`/playlist/${p.id}`),
     }));
 
+  // Deslizar desde el borde izquierdo hacia la derecha abre el menú (como en Spotify). Solo cuenta
+  // un gesto que empieza en los primeros 28 px, para no chocar con los carruseles ni con el scroll.
+  const edgeSwipe = Gesture.Pan()
+    .hitSlop({ left: 0, width: 28 })
+    .activeOffsetX(16)
+    .failOffsetY([-14, 14])
+    .onEnd((e) => {
+      if (e.translationX > 60 || e.velocityX > 500) scheduleOnRN(setMenu, true);
+    });
+
   return (
-    <Screen>
-      <SideMenu visible={menu} onClose={() => setMenu(false)} />
-      {/* Cabecera fija: avatar (abre el menú) y filtros */}
-      <View style={styles.top}>
-        <Pressable
-          onPress={() => setMenu(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Abrir menú de tu cuenta"
-          hitSlop={6}
+    <GestureDetector gesture={edgeSwipe}>
+      <Screen>
+        <SideMenu visible={menu} onClose={() => setMenu(false)} />
+        {/* Cabecera fija: avatar (abre el menú) y filtros */}
+        <View style={styles.top}>
+          <Pressable
+            onPress={() => setMenu(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir menú de tu cuenta"
+            hitSlop={6}
+          >
+            {profile?.avatar_path ? (
+              <Artwork uri={imageUrl('avatars', profile.avatar_path)} size={36} rounded />
+            ) : (
+              <View style={styles.initial}>
+                <Text style={styles.initialText}>
+                  {(profile?.display_name ?? profile?.username ?? 'A').charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chips}
+          >
+            {FILTERS.map((f) => (
+              <Chip
+                key={f.key}
+                label={f.label}
+                selected={filter === f.key}
+                onPress={() => setFilter(f.key)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
+          }
         >
-          {profile?.avatar_path ? (
-            <Artwork uri={imageUrl('avatars', profile.avatar_path)} size={36} rounded />
-          ) : (
-            <View style={styles.initial}>
-              <Text style={styles.initialText}>
-                {(profile?.display_name ?? profile?.username ?? 'A').charAt(0).toUpperCase()}
+          {filter === 'all' ? (
+            <>
+              <Greeting name={profile?.display_name?.split(' ')[0] ?? null} />
+              <NoticeBanner />
+            </>
+          ) : null}
+          {filter === 'all' && !loading ? (
+            <View style={styles.quickGrid}>
+              {quick.map((q) => (
+                <QuickTile key={q.id} item={q} />
+              ))}
+            </View>
+          ) : null}
+
+          {show('music') ? <NowTrending /> : null}
+          {show('music') ? <MadeForYou /> : null}
+          {show('music') ? <RadioRow /> : null}
+
+          {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (
+            <PlusStrip price={formatEuros(offer.data?.priceCents ?? 499)} />
+          ) : null}
+
+          {hasDemo && filter === 'all' ? (
+            <View style={styles.demo}>
+              <Badge label="Demo" tone="warning" />
+              <Text variant="caption" muted style={{ flex: 1 }}>
+                Parte del catálogo es contenido de demostración sintetizado, no música real de
+                artistas.
               </Text>
             </View>
-          )}
-        </Pressable>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chips}
-        >
-          {FILTERS.map((f) => (
-            <Chip
-              key={f.key}
-              label={f.label}
-              selected={filter === f.key}
-              onPress={() => setFilter(f.key)}
-            />
-          ))}
-        </ScrollView>
-      </View>
+          ) : null}
 
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: LIST_BOTTOM_PADDING }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.text} />
-        }
-      >
-        {filter === 'all' ? (
-          <>
-            <Greeting name={profile?.display_name?.split(' ')[0] ?? null} />
-            <NoticeBanner />
-          </>
-        ) : null}
-        {filter === 'all' && !loading ? (
-          <View style={styles.quickGrid}>
-            {quick.map((q) => (
-              <QuickTile key={q.id} item={q} />
-            ))}
-          </View>
-        ) : null}
-
-        {show('music') ? <NowTrending /> : null}
-        {show('music') ? <MadeForYou /> : null}
-        {show('music') ? <RadioRow /> : null}
-
-        {filter === 'all' && plusData && !isPlus && !plusData.pending_id ? (
-          <PlusStrip price={formatEuros(offer.data?.priceCents ?? 499)} />
-        ) : null}
-
-        {hasDemo && filter === 'all' ? (
-          <View style={styles.demo}>
-            <Badge label="Demo" tone="warning" />
-            <Text variant="caption" muted style={{ flex: 1 }}>
-              Parte del catálogo es contenido de demostración sintetizado, no música real de
-              artistas.
-            </Text>
-          </View>
-        ) : null}
-
-        {loading ? <HomeSkeleton /> : null}
-        {fatal ? <ErrorState message={toUserMessage(popular.error)} onRetry={onRefresh} /> : null}
-        {catalogEmpty ? (
-          <View style={styles.emptyCard}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="musical-notes" size={22} color={colors.onAccent} />
+          {loading ? <HomeSkeleton /> : null}
+          {fatal ? <ErrorState message={toUserMessage(popular.error)} onRetry={onRefresh} /> : null}
+          {catalogEmpty ? (
+            <View style={styles.emptyCard}>
+              <View style={styles.emptyIcon}>
+                <Ionicons name="musical-notes" size={22} color={colors.onAccent} />
+              </View>
+              <Text variant="heading">Aún no hay canciones publicadas</Text>
+              <Text muted variant="caption">
+                Las primeras llegarán muy pronto. ¿Haces música? Publícala desde tu perfil, en el
+                estudio de artista.
+              </Text>
             </View>
-            <Text variant="heading">Aún no hay canciones publicadas</Text>
-            <Text muted variant="caption">
-              Las primeras llegarán muy pronto. ¿Haces música? Publícala desde tu perfil, en el
-              estudio de artista.
-            </Text>
-          </View>
-        ) : null}
+          ) : null}
 
-        {show('music') && has(recent) ? (
-          <>
-            <SectionHeader
-              title="Escuchado recientemente"
-              action="Historial"
-              onAction={() => router.push('/history')}
-            />
-            <Carousel items={trackCards(recent.data, { type: 'home' })} size={136} />
-          </>
-        ) : null}
-        {show('playlists') && has(playlists) ? (
-          <>
-            <SectionHeader title="Playlists para ti" />
-            <Carousel items={playlistCards(playlists.data)} />
-          </>
-        ) : null}
-        {show('music') && has(popular) ? (
-          <>
-            <SectionHeader title="Lo más escuchado" />
-            <Carousel items={trackCards(popular.data, { type: 'home' })} />
-          </>
-        ) : null}
-        {show('music') && has(fresh) ? (
-          <>
-            <SectionHeader title="Nuevos lanzamientos" />
-            <Carousel items={trackCards(fresh.data, { type: 'home' })} />
-          </>
-        ) : null}
-        {show('artists') && has(artists) ? (
-          <>
-            <SectionHeader title="Artistas destacados" />
-            <Carousel
-              items={artists.data!.map((a) => ({
-                id: a.id,
-                title: a.name,
-                subtitle: a.is_verified ? 'Artista verificado' : 'Artista',
-                imageUrl: imageUrl('covers', a.image_path),
-                round: true,
-                icon: 'person',
-                onPress: () => router.push(`/artist/${a.id}`),
-              }))}
-              size={136}
-            />
-          </>
-        ) : null}
-        {show('artists', 'music') && has(albums) ? (
-          <>
-            <SectionHeader title="Álbumes populares" />
-            <Carousel
-              items={albums.data!.map((a) => ({
-                id: a.id,
-                title: a.title,
-                subtitle: a.artist?.name,
-                imageUrl: imageUrl('covers', a.cover_path),
-                icon: 'disc',
-                onPress: () => router.push(`/album/${a.id}`),
-              }))}
-            />
-          </>
-        ) : null}
-        {show('playlists') && has(mine) ? (
-          <>
-            <SectionHeader
-              title="Tus playlists"
-              action="Biblioteca"
-              onAction={() => router.push('/library')}
-            />
-            <Carousel items={playlistCards(mine.data)} size={136} />
-          </>
-        ) : null}
-        {show('music') && has(indie) ? (
-          <>
-            <SectionHeader title="Música independiente" />
-            <Carousel items={trackCards(indie.data, { type: 'home' })} />
-          </>
-        ) : null}
-        {show('music') && has(liked) ? (
-          <>
-            <SectionHeader
-              title="Tus canciones favoritas"
-              action="Ver todas"
-              onAction={() => router.push('/liked')}
-            />
-            <Carousel items={trackCards(liked.data, { type: 'library' })} size={136} />
-          </>
-        ) : null}
-        {filter === 'all' && has(genres) ? (
-          <>
-            <SectionHeader
-              title="Explora por género"
-              action="Ver todos"
-              onAction={() => router.push('/search')}
-            />
-            <GenreGrid genres={genres.data!} limit={6} />
-          </>
-        ) : null}
-      </ScrollView>
-    </Screen>
+          {show('music') && has(recent) ? (
+            <>
+              <SectionHeader
+                title="Escuchado recientemente"
+                action="Historial"
+                onAction={() => router.push('/history')}
+              />
+              <Carousel items={trackCards(recent.data, { type: 'home' })} size={136} />
+            </>
+          ) : null}
+          {show('playlists') && has(playlists) ? (
+            <>
+              <SectionHeader title="Playlists para ti" />
+              <Carousel items={playlistCards(playlists.data)} />
+            </>
+          ) : null}
+          {show('music') && has(popular) ? (
+            <>
+              <SectionHeader title="Lo más escuchado" />
+              <Carousel items={trackCards(popular.data, { type: 'home' })} />
+            </>
+          ) : null}
+          {show('music') && has(fresh) ? (
+            <>
+              <SectionHeader title="Nuevos lanzamientos" />
+              <Carousel items={trackCards(fresh.data, { type: 'home' })} />
+            </>
+          ) : null}
+          {show('artists') && has(artists) ? (
+            <>
+              <SectionHeader title="Artistas destacados" />
+              <Carousel
+                items={artists.data!.map((a) => ({
+                  id: a.id,
+                  title: a.name,
+                  subtitle: a.is_verified ? 'Artista verificado' : 'Artista',
+                  imageUrl: imageUrl('covers', a.image_path),
+                  round: true,
+                  icon: 'person',
+                  onPress: () => router.push(`/artist/${a.id}`),
+                }))}
+                size={136}
+              />
+            </>
+          ) : null}
+          {show('artists', 'music') && has(albums) ? (
+            <>
+              <SectionHeader title="Álbumes populares" />
+              <Carousel
+                items={albums.data!.map((a) => ({
+                  id: a.id,
+                  title: a.title,
+                  subtitle: a.artist?.name,
+                  imageUrl: imageUrl('covers', a.cover_path),
+                  icon: 'disc',
+                  onPress: () => router.push(`/album/${a.id}`),
+                }))}
+              />
+            </>
+          ) : null}
+          {show('playlists') && has(mine) ? (
+            <>
+              <SectionHeader
+                title="Tus playlists"
+                action="Biblioteca"
+                onAction={() => router.push('/library')}
+              />
+              <Carousel items={playlistCards(mine.data)} size={136} />
+            </>
+          ) : null}
+          {show('music') && has(indie) ? (
+            <>
+              <SectionHeader title="Música independiente" />
+              <Carousel items={trackCards(indie.data, { type: 'home' })} />
+            </>
+          ) : null}
+          {show('music') && has(liked) ? (
+            <>
+              <SectionHeader
+                title="Tus canciones favoritas"
+                action="Ver todas"
+                onAction={() => router.push('/liked')}
+              />
+              <Carousel items={trackCards(liked.data, { type: 'library' })} size={136} />
+            </>
+          ) : null}
+          {filter === 'all' && has(genres) ? (
+            <>
+              <SectionHeader
+                title="Explora por género"
+                action="Ver todos"
+                onAction={() => router.push('/search')}
+              />
+              <GenreGrid genres={genres.data!} limit={6} />
+            </>
+          ) : null}
+        </ScrollView>
+      </Screen>
+    </GestureDetector>
   );
 }
 

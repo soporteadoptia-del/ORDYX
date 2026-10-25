@@ -85,7 +85,7 @@ const head = `
     <meta name="theme-color" content="#0C0C0E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Aurevix" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
     <link rel="manifest" href="${BASE}/manifest.webmanifest" />
@@ -94,29 +94,13 @@ const head = `
       /* iOS ignora overflow:hidden en body al deslizar: sin esto la página entera se desplazaba
          y la app quedaba «subida» bajo la barra de estado, con una franja negra abajo. */
       html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
-      /* El hueco de la barra de estado y de la barra de inicio lo pone el CSS (la app no suma
-         márgenes en la web). En el iPhone instalado hay un mínimo por si el sistema da 0. */
+      /* El hueco de la barra de estado lo pone el CSS (la app no suma márgenes en la web). */
       #root{position:fixed;inset:0;height:auto;padding-top:env(safe-area-inset-top);box-sizing:border-box}
-      .ios-standalone #root{padding-top:max(env(safe-area-inset-top),47px)}
-      .ios-standalone,.ios-standalone body{height:var(--app-h,100%)}
-      .ios-standalone body,.ios-standalone #root{bottom:auto;height:var(--app-h,100%)}
+      /* iPhone instalado: barra de estado negra y opaca («black»). Con «black-translucent», iOS
+         encoge la zona de la app 47 pt por abajo (hueco negro o barra cortada). Con «black» la app
+         empieza bajo la barra de estado y llega hasta abajo; env() da el hueco que haga falta. */
     </style>
-    <script>
-      // iPhone instalado: Safari a veces da a la página una altura más corta que la pantalla y
-      // queda un hueco negro bajo la barra de pestañas. Se fija la altura real de la pantalla.
-      if (navigator.standalone === true) {
-        var d = document.documentElement;
-        d.classList.add('ios-standalone');
-        var fit = function () {
-          var h = Math.max(window.innerHeight, screen.height);
-          if (window.matchMedia('(orientation: landscape)').matches) h = window.innerHeight;
-          d.style.setProperty('--app-h', h + 'px');
-        };
-        fit();
-        window.addEventListener('resize', fit);
-        window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
-      }
-    </script>
+    <script>if(navigator.standalone===true)document.documentElement.classList.add('ios-standalone')</script>
 `;
 html = html
   .replace(/<html lang="[^"]*"/, '<html lang="es"')
