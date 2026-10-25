@@ -21,7 +21,7 @@ async function Content({ params }: Props) {
   const p = await getSharedPlaylist((await params).id);
   if (!p) notFound();
   return (
-    <div className="aurora">
+    <div>
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6">
         {p.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -33,7 +33,7 @@ async function Content({ params }: Props) {
             className="h-64 w-64 rounded-2xl object-cover shadow-2xl"
           />
         ) : (
-          <div className="aurora h-64 w-64 rounded-2xl border border-line bg-surface" aria-hidden />
+          <div className="grid h-64 w-64 place-items-center rounded-2xl bg-surface" aria-hidden />
         )}
         <div>
           <p className="text-xs font-semibold tracking-widest text-muted">PLAYLIST</p>

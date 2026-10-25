@@ -1,0 +1,65 @@
+# Publica los cambios de la app como actualización por internet (EAS Update): la app instalada
+# los descarga al abrirse, sin APK nuevo. Solo sirve para cambios de JavaScript y recursos; si se
+# añade una librería nativa o un permiso hay que compilar un APK nuevo (android-apk.yml) y subir
+# la versión de la app.
+#
+# Necesita el secreto EXPO_TOKEN (token de un robot de la organización aurevix-music en expo.dev).
+name: Actualización de la app (OTA)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/shared/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ota-update
+  cancel-in-progress: true
+
+env:
+  # Valores PÚBLICOS (acaban dentro de la app).
+  EXPO_PUBLIC_SUPABASE_URL: https://tqeradkfojhojwbvryob.supabase.co
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_Ef7Nv4kgBJstXMbyrCyqDg_AgV60yQ9
+  EXPO_PUBLIC_WEB_URL: https://ordyx.vercel.app
+  APP_VARIANT: production
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Comprobar el token
+        if: env.EXPO_TOKEN == ''
+        run: |
+          echo "::warning::Falta el secreto EXPO_TOKEN: no se publica la actualización."
+          exit 0
+
+      - uses: actions/checkout@v4
+        if: env.EXPO_TOKEN != ''
+
+      - uses: pnpm/action-setup@v4
+        if: env.EXPO_TOKEN != ''
+
+      - uses: actions/setup-node@v4
+        if: env.EXPO_TOKEN != ''
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        if: env.EXPO_TOKEN != ''
+        run: pnpm install --frozen-lockfile
+
+      - name: Publicar la actualización
+        if: env.EXPO_TOKEN != ''
+        working-directory: apps/mobile
+        run: |
+          npx --yes eas-cli@latest update \
+            --channel production \
+            --platform android \
+            --message "Commit ${{ github.sha }}" \
+            --non-interactive
+          echo "### Actualización publicada (canal production, Android)" >> "$GITHUB_STEP_SUMMARY"

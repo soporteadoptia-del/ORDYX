@@ -30,7 +30,9 @@ Perfiles en `apps/mobile/eas.json`:
 ## Android: APK compilado en GitHub Actions (sin cuenta de Expo)
 
 El workflow `.github/workflows/android-apk.yml` compila el APK de release en los servidores de GitHub
-y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamaño.
+y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamaño. Compila solo para
+`arm64-v8a` (móviles Android de 64 bits, prácticamente todos desde 2017) y guarda en caché el
+código nativo (ccache y caché de Gradle), así que las compilaciones siguientes tardan menos.
 
 - Para lanzarlo: `git push origin HEAD:build/android` (o una etiqueta `android-v*`, o desde la pestaña
   Actions → «APK Android» → *Run workflow* cuando el workflow esté en `main`).
@@ -47,6 +49,19 @@ y lo publica en **Releases** del repositorio (público), con su SHA-256 y tamañ
   `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`aurevix`) y `ANDROID_KEY_PASSWORD`.
 - Después, registra la versión en el panel (Versiones) con la URL del APK de la release, o
   pídeselo a Claude: la web solo muestra el botón con versiones verificadas (SHA-256 y tamaño).
+
+## Actualizaciones sin APK nuevo (EAS Update)
+
+La app (desde la compilación 5) busca actualizaciones al abrirse en `https://u.expo.dev/<proyecto>`
+con el canal `production`, y aplica la nueva la siguiente vez que se abre. El workflow
+`.github/workflows/ota-update.yml` publica una actualización cada vez que se fusiona en `main` un
+cambio de `apps/mobile` o `packages/shared` (también a mano desde Actions).
+
+- Proyecto de Expo: organización `aurevix-music`, slug `s0k1`, ID `7215892a-9d14-4e75-9ba9-1c47179d0e38`.
+- Secreto necesario en GitHub: `EXPO_TOKEN` (robot de la organización con rol Developer).
+- Solo cambios de JavaScript y recursos. Si se añade una librería nativa, un permiso o un plugin,
+  hay que subir la versión de la app (`version` en `app.config.ts`, que es la `runtimeVersion`) y
+  compilar un APK nuevo; las actualizaciones de una versión no llegan a otra.
 
 ## iPhone: app web instalable (mientras no hay TestFlight)
 

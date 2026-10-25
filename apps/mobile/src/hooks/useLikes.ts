@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
+import { Platform } from 'react-native';
 import { getLikedIds, setLiked } from '@/api/library';
 import { toUserMessage } from '@/lib/errors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -35,7 +37,11 @@ export function useLikes() {
 
   return {
     isLiked: (trackId: string) => data?.has(trackId) ?? false,
-    toggle: (trackId: string) =>
-      mutation.mutate({ trackId, liked: !(data?.has(trackId) ?? false) }),
+    toggle: (trackId: string) => {
+      const liked = !(data?.has(trackId) ?? false);
+      // Un toque háptico por acción, en el mismo momento que cambia el corazón.
+      if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      mutation.mutate({ trackId, liked });
+    },
   };
 }

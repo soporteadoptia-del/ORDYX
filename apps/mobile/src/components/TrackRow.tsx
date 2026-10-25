@@ -1,11 +1,12 @@
 import { formatDuration } from '@ordyx/shared';
 import { memo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { TrackListItem } from '@/api/types';
 import { imageUrl } from '@/lib/media';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, spacing } from '@/theme';
 import { Artwork } from './Artwork';
+import { NowPlayingBars, PressableScale } from './motion';
 import { useTrackActions } from './TrackActions';
 import { Badge, IconButton, Text } from './ui';
 
@@ -30,13 +31,14 @@ export const TrackRow = memo(function TrackRow({
     imageUrl('covers', track.cover_path) ?? imageUrl('covers', track.artist?.image_path);
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       onLongPress={() => openActions(track)}
       accessibilityRole="button"
       accessibilityLabel={`${track.title}, ${track.artist?.name ?? ''}${isCurrent ? ', reproduciendo' : ''}`}
       accessibilityHint="Reproduce la canción. Mantén pulsado para más opciones"
-      style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.surface }]}
+      scaleTo={0.98}
+      style={styles.row}
     >
       {index !== undefined && !showArtwork ? (
         <Text muted style={styles.index}>
@@ -45,14 +47,16 @@ export const TrackRow = memo(function TrackRow({
       ) : null}
       {showArtwork ? <Artwork uri={cover} size={48} seed={track.id} /> : null}
       <View style={styles.meta}>
-        <Text
-          numberOfLines={1}
-          variant="bodyStrong"
-          style={isCurrent ? { color: colors.accentStrong } : undefined}
-        >
-          {isCurrent && status === 'playing' ? '▶ ' : ''}
-          {track.title}
-        </Text>
+        <View style={styles.titleLine}>
+          {isCurrent ? <NowPlayingBars playing={status === 'playing'} /> : null}
+          <Text
+            numberOfLines={1}
+            variant="bodyStrong"
+            style={[{ flexShrink: 1 }, isCurrent ? { color: colors.accentStrong } : null]}
+          >
+            {track.title}
+          </Text>
+        </View>
         <View style={styles.subline}>
           {track.is_explicit ? <Badge label="E" tone="muted" /> : null}
           {track.is_demo ? <Badge label="Demo" tone="warning" /> : null}
@@ -70,7 +74,7 @@ export const TrackRow = memo(function TrackRow({
           onPress={() => openActions(track)}
         />
       )}
-    </Pressable>
+    </PressableScale>
   );
 });
 
@@ -84,5 +88,6 @@ const styles = StyleSheet.create({
   },
   index: { width: 24, textAlign: 'center' },
   meta: { flex: 1, gap: 2 },
+  titleLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   subline: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
 });

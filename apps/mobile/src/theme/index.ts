@@ -35,8 +35,8 @@ export const type = {
   body: { fontSize: 15, fontFamily: fonts.body },
   bodyStrong: { fontSize: 15, fontFamily: fonts.bodyStrong },
   caption: { fontSize: 13, fontFamily: fonts.body },
-  /** Etiqueta "eyebrow" en mono y mayúsculas, como en la web. */
-  micro: { fontSize: 11, fontFamily: fonts.mono, letterSpacing: 0.9 },
+  /** Texto pequeño de apoyo (contexto, metadatos). En minúsculas normales, nunca en mono. */
+  micro: { fontSize: 12, fontFamily: fonts.bodyMedium, letterSpacing: 0 },
 };
 
 /** Altura reservada por el mini reproductor + barra de pestañas, para que el contenido no quede oculto. */

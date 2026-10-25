@@ -7,6 +7,7 @@ import { getTracksByIds } from '@/api/catalog';
 import { Artwork } from '@/components/Artwork';
 import { SeekBar } from '@/components/SeekBar';
 import { shareTrack, useTrackActions } from '@/components/TrackActions';
+import { PressableScale } from '@/components/motion';
 import { Badge, Button, EmptyState, IconButton, Text } from '@/components/ui';
 import { useLikes } from '@/hooks/useLikes';
 import { useCurrentTrack, usePlayer } from '@/player/store';
@@ -55,7 +56,7 @@ export default function PlayerScreen() {
           onPress={() => router.back()}
         />
         <Text variant="micro" muted style={{ flex: 1, textAlign: 'center' }}>
-          {s.context ? `REPRODUCIENDO DESDE ${contextLabel(s.context.type)}` : 'REPRODUCIENDO'}
+          {s.context ? `Reproduciendo desde ${contextLabel(s.context.type)}` : 'Reproduciendo'}
         </Text>
         <IconButton
           name="ellipsis-horizontal"
@@ -124,25 +125,26 @@ export default function PlayerScreen() {
           label="Anterior"
           onPress={() => void s.previous()}
         />
-        <Pressable
+        <PressableScale
           onPress={() => void s.toggle()}
+          scaleTo={0.94}
           accessibilityRole="button"
           accessibilityLabel={
             s.status === 'playing' ? 'Pausar' : s.status === 'error' ? 'Reintentar' : 'Reproducir'
           }
-          style={({ pressed }) => [styles.playButton, pressed && { transform: [{ scale: 0.95 }] }]}
+          style={styles.playButton}
         >
           {s.status === 'loading' || s.isBuffering ? (
-            <ActivityIndicator color={colors.background} />
+            <ActivityIndicator color={colors.onAccent} />
           ) : (
             <Ionicons
               name={s.status === 'playing' ? 'pause' : s.status === 'error' ? 'refresh' : 'play'}
               size={36}
-              color={colors.background}
+              color={colors.onAccent}
               style={s.status === 'playing' ? undefined : { marginLeft: 4 }}
             />
           )}
-        </Pressable>
+        </PressableScale>
         <IconButton
           name="play-skip-forward"
           size={34}
@@ -197,17 +199,17 @@ function contextLabel(type: string) {
   return (
     (
       {
-        playlist: 'UNA PLAYLIST',
-        album: 'UN ÁLBUM',
-        artist: 'UN ARTISTA',
-        search: 'LA BÚSQUEDA',
-        home: 'INICIO',
-        library: 'TU BIBLIOTECA',
-        track: 'UNA CANCIÓN',
-        profile: 'UN PERFIL',
-        queue: 'LA COLA',
+        playlist: 'una playlist',
+        album: 'un álbum',
+        artist: 'un artista',
+        search: 'la búsqueda',
+        home: 'Inicio',
+        library: 'tu biblioteca',
+        track: 'una canción',
+        profile: 'un perfil',
+        queue: 'la cola',
       } as Record<string, string>
-    )[type] ?? 'ORDYX'
+    )[type] ?? 'Aurevix'
   );
 }
 
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.text,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },

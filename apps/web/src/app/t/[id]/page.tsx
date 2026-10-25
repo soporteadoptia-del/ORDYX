@@ -26,7 +26,7 @@ async function Content({ params }: Props) {
   const track = await getSharedTrack((await params).id);
   if (!track) notFound();
   return (
-    <div className="aurora">
+    <div>
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6">
         {track.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -38,7 +38,7 @@ async function Content({ params }: Props) {
             className="h-64 w-64 rounded-2xl object-cover shadow-2xl"
           />
         ) : (
-          <div className="aurora h-64 w-64 rounded-2xl border border-line bg-surface" aria-hidden />
+          <div className="grid h-64 w-64 place-items-center rounded-2xl bg-surface" aria-hidden />
         )}
         <div>
           <h1 className="text-4xl font-extrabold">{track.title}</h1>

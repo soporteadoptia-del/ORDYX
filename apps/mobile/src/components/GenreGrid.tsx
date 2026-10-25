@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Genre } from '@ordyx/shared';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { PressableScale } from '@/components/motion';
 import type { IconName } from '@/components/ui';
 import { Text } from '@/components/ui';
 import { colors, radius, spacing } from '@/theme';
@@ -40,14 +41,15 @@ export function GenreGrid({ genres, limit }: { genres: Genre[]; limit?: number }
       {genres.slice(0, limit).map((g, i) => {
         const tone = TONES[i % TONES.length];
         return (
-          <Pressable
+          <PressableScale
             key={g.id}
             onPress={() =>
               router.push({ pathname: '/genre/[id]', params: { id: String(g.id), name: g.name } })
             }
-            style={({ pressed }) => [
+            scaleTo={0.96}
+            style={[
               styles.tile,
-              { backgroundColor: tone.bg, opacity: pressed ? 0.85 : 1 },
+              { backgroundColor: tone.bg },
               tone.bg.startsWith('#1') || tone.bg.startsWith('#2') ? styles.outlined : null,
             ]}
             accessibilityRole="button"
@@ -60,7 +62,7 @@ export function GenreGrid({ genres, limit }: { genres: Genre[]; limit?: number }
               {g.name}
             </Text>
             <View style={[styles.shape, { borderColor: tone.fg }]} />
-          </Pressable>
+          </PressableScale>
         );
       })}
     </View>

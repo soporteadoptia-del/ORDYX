@@ -44,7 +44,7 @@ export function CollectionHeader({
         <Artwork uri={image} size={200} rounded={round} icon={icon} seed={seed} />
         {kicker ? (
           <Text variant="micro" muted>
-            {kicker.toUpperCase()}
+            {kicker}
           </Text>
         ) : null}
         <Text variant="display" style={{ textAlign: 'center' }} accessibilityRole="header">

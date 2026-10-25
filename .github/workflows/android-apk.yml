@@ -1,6 +1,9 @@
 # Compila el APK de Android de Aurevix Music en los servidores de GitHub (tienen el SDK de Android)
 # y lo publica como «release» descargable. No necesita cuenta de Expo.
 #
+# Compila solo para arm64-v8a y guarda en caché el código nativo para que las siguientes
+# compilaciones sean más rápidas.
+#
 # Se lanza al subir código a la rama `build/android` (git push origin HEAD:build/android), al subir
 # una etiqueta `android-v*` o a mano desde la pestaña Actions.
 #
@@ -52,6 +55,16 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      # Caché del código nativo (C++) entre ejecuciones: la segunda compilación reutiliza lo hecho.
+      - name: Caché de compilación nativa
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-ccache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: android-ccache-
+          max-size: 2G
 
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
@@ -62,7 +75,15 @@ jobs:
 
       - name: Compilar
         working-directory: apps/mobile/android
-        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CCACHE_BASEDIR: ${{ github.workspace }}
+          CCACHE_NOHASHDIR: 'true'
+          CCACHE_SLOPPINESS: pch_defines,time_macros,include_file_mtime,include_file_ctime
+        # Solo arm64-v8a: todos los móviles Android de 64 bits (prácticamente todos desde 2017).
+        # Compila en menos de la mitad de tiempo y el APK pesa bastante menos.
+        run: ./gradlew assembleRelease --no-daemon --build-cache --parallel -PreactNativeArchitectures=arm64-v8a
 
       - name: Firmar
         id: sign

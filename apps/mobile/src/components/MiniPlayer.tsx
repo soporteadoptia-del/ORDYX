@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLikes } from '@/hooks/useLikes';
 import { useCurrentTrack, usePlayer } from '@/player/store';
 import { colors, MINI_PLAYER_HEIGHT, radius, spacing } from '@/theme';
 import { Artwork } from './Artwork';
+import { EASE_OUT, PressableScale } from './motion';
 import { IconButton, Text } from './ui';
 
 /** Reproductor persistente que se mantiene visible sobre la barra de pestañas al navegar. */
@@ -19,44 +21,54 @@ export function MiniPlayer() {
 
   const progress = durationMs > 0 ? Math.min(1, positionMs / durationMs) : 0;
   return (
-    <Pressable
-      onPress={() => router.push('/player')}
-      accessibilityRole="button"
-      accessibilityLabel={`Reproductor: ${track.title}, ${track.artistName}. Abrir reproductor completo`}
-      style={styles.wrap}
+    // Aparece una sola vez, al empezar a sonar algo: sube 12 px y aparece (220 ms, ease-out).
+    <Animated.View
+      entering={FadeInDown.duration(220)
+        .easing(EASE_OUT)
+        .withInitialValues({ transform: [{ translateY: 12 }] })}
     >
-      <View style={styles.inner}>
-        <Artwork uri={track.coverUrl} size={44} seed={track.id} />
-        <View style={{ flex: 1 }}>
-          <Text variant="bodyStrong" numberOfLines={1}>
-            {track.title}
-          </Text>
-          <Text variant="caption" muted numberOfLines={1}>
-            {status === 'error' ? 'Error de reproducción · toca para reintentar' : track.artistName}
-          </Text>
-        </View>
-        <IconButton
-          name={isLiked(track.id) ? 'heart' : 'heart-outline'}
-          color={isLiked(track.id) ? colors.accentWarm : colors.text}
-          label={isLiked(track.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-          onPress={() => toggleLike(track.id)}
-        />
-        {status === 'loading' ? (
-          <ActivityIndicator color={colors.text} style={{ width: 32 }} />
-        ) : (
+      <PressableScale
+        scaleTo={0.98}
+        onPress={() => router.push('/player')}
+        accessibilityRole="button"
+        accessibilityLabel={`Reproductor: ${track.title}, ${track.artistName}. Abrir reproductor completo`}
+        style={styles.wrap}
+      >
+        <View style={styles.inner}>
+          <Artwork uri={track.coverUrl} size={44} seed={track.id} />
+          <View style={{ flex: 1 }}>
+            <Text variant="bodyStrong" numberOfLines={1}>
+              {track.title}
+            </Text>
+            <Text variant="caption" muted numberOfLines={1}>
+              {status === 'error'
+                ? 'Error de reproducción · toca para reintentar'
+                : track.artistName}
+            </Text>
+          </View>
           <IconButton
-            name={status === 'playing' ? 'pause' : status === 'error' ? 'refresh' : 'play'}
-            label={status === 'playing' ? 'Pausar' : 'Reproducir'}
-            size={28}
-            onPress={() => void toggle()}
+            name={isLiked(track.id) ? 'heart' : 'heart-outline'}
+            color={isLiked(track.id) ? colors.accentWarm : colors.text}
+            label={isLiked(track.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+            onPress={() => toggleLike(track.id)}
           />
-        )}
-        <IconButton name="play-skip-forward" label="Siguiente" onPress={() => void next()} />
-      </View>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
-      </View>
-    </Pressable>
+          {status === 'loading' ? (
+            <ActivityIndicator color={colors.text} style={{ width: 32 }} />
+          ) : (
+            <IconButton
+              name={status === 'playing' ? 'pause' : status === 'error' ? 'refresh' : 'play'}
+              label={status === 'playing' ? 'Pausar' : 'Reproducir'}
+              size={28}
+              onPress={() => void toggle()}
+            />
+          )}
+          <IconButton name="play-skip-forward" label="Siguiente" onPress={() => void next()} />
+        </View>
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+        </View>
+      </PressableScale>
+    </Animated.View>
   );
 }
 

@@ -34,6 +34,37 @@ def on_background(size, scale):
     return canvas
 
 
+FONT = ROOT / "node_modules/@expo-google-fonts/bricolage-grotesque/800ExtraBold/BricolageGrotesque_800ExtraBold.ttf"
+
+
+def with_word(size, transparent=False, color=(200, 245, 96, 255), mark_scale=0.5, word_scale=0.15):
+    """Icono de la app: la «A» y debajo «MUSIC», para distinguirlo del icono de aurevixweb.es."""
+    from PIL import ImageDraw, ImageFont
+
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0) if transparent else BG)
+    mark = logo(size, mark_scale)
+    box = mark.getbbox()
+    mark_h = box[3] - box[1]
+    font = ImageFont.truetype(str(FONT), int(size * word_scale))
+    word = "MUSIC"
+    tracking = size * word_scale * 0.08
+    widths = [font.getlength(ch) for ch in word]
+    word_w = sum(widths) + tracking * (len(word) - 1)
+    asc, desc = font.getmetrics()
+    cap_h = font.getbbox("M")[3] - font.getbbox("M")[1]
+    gap = size * 0.05
+    total_h = mark_h + gap + cap_h
+    top = (size - total_h) / 2
+    canvas.alpha_composite(mark, (0, int(top - box[1])))
+    d = ImageDraw.Draw(canvas)
+    x = (size - word_w) / 2
+    y = top + mark_h + gap - font.getbbox("M")[1]
+    for ch, w in zip(word, widths):
+        d.text((x, y), ch, font=font, fill=color)
+        x += w + tracking
+    return canvas
+
+
 def monochrome(size, scale):
     mark = logo(size, scale)
     white = Image.new("RGBA", mark.size, (255, 255, 255, 255))
@@ -83,18 +114,21 @@ def main():
     for d in (OUT_MOBILE, OUT_WEB, OUT_ADMIN):
         d.mkdir(parents=True, exist_ok=True)
 
-    icon = on_background(1024, 0.6)
+    icon = with_word(1024)
     icon.convert("RGB").save(OUT_MOBILE / "icon.png")  # iOS: cuadrado y sin transparencia
     # Android adaptativo: el contenido debe quedar dentro del 66 % central (zona segura).
-    logo(1024, 0.5).save(OUT_MOBILE / "adaptive-foreground.png")
-    monochrome(1024, 0.5).save(OUT_MOBILE / "adaptive-monochrome.png")
+    with_word(1024, transparent=True, mark_scale=0.36, word_scale=0.11).save(OUT_MOBILE / "adaptive-foreground.png")
+    mono = with_word(1024, transparent=True, mark_scale=0.36, word_scale=0.11, color=(255, 255, 255, 255))
+    white = Image.new("RGBA", mono.size, (255, 255, 255, 255))
+    white.putalpha(mono.getchannel("A"))
+    white.save(OUT_MOBILE / "adaptive-monochrome.png")
     logo(512, 0.9).save(OUT_MOBILE / "splash.png")
     logo(512, 1.0).save(OUT_MOBILE / "logo.png")
     background(828, 1792).save(OUT_MOBILE / "background.jpg", quality=86)
     on_background(48, 0.7).save(OUT_MOBILE / "favicon.png")
 
-    on_background(512, 0.6).save(OUT_WEB / "icon-512.png")
-    on_background(192, 0.6).save(OUT_WEB / "icon-192.png")
+    with_word(512).save(OUT_WEB / "icon-512.png")
+    with_word(192).save(OUT_WEB / "icon-192.png")
     icon.convert("RGB").resize((180, 180), Image.LANCZOS).save(OUT_WEB / "apple-touch-icon.png")
     on_background(64, 0.72).save(OUT_WEB / "favicon.png")
     logo(256, 1.0).save(OUT_WEB / "logo-a.png")
